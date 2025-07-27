@@ -1,0 +1,89 @@
+package com.slayerxp.overlay.utils
+
+import kotlinx.coroutines.*
+import java.net.HttpURLConnection
+import java.net.URL
+import com.slayerxp.overlay.utils.ChatUtils
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+object APIUtils {
+    var BlazeXP: Long = 0
+    var EmanXP: Long = 0
+    var SpiderXP: Long = 0
+    var ZombieXP: Long = 0
+    var WolfXP: Long = 0
+    var VampireXP: Long = 0
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val json = Json { ignoreUnknownKeys = true }
+
+    private suspend fun xp() {
+        val ign = ChatUtils.mc.player?.gameProfile?.name ?: return
+        ChatUtils.modMessage(ign)
+        try {
+            val url = URL("https://slayerxpoverlay.hypickelapi.workers.dev/slayer?username=$ign")
+            val connection = withContext(Dispatchers.IO) {
+                (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty("User-Agent", "Mozilla/5.0")
+                    connectTimeout = 5000
+                    readTimeout = 5000
+                    doInput = true
+                    connect()
+                }
+            }
+
+            if (connection.responseCode == 200) {
+                val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                val response = json.decodeFromString<SlayerXPResponse>(responseText)
+
+                BlazeXP = parseXP(response.blazeXP)
+                EmanXP = parseXP(response.endermanXP)
+                SpiderXP = parseXP(response.spiderXP)
+                ZombieXP = parseXP(response.zombieXP)
+                WolfXP = parseXP(response.wolfXP)
+                VampireXP = parseXP(response.vampireXP)
+
+                ChatUtils.modMessage("DEBUG XP: Blaze=$BlazeXP, Enderman=$EmanXP, Spider=$SpiderXP, Zombie=$ZombieXP, Wolf=$WolfXP, Vampire=$VampireXP")
+            } else {
+                println("HTTP error: ${connection.responseCode}")
+            }
+            connection.disconnect()
+        } catch (e: Exception) {
+            println("Error fetching Slayer XP: ${e.message}")
+        }
+    }
+    fun getXP() {
+        scope.launch {
+            xp()
+        }
+    }
+
+    fun startAutoXPUpdates() {
+        scope.launch {
+            while (isActive) {
+                getXP()
+                delay(5 * 60 * 1000L)
+            }
+        }
+    }
+
+    fun stop() {
+        scope.cancel()
+    }
+
+    private fun parseXP(xpString: String): Long =
+        xpString.replace(",", "").toLongOrNull() ?: 0L
+}
+
+@Serializable
+data class SlayerXPResponse(
+    @SerialName("blaze_xp") val blazeXP: String,
+    @SerialName("enderman_xp") val endermanXP: String,
+    @SerialName("spider_xp") val spiderXP: String,
+    @SerialName("zombie_xp") val zombieXP: String,
+    @SerialName("wolf_xp") val wolfXP: String,
+    @SerialName("vampire_xp") val vampireXP: String,
+)
