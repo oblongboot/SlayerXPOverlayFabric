@@ -14,11 +14,7 @@ base {
 }
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven{url = "https://repo.essential.gg/repository/maven-public"}
 }
 
 fabricApi {
@@ -40,6 +36,10 @@ dependencies {
     
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1' 
+	modImplementation "gg.essential:elementa:710"
+	include "gg.essential:elementa:710"
+	modImplementation "gg.essential:universalcraft-1.21.5-fabric:415"
+	include "gg.essential:universalcraft-1.21.5-fabric:415"
 }
 
 processResources {
