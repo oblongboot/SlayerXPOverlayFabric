@@ -17,6 +17,6 @@ object Overlay : Feature {
         }
     
     override fun onToggle(newState: Boolean) {
-        modMessage("$name = $newState")
+        modMessage("$name = $newState") // not working and idk why so bleh
     }
 }
