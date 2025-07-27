@@ -1,6 +1,8 @@
 package com.slayerxp.overlay.commands.impl
 
 import com.slayerxp.overlay.utils.APIUtils
+import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType  
@@ -36,6 +38,10 @@ object SXPDevCommand {
             APIUtils.getXP()
             modMessage("getting xp")
         }
+        if (devSetting == "test1") {
+            FeatureManager.loadAllFeatureStates()
+        }
+        if (devSetting == "test2") { config.toggle(debug)} // shh
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
     }

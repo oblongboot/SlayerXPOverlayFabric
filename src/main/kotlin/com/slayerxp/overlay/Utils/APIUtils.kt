@@ -74,6 +74,10 @@ object APIUtils {
         scope.cancel()
     }
 
+    fun getCachedXP(): SlayerXP {
+        return SlayerXP(BlazeXP, EmanXP, SpiderXP, ZombieXP, WolfXP, VampireXP)
+    }
+
     private fun parseXP(xpString: String): Long =
         xpString.replace(",", "").toLongOrNull() ?: 0L
 }
@@ -86,4 +90,13 @@ data class SlayerXPResponse(
     @SerialName("zombie_xp") val zombieXP: String,
     @SerialName("wolf_xp") val wolfXP: String,
     @SerialName("vampire_xp") val vampireXP: String,
+)
+
+data class SlayerXP(
+    val blaze: Long,
+    val enderman: Long,
+    val spider: Long,
+    val zombie: Long,
+    val wolf: Long,
+    val vampire: Long,
 )

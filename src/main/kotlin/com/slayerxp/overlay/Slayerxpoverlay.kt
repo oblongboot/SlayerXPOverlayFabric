@@ -36,7 +36,7 @@ object Slayerxpoverlay : ModInitializer {
         val border = "-".repeat(53)
         modMessage(border)
         modMessage("Thank you for installing SlayerXPOverlayFabric!")
-        modMessage("Credits: oblongboot (thank you Februari10 for the help!)")
+        modMessage("Credits: oblongboot (and Februari10 for the help!)")
         modMessage("GitHub: https://github.com/oblongboot/SlayerXPOverlayFabric")
         modMessage(border)
     }
