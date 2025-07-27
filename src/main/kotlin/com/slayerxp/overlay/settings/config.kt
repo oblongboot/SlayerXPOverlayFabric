@@ -39,6 +39,12 @@ object config {
         return configData.get(setting)?.asBoolean ?: false
     }
 
+    fun toggle(setting: String) {
+        val oldState = isToggled(setting)
+        val newState = !oldState
+        configData.addProperty(setting, newState)
+        saveConfig()
+    }
     fun setToggle(setting: String, value: Boolean) {
         configData.addProperty(setting, value)
         saveConfig()
