@@ -2,9 +2,14 @@ package com.slayerxp.overlay
 
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.render.RenderTickCounter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.slayerxp.overlay.commands.CommandsManager
+import com.slayerxp.overlay.ui.Overlay
+import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
 import com.slayerxp.overlay.settings.config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils.getXP
@@ -15,7 +20,6 @@ object Slayerxpoverlay : ModInitializer {
     override fun onInitialize() {
         CommandsManager.registerCommands()
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { handler, sender, client ->
-
             try {
                 if (config.isToggled("firstTimeInstall")) {
                     logger.debug("First time install flag already set, skipping welcome message.")
@@ -30,9 +34,15 @@ object Slayerxpoverlay : ModInitializer {
                 logger.error("Error during SlayerXPOverlayFabric first time install check: ", ex)
             }
         })
+        HudRenderCallback.EVENT.register { drawContext: DrawContext, tickCounter: RenderTickCounter ->
+            if (OverlayModule.enabled) {
+                Overlay.draw(drawContext)
+            } else {
+                //empty
+            }
+        }
     }
-
-    private fun sendWelcomeMessages() {
+    fun sendWelcomeMessages() {
         val border = "-".repeat(53)
         modMessage(border)
         modMessage("Thank you for installing SlayerXPOverlayFabric!")
