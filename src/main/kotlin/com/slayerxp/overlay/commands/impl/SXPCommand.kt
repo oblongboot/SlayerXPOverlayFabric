@@ -1,6 +1,8 @@
 package com.slayerxp.overlay.commands.impl
 
 import com.mojang.brigadier.CommandDispatcher
+import com.slayerxp.overlay.ui.OverlayManager
+import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
@@ -20,7 +22,8 @@ object SXPCommand {
     }
 
     private fun execute(context: CommandContext<ServerCommandSource>): Int {
-        context.source.sendFeedback({ Text.literal("Called.") }, false)
+        OverlayManager.open()
+        modMessage("opened")
         return 1
     }
 }

@@ -40,33 +40,37 @@ object config {
     }
 
     fun toggle(setting: String) {
-        val oldState = isToggled(setting)
-        val newState = !oldState
+        val newState = !isToggled(setting)
         configData.addProperty(setting, newState)
         saveConfig()
     }
+
     fun setToggle(setting: String, value: Boolean) {
         configData.addProperty(setting, value)
         saveConfig()
     }
 
-    fun getLocationOfGUI(guiName: String): Triple<Int, Int, Int>? {
-        return configData.get(guiName)?.asJsonObject?.let { location ->
-            val x = location.get("x")?.asInt ?: 0
-            val y = location.get("y")?.asInt ?: 0
-            val z = location.get("z")?.asInt ?: 0
-            Triple(x, y, z)
-        } ?: run {
-            println("wtflip $guiName no work")
-            null
-        }
+    fun getLocationOfGUI(guiName: String): Pair<Int, Int>? {
+        val hudObject = configData.getAsJsonObject("HUD") ?: return null
+        val location = hudObject.getAsJsonObject(guiName) ?: return null
+
+        val x = location.get("x")?.asInt ?: 5
+        val y = location.get("y")?.asInt ?: 5
+
+        return Pair(x, y)
     }
-    fun setLocationOfGUI(guiName: String, x: Int, y: Int, z: Int) {
-        val location = JsonObject()
-        location.addProperty("x", x)
-        location.addProperty("y", y)
-        location.addProperty("z", z)
-        configData.add(guiName, location)
+
+    fun setLocationOfGUI(guiName: String, x: Int, y: Int) {
+        val hudObject = configData.getAsJsonObject("HUD") ?: JsonObject().also {
+            configData.add("HUD", it)
+        }
+
+        val location = JsonObject().apply {
+            addProperty("x", x)
+            addProperty("y", y)
+        }
+
+        hudObject.add(guiName, location)
         saveConfig()
     }
 }
