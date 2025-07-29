@@ -6,7 +6,7 @@ import com.slayerxp.overlay.settings.impl.*
 
 object FeatureManager {
     private val listOfFeatures = listOf(
-        Overlay, /*BossTimer*/
+        Overlay, KPHOverlay
     )
     fun getAllConfigStates(): Map<String, Boolean> {
         return listOfFeatures.associate { feature ->
