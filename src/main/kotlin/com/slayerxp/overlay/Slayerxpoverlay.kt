@@ -1,12 +1,15 @@
 package com.slayerxp.overlay
 
 import net.fabricmc.api.ModInitializer
+import com.slayerxp.overlay.events.EventManager.EVENT_BUS
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderTickCounter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.invoke.MethodHandles
+import com.slayerxp.overlay.settings.impl.onMessage
 import com.slayerxp.overlay.commands.CommandsManager
 import com.slayerxp.overlay.ui.Overlay
 import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
@@ -18,6 +21,10 @@ object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
 
     override fun onInitialize() {
+        EVENT_BUS.registerLambdaFactory("com.slayerxp.overlay", { lookupInMethod, klass ->
+            lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
+        })
+        EVENT_BUS.subscribe(onMessage())
         CommandsManager.registerCommands()
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { handler, sender, client ->
             try {

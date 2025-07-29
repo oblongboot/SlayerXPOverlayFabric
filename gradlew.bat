@@ -15,7 +15,7 @@
 @rem
 @rem SPDX-License-Identifier: Apache-2.0
 @rem
-
+set JAVA_HOME="C:/Program Files/Java/jdk-21"
 @if "%DEBUG%"=="" @echo off
 @rem ##########################################################################
 @rem

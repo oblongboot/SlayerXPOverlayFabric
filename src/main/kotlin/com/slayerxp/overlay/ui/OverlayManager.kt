@@ -15,7 +15,6 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         fun open() {
             Scheduler.scheduleTask(1) {
                 MinecraftClient.getInstance().setScreen(OverlayManager())
-                Overlay.hide()
             }
         }
     }
@@ -27,7 +26,6 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
 
     override fun close() {
         super.close()
-        Overlay.show()
         if (dirty) {
             Overlay.savePosition()
         }

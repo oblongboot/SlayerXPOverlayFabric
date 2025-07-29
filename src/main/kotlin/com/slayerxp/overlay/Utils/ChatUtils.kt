@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 
 object ChatUtils {
+    val prefix = "§bSlayerXPOverlay »§3"
     val mc: MinecraftClient = MinecraftClient.getInstance() 
 
     fun modMessage(message: String?) {

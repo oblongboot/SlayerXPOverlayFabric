@@ -1,5 +1,6 @@
 package com.slayerxp.overlay.ui
 
+import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.utils.Render2D
 import com.slayerxp.overlay.settings.config
 import net.minecraft.client.gui.DrawContext
@@ -7,7 +8,7 @@ import java.awt.Color
 
 object Overlay {
     var shouldShow = true
-    private var label = "overlayyyyyyyyyyyyyyyyy"
+    private var label = "$prefix Loading!"
 
     var x = 100
     var y = 100
@@ -24,8 +25,8 @@ object Overlay {
     fun show() { shouldShow = true }
     fun hide() { shouldShow = false }
 
-    fun updateXP(xp: Int) {
-        label = "aaaaaaaaaaaaaaaaaaaaaaaa"
+    fun updateXP(slayer: String, xp: Int) {
+        label = "$prefix $slayer $xp"
     }
 
     fun draw(ctx: DrawContext) {

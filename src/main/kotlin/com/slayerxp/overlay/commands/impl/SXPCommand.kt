@@ -1,27 +1,26 @@
 package com.slayerxp.overlay.commands.impl
 
-import com.mojang.brigadier.CommandDispatcher
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import com.slayerxp.overlay.ui.OverlayManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.mojang.brigadier.context.CommandContext
-import net.minecraft.server.command.CommandManager
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.Text
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 object SXPCommand {
-
-    fun register(dispatcher: CommandDispatcher<ServerCommandSource>) {
-        val aliases = listOf("sxp", "slayerxpoverlay", "sxpoverlay")
-
-        aliases.forEach { alias ->
-            dispatcher.register(
-                CommandManager.literal(alias)
-                    .executes { context -> execute(context) }
-            )
+    fun registerClient() {
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
+            val aliases = listOf("sxp", "slayerxpoverlay", "sxpoverlay")
+            aliases.forEach { alias ->
+                dispatcher.register(
+                    ClientCommandManager.literal(alias)
+                        .executes { context -> executeClient(context) }
+                )
+            }
         }
     }
-
-    private fun execute(context: CommandContext<ServerCommandSource>): Int {
+    
+    private fun executeClient(context: CommandContext<FabricClientCommandSource>): Int {
         OverlayManager.open()
         modMessage("opened")
         return 1
