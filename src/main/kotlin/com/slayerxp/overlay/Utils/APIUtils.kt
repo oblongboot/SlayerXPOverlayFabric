@@ -3,7 +3,6 @@ package com.slayerxp.overlay.utils
 import kotlinx.coroutines.*
 import java.net.HttpURLConnection
 import java.net.URL
-import com.slayerxp.overlay.utils.ChatUtils
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -15,16 +14,16 @@ object APIUtils {
     var WolfXP: Long = 0
     var VampireXP: Long = 0
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val json = Json { ignoreUnknownKeys = true }
+    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    val json = Json { ignoreUnknownKeys = true }
 
-    private suspend fun xp() {
-        val ign = ChatUtils.mc.player?.gameProfile?.name ?: return
-        ChatUtils.modMessage(ign)
-        try {
-            val url = URL("https://slayerxpoverlay.hypickelapi.workers.dev/slayer?username=$ign")
+    /**
+     * Generic request function to return parsed JSON from a URL.
+     */
+    suspend inline fun <reified T> requestJson(url: String): T? {
+        return try {
             val connection = withContext(Dispatchers.IO) {
-                (url.openConnection() as HttpURLConnection).apply {
+                (URL(url).openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
                     setRequestProperty("Accept", "application/json")
                     setRequestProperty("User-Agent", "Mozilla/5.0")
@@ -37,24 +36,37 @@ object APIUtils {
 
             if (connection.responseCode == 200) {
                 val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-                val response = json.decodeFromString<SlayerXPResponse>(responseText)
-
-                BlazeXP = parseXP(response.blazeXP)
-                EmanXP = parseXP(response.endermanXP)
-                SpiderXP = parseXP(response.spiderXP)
-                ZombieXP = parseXP(response.zombieXP)
-                WolfXP = parseXP(response.wolfXP)
-                VampireXP = parseXP(response.vampireXP)
-
-                ChatUtils.modMessage("DEBUG XP: Blaze=$BlazeXP, Enderman=$EmanXP, Spider=$SpiderXP, Zombie=$ZombieXP, Wolf=$WolfXP, Vampire=$VampireXP")
+                connection.disconnect()
+                json.decodeFromString<T>(responseText)
             } else {
                 println("HTTP error: ${connection.responseCode}")
+                connection.disconnect()
+                null
             }
-            connection.disconnect()
         } catch (e: Exception) {
-            println("Error fetching Slayer XP: ${e.message}")
+            println("Request failed: ${e.message}")
+            null
         }
     }
+
+    private suspend fun xp() {
+        val ign = ChatUtils.mc.player?.gameProfile?.name ?: return
+        //ChatUtils.modMessage(ign)
+
+        val url = "https://slayerxpoverlay.hypickelapi.workers.dev/slayer?username=$ign"
+        val response = requestJson<SlayerXPResponse>(url)
+
+        if (response != null) {
+            BlazeXP = parseXP(response.blazeXP)
+            EmanXP = parseXP(response.endermanXP)
+            SpiderXP = parseXP(response.spiderXP)
+            ZombieXP = parseXP(response.zombieXP)
+            WolfXP = parseXP(response.wolfXP)
+            VampireXP = parseXP(response.vampireXP)
+
+        }
+    }
+
     fun getXP() {
         scope.launch {
             xp()

@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.scoreboard.ScoreboardDisplaySlot
 
 class onMessage {
+
     @EventHandler
     fun onPacketRecived(event: onPacket.Incoming) {
         val packet = event.packet
@@ -28,7 +29,6 @@ class onMessage {
             
             val overworldLine = scoreboardText.filter { it.contains("⏣", ignoreCase = true) }
             val riftLine = scoreboardText.filter { it.contains("ф", ignoreCase = true) }
-            
             
             if (overworldLine.isNotEmpty()) {
                 modMessage("overworld line! $overworldLine")

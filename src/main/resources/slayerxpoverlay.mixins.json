@@ -3,7 +3,8 @@
 	"package": "com.slayerxp.overlay.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ClientConnectionMixin"
+		"ClientConnectionMixin",
+		"MixinContributerColor"
 	],
 	"injectors": {
 		"defaultRequire": 1
