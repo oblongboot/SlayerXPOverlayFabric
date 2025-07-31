@@ -40,11 +40,20 @@ object ContributerColors {
         changeWords = value
     }
 
+    fun containsAnyContributor(text: String): Boolean {
+        return contributors.keys.any { contributorName ->
+            text.contains(contributorName, ignoreCase = true)
+        }
+    }
+
     fun transformText(orderedText: OrderedText?): OrderedText? {
         if (orderedText == null || !changeWords) return orderedText
 
         return textCache.getOrPut(orderedText) {
             val rawString = orderedText.toString()
+            if (!containsAnyContributor(rawString)) {
+                return@getOrPut orderedText
+            }
             val modified = replaceContributorsWithColor(rawString)
             OrderedText.styledForwardsVisitedString(modified, Style.EMPTY)
         }
@@ -55,6 +64,9 @@ object ContributerColors {
 
         return stringVisitableCache.getOrPut(stringVisitable) {
             val inputString = stringVisitable.string
+            if (!containsAnyContributor(inputString)) {
+                return@getOrPut stringVisitable
+            }
             val replaced = replaceContributorsWithColor(inputString)
             literalStringVisitable(replaced)
         }
