@@ -1,15 +1,17 @@
 package com.slayerxp.overlay.ui
 
 import com.slayerxp.overlay.utils.ChatUtils.prefix
+import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
+import com.slayerxp.overlay.settings.impl.onMessage
+import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.Render2D
 import com.slayerxp.overlay.settings.config
 import net.minecraft.client.gui.DrawContext
-import java.awt.Color
+import java.text.DecimalFormat
 
 object Overlay {
     var shouldShow = true
     private var label = "$prefix Loading!"
-
     var x = 100
     var y = 100
     val width = 150
@@ -26,7 +28,7 @@ object Overlay {
     fun hide() { shouldShow = false }
 
     fun updateXP(slayer: String, xp: Int) {
-        label = "$prefix $slayer $xp"
+        label = "$prefix $slayer XP: $xp"
     }
 
     fun draw(ctx: DrawContext) {

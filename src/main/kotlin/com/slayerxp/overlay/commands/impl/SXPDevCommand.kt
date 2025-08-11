@@ -2,7 +2,7 @@ package com.slayerxp.overlay.commands.impl
 
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.settings.config
-import com.slayerxp.overlay.settings.impl.onMessage.Companion.getSlayer
+import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
@@ -42,7 +42,7 @@ object SXPDevCommand {
             FeatureManager.loadAllFeatureStates()
         }
         if (devSetting == "test2") { config.toggle(debug) }
-        if (devSetting == "getslayer") { getSlayer() }
+        if (devSetting == "scoreboarddebug") { val e = Scoreboard.getSlayerType(); modMessage("Scoreboard area: $e") }
         
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1

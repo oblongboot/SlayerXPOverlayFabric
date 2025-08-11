@@ -2,6 +2,8 @@ package com.slayerxp.overlay
 
 import net.fabricmc.api.ModInitializer
 import com.slayerxp.overlay.events.EventManager.EVENT_BUS
+import com.slayerxp.overlay.settings.impl.onMessage.Companion as MessageCompanion
+import com.slayerxp.overlay.utils.APIUtils
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.client.gui.DrawContext
@@ -25,7 +27,10 @@ object Slayerxpoverlay : ModInitializer {
             lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
         })
         EVENT_BUS.subscribe(onMessage())
+        APIUtils.getXP()
+        APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
+        MessageCompanion.initialize()
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { handler, sender, client ->
             try {
                 if (config.isToggled("firstTimeInstall")) {
