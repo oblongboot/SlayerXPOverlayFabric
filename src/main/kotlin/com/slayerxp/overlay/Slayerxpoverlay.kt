@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
 import com.slayerxp.overlay.settings.impl.onMessage
 import com.slayerxp.overlay.commands.CommandsManager
-import com.slayerxp.overlay.ui.Overlay
+import com.slayerxp.overlay.ui.XPOverlay
+import com.slayerxp.overlay.ui.KPHOverlay
+import com.slayerxp.overlay.settings.impl.KPHOverlay as KPHModule
 import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
 import com.slayerxp.overlay.settings.config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
@@ -48,7 +50,12 @@ object Slayerxpoverlay : ModInitializer {
         })
         HudRenderCallback.EVENT.register { drawContext: DrawContext, tickCounter: RenderTickCounter ->
             if (OverlayModule.enabled) {
-                Overlay.draw(drawContext)
+                XPOverlay.draw(drawContext)
+            } else {
+                //empty
+            }
+            if (KPHModule.enabled) {
+                KPHOverlay.draw(drawContext)
             } else {
                 //empty
             }

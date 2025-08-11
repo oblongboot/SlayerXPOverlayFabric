@@ -5,7 +5,7 @@ import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.events.onPacket
-import com.slayerxp.overlay.ui.Overlay
+import com.slayerxp.overlay.ui.XPOverlay
 import meteordevelopment.orbit.EventHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
@@ -134,7 +134,7 @@ class onMessage {
         fun updateOverlayDisplay() {
             val slayerType = Scoreboard.getSlayerType()
             if (slayerType == "Not in slayer area!") {
-                Overlay.hide()
+                //XPOverlay.hide()
                 return
             }
 
@@ -149,8 +149,8 @@ class onMessage {
                 else -> 0L
             }
 
-            Overlay.updateXP(slayerType, xp.toInt())
-            Overlay.show()
+            XPOverlay.updateXP(slayerType, xp.toInt())
+            XPOverlay.show()
         }
     }
 

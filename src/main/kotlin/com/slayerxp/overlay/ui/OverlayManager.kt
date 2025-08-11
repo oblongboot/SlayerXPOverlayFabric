@@ -1,5 +1,8 @@
 package com.slayerxp.overlay.ui
 
+import com.slayerxp.overlay.ui.Overlay
+import com.slayerxp.overlay.ui.KPHOverlay
+import com.slayerxp.overlay.ui.XPOverlay
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.Scheduler
 import net.minecraft.client.MinecraftClient
@@ -14,51 +17,68 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
     companion object {
         fun open() {
             Scheduler.scheduleTask(1) {
-                MinecraftClient.getInstance().setScreen(OverlayManager())
+                val manager = OverlayManager()
+                manager.addOverlay(KPHOverlay)
+                manager.addOverlay(XPOverlay)
+                MinecraftClient.getInstance().setScreen(manager)
             }
         }
     }
-
+    private val overlays = mutableListOf<Overlay>()
+    
     private var dragging = false
     private var dragOffsetX = 0f
     private var dragOffsetY = 0f
     private var dirty = false
+    private var draggedOverlay: Overlay? = null
+
+    fun addOverlay(overlay: Overlay) {
+        overlays.add(overlay)
+    }
 
     override fun close() {
         super.close()
         if (dirty) {
-            Overlay.savePosition()
+            overlays.forEach { it.savePosition() }
         }
     }
 
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
         context.fill(0, 0, width, height, Color(0, 0, 0, 150).rgb)
-        Overlay.draw(context)
-        drawHitboxMarker(context, mouseX, mouseY)
+        overlays.forEach { it.draw(context) }
+        overlays.forEach { drawHitboxMarker(context, mouseX, mouseY, it) }
+        
         super.render(context, mouseX, mouseY, delta)
     }
 
-    private fun drawHitboxMarker(context: DrawContext, mouseX: Int, mouseY: Int) {
-        val x = Overlay.x
-        val y = Overlay.y
-        val w = Overlay.width.toFloat()
-        val h = Overlay.height.toFloat()
-        val hitboxColor = if (mouseX in x..(x + w.toInt()) && mouseY in y..(y + h.toInt())) {
-            Color(0, 255, 0, 150).rgb
-        } else {
-            Color(255, 0, 0, 100).rgb
+    private fun drawHitboxMarker(context: DrawContext, mouseX: Int, mouseY: Int, overlay: Overlay) {
+        val x = overlay.x
+        val y = overlay.y
+        val w = overlay.width.toFloat()
+        val h = overlay.height.toFloat()
+        
+        val isHovered = mouseX in x..(x + w.toInt()) && mouseY in y..(y + h.toInt())
+        val isDragged = draggedOverlay == overlay
+        
+        val hitboxColor = when {
+            isDragged -> Color(255, 255, 0, 150).rgb 
+            isHovered -> Color(0, 255, 0, 150).rgb   
+            else -> Color(255, 0, 0, 100).rgb    
         }
+        
         drawHollowRect(context, x, y, (x + w).toInt(), (y + h).toInt(), hitboxColor)
+        
         val cornerSize = 5
         context.fill(x, y, x + cornerSize, y + cornerSize, Color(255, 255, 0, 200).rgb)
         context.fill((x + w - cornerSize).toInt(), y, (x + w).toInt(), y + cornerSize, Color(255, 255, 0, 200).rgb)
         context.fill(x, (y + h - cornerSize).toInt(), x + cornerSize, (y + h).toInt(), Color(255, 255, 0, 200).rgb)
         context.fill((x + w - cornerSize).toInt(), (y + h - cornerSize).toInt(), (x + w).toInt(), (y + h).toInt(), Color(255, 255, 0, 200).rgb)
-        val posText = "Pos: $x, $y | Size: ${w.toInt()}x${h.toInt()}"
-        val mouseText = "Mouse: $mouseX, $mouseY | Dragging: $dragging"
-        context.fill(10, 10, 10 + textRenderer.getWidth(posText) + 10, 35, Color(0, 0, 0, 180).rgb)
+    }
+
+    private fun drawInfoPanel(context: DrawContext, mouseX: Int, mouseY: Int) {
+        val posText = "Overlays: ${overlays.size} | Mouse: $mouseX, $mouseY | Dragging: $dragging"
+        context.fill(10, 10, 10 + textRenderer.getWidth(posText) + 10, 25, Color(0, 0, 0, 180).rgb)
         context.drawTextWithShadow(textRenderer, posText, 15, 15, Color.WHITE.rgb)
-        context.drawTextWithShadow(textRenderer, mouseText, 15, 25, Color.WHITE.rgb)
     }
 
     private fun drawHollowRect(context: DrawContext, x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {
@@ -70,15 +90,16 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (button == 0) {
-            val x = Overlay.x
-            val y = Overlay.y
-            val w = Overlay.width
-            val h = Overlay.height
-
-            if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
+            val clickedOverlay = overlays.reversed().find { overlay ->
+                mouseX >= overlay.x && mouseX <= overlay.x + overlay.width && 
+                mouseY >= overlay.y && mouseY <= overlay.y + overlay.height
+            }
+            
+            if (clickedOverlay != null) {
                 dragging = true
-                dragOffsetX = (mouseX - x).toFloat()
-                dragOffsetY = (mouseY - y).toFloat()
+                draggedOverlay = clickedOverlay
+                dragOffsetX = (mouseX - clickedOverlay.x).toFloat()
+                dragOffsetY = (mouseY - clickedOverlay.y).toFloat()
                 return true
             }
         }
@@ -86,17 +107,18 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-        if (dragging) {
-            val w = Overlay.width
-            val h = Overlay.height
+        if (dragging && draggedOverlay != null) {
+            val overlay = draggedOverlay!!
+            val w = overlay.width
+            val h = overlay.height
 
             var newX = (mouseX - dragOffsetX).toFloat()
             var newY = (mouseY - dragOffsetY).toFloat()
             newX = newX.coerceIn(0f, (width - w).toFloat())
             newY = newY.coerceIn(0f, (height - h).toFloat())
 
-            Overlay.x = newX.toInt()
-            Overlay.y = newY.toInt()
+            overlay.x = newX.toInt()
+            overlay.y = newY.toInt()
 
             dirty = true
             return true
@@ -107,6 +129,7 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
     override fun mouseReleased(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (dragging) {
             dragging = false
+            draggedOverlay = null
         }
         return super.mouseReleased(mouseX, mouseY, button)
     }
@@ -119,20 +142,6 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
             }
         }
         return super.keyPressed(keyCode, scanCode, modifiers)
-    }
-
-    private fun moveOverlay(dx: Int, dy: Int) {
-        val x = Overlay.x
-        val y = Overlay.y
-        val w = Overlay.width
-        val h = Overlay.height
-        val newX = (x + dx).coerceIn(0, width - w)
-        val newY = (y + dy).coerceIn(0, height - h)
-
-        Overlay.x = newX
-        Overlay.y = newY
-
-        dirty = true
     }
 
     override fun shouldPause() = false
