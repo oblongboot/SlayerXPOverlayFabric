@@ -3,6 +3,7 @@ package com.slayerxp.overlay.commands.impl
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.settings.config
 import com.slayerxp.overlay.utils.Scoreboard
+import com.slayerxp.overlay.ui.SettingsScreen.Companion.open as bleh
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
@@ -43,6 +44,7 @@ object SXPDevCommand {
         }
         if (devSetting == "test2") { config.toggle(debug) }
         if (devSetting == "scoreboarddebug") { val e = Scoreboard.getSlayerType(); modMessage("Scoreboard area: $e") }
+        if (devSetting == "gui") {bleh()}
         
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
