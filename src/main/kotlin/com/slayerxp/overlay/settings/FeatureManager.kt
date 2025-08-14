@@ -18,7 +18,6 @@ object FeatureManager {
         listOfFeatures.forEach { feature ->
             val state = config.isToggled(feature.name)
             feature.enabled = state 
-            modMessage("Feature ${feature.name} toggled: $state")
         }
     }
 }

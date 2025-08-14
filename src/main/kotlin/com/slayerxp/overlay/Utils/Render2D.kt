@@ -78,6 +78,28 @@ object Render2D {
         return textRenderer.fontHeight * (newlines.size + 1)
     }
 
+    @JvmOverloads
+    fun drawOutline(ctx: DrawContext, x: Int, y: Int, width: Int, height: Int, color: Color = Color.WHITE) {
+        ctx.fill(RenderLayer.getGui(), x, y, x + width, y + 1, color.rgb) // Top!
+        ctx.fill(RenderLayer.getGui(), x, y + height - 1, x + width, y + height, color.rgb) // Bottom maybe
+        ctx.fill(RenderLayer.getGui(), x, y + 1, x + 1, y + height - 1, color.rgb) // Left?
+        ctx.fill(RenderLayer.getGui(), x + width - 1, y + 1, x + width, y + height - 1, color.rgb) // Right?
+    }
+
+    fun drawWhateverTheFuckThisIs(ctx: DrawContext, x: Int, y: Int, width: Int, height: Int, radius: Int, color: Color) {
+        val argb = color.rgb or (color.alpha shl 24)
+        ctx.fill(RenderLayer.getGui(), x + radius, y, x + width - radius, y + height, argb)
+        ctx.fill(RenderLayer.getGui(), x, y + radius, x + width, y + height - radius, argb)
+        for (i in 0 until radius) {
+            val dy = Math.sqrt((radius * radius - i * i).toDouble()).toInt()
+            ctx.fill(RenderLayer.getGui(), x + radius - i - 1, y + radius - dy, x + radius - i, y + radius, argb)
+            ctx.fill(RenderLayer.getGui(), x + width - radius + i, y + radius - dy, x + width - radius + i + 1, y + radius, argb)
+            ctx.fill(RenderLayer.getGui(), x + radius - i - 1, y + height - radius, x + radius - i, y + height - radius + dy, argb)
+            ctx.fill(RenderLayer.getGui(), x + width - radius + i, y + height - radius, x + width - radius + i + 1, y + height - radius + dy, argb)
+        }
+    }
+
+
     object Mouse {
         val x get() = mouse.x * scaledWidth / max(1, screenWidth)
         val y get() = mouse.y * scaledHeight / max(1, screenHeight)
