@@ -8,16 +8,26 @@ object FeatureManager {
     private val listOfFeatures = listOf(
         Overlay, KPHOverlay
     )
-    fun getAllConfigStates(): Map<String, Boolean> {
-        return listOfFeatures.associate { feature ->
-            feature.name to config.isToggled(feature.name)
+    
+    fun getAllConfigStates(): Map<String, Any> {
+        val states = mutableMapOf<String, Any>()
+        
+        listOfFeatures.forEach { feature ->
+            states[feature.name] = config.isToggled(feature.name)
         }
+        
+        val knownDropdowns = listOf("TestDropdown")
+        knownDropdowns.forEach { dropdownName -> // this is COOKED
+            states[dropdownName] = config.getDropdown(dropdownName, 0)
+        }
+        
+        return states
     }
-
+    
     fun loadAllFeatureStates() {
         listOfFeatures.forEach { feature ->
             val state = config.isToggled(feature.name)
-            feature.enabled = state 
+            feature.enabled = state
         }
     }
 }

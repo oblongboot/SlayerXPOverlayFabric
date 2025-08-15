@@ -3,13 +3,13 @@
 	"id": "slayerxpoverlay",
 	"version": "${version}",
 	"name": "slayerxpoverlay",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "slayer xp overlay + more shit !",
 	"authors": [
-		"Me!"
+		"oblongboot!"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://mods.zephyrdevelopment.co.uk",
+		"sources": "https://github.com/oblongboot/slayerxpoverlayfabric"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/slayerxpoverlay/icon.png",
@@ -37,8 +37,5 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"fabric-language-kotlin": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }

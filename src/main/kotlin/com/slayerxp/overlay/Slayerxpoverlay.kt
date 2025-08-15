@@ -23,7 +23,7 @@ import com.slayerxp.overlay.utils.APIUtils.getXP
 
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
-
+    val version = "@@VERSION@@"
     override fun onInitialize() {
         EVENT_BUS.registerLambdaFactory("com.slayerxp.overlay", { lookupInMethod, klass ->
             lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
