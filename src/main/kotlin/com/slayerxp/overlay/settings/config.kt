@@ -73,4 +73,12 @@ object config {
         hudObject.add(guiName, location)
         saveConfig()
     }
+    fun setDropdown(setting: String, index: Int) {
+        configData.addProperty(setting, index)
+        saveConfig()
+    }
+
+    fun getDropdown(setting: String, defaultIndex: Int = 0): Int {
+        return configData.get(setting)?.asInt ?: defaultIndex
+    }
 }

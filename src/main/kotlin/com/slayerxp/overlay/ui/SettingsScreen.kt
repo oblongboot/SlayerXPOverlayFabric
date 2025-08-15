@@ -2,6 +2,8 @@ package com.slayerxp.overlay.ui
 
 import com.slayerxp.overlay.core.Element
 import com.slayerxp.overlay.core.SwitchConfig
+import com.slayerxp.overlay.core.DropdownSetting
+import com.slayerxp.overlay.settings.config
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
 import net.minecraft.client.MinecraftClient
@@ -33,10 +35,10 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private var selectedCategory: Category? = null
     private val startTime = System.currentTimeMillis()
 
-    private val particles = List(50) {
+    private val particles = List(50) { index ->
         Particle(
-            Random.nextDouble(0.5, 2.0), 
-            Random.nextFloat() * 4 + 2f, 
+            Random.nextDouble(0.1, 0.3),
+            Random.nextFloat() * 3 + 1f, 
             Random.nextInt(150, 255),    
             Random.nextDouble(0.0, Math.PI * 2) 
         )
@@ -56,9 +58,9 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         val height = Render2D.scaledHeight
 
         for ((index, particle) in particles.withIndex()) {
-            val x = ((sin(animationTime * 0.001 * particle.speed + index + particle.phase) * 0.5 + 0.5) * width).toInt()
-            val y = ((cos(animationTime * 0.0012 * particle.speed + index * 0.5 + particle.phase) * 0.5 + 0.5) * height).toInt()
-            val alpha = ((sin(animationTime * 0.002 + index) * 0.5 + 0.5) * 255).toInt().coerceIn(50, 255)
+            val x = ((sin(animationTime * 0.0003 * particle.speed + index + particle.phase) * 0.5 + 0.5) * width).toInt()
+            val y = ((cos(animationTime * 0.0004 * particle.speed + index * 0.5 + particle.phase) * 0.5 + 0.5) * height).toInt()
+            val alpha = ((sin(animationTime * 0.0008 + index) * 0.5 + 0.5) * 255).toInt().coerceIn(50, 255)
             val color = Color(0, 100, particle.blueIntensity, alpha)
             Render2D.drawRect(ctx, x, y, particle.size.toInt(), particle.size.toInt(), color)
         }
@@ -91,6 +93,18 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 }
                 elements.add(kphSwitch)
                 yPos += elementHeight + elementSpacing
+
+                val dropDownSettingTest = DropdownSetting(
+                    name = "TestDropdown",
+                    options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5", "Option 6", "Option 7", "Option 8", "Option 9", "Option 10"),
+                    defaultIndex = 0,
+                    description = "This is a test dropdown setting!!!"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(dropDownSettingTest)
+                yPos += elementHeight + elementSpacing + 60
             }
 
             "Overlay" -> {
@@ -129,11 +143,18 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(debugSwitch)
             }
         }
-        FeatureManager.loadAllFeatureStates()
+
+        val configStates = FeatureManager.getAllConfigStates()
         elements.forEach { element ->
-            if (element is SwitchConfig) {
-                val currentState = FeatureManager.getAllConfigStates()[element.name] ?: element.default
-                element.value = currentState
+            when (element) {
+                is SwitchConfig -> {
+                    val currentState = configStates[element.name] as? Boolean ?: element.default
+                    element.setValueSilently(currentState)
+                }
+                is DropdownSetting -> {
+                    val currentState = configStates[element.name] as? Int ?: element.default
+                    element.value = currentState
+                }
             }
         }
     }
@@ -162,9 +183,11 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         context.fill(0, 0, sidebarWidth, height, Color(0, 0, 0, 128).rgb)
         context.fill(sidebarWidth - 1, 0, sidebarWidth, height, Color(40, 40, 50, 255).rgb)
         context.fill(sidebarWidth, 0, width, height, Color(40, 60, 120, 150).rgb)
+        
         val title = "§bSlayerXPOverlay §3Config"
         val titleWidth = textRenderer.getWidth(title)
         context.drawTextWithShadow(textRenderer, title, (sidebarWidth - titleWidth) / 2, 20, Color.WHITE.rgb)
+        
         categories.forEach { cat ->
             val bgColor = if (cat.selected) Color(0, 120, 255, 255).rgb else Color(30, 60, 120, 200).rgb
             context.fill(cat.x, cat.y, cat.x + cat.width, cat.y + cat.height, bgColor)
@@ -173,7 +196,9 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             val textY = cat.y + (cat.height - textRenderer.fontHeight) / 2
             context.drawTextWithShadow(textRenderer, cat.name, textX, textY, Color.WHITE.rgb)
         }
+        
         renderParticles(context)
+        
         elements.forEach { element ->
             element.render(context)
         }
@@ -181,7 +206,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         var instructionY = height - 80
         listOf(
             "Click toggles to enable/disable features",
-            "Press 'O' to open overlay manager for positioning",
+            "Press 'O' to open overlay manager",
             "Press ESC to close this menu"
         ).forEach {
             context.drawTextWithShadow(textRenderer, it, 15, instructionY, Color.GRAY.rgb)
@@ -222,6 +247,15 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             }
         }
         return super.keyPressed(keyCode, scanCode, modifiers)
+    }
+    
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
+        elements.forEach { element ->
+            if (element is DropdownSetting && element.onScroll(mouseX.toInt(), mouseY.toInt(), verticalAmount)) {
+                return true 
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
     }
 
     override fun shouldPause() = false
