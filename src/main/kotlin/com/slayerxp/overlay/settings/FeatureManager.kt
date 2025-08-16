@@ -16,7 +16,7 @@ object FeatureManager {
             states[feature.name] = config.isToggled(feature.name)
         }
         
-        val knownDropdowns = listOf("TestDropdown")
+        val knownDropdowns = listOf("BossInfoDropdown")
         knownDropdowns.forEach { dropdownName -> // this is COOKED
             states[dropdownName] = config.getDropdown(dropdownName, 0)
         }

@@ -3,7 +3,9 @@ package com.slayerxp.overlay.ui
 import com.slayerxp.overlay.core.Element
 import com.slayerxp.overlay.core.SwitchConfig
 import com.slayerxp.overlay.core.DropdownSetting
+import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
 import net.minecraft.client.MinecraftClient
@@ -94,11 +96,24 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(kphSwitch)
                 yPos += elementHeight + elementSpacing
 
+                val buttonthing = ButtonSetting(
+                    name = "Test Button",
+                    description = "This is a test button !!!",
+                    onClickAction = {
+                        modMessage("Button Clicked!!!!")
+                    }
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(buttonthing)
+                yPos += elementHeight + elementSpacing
+
                 val dropDownSettingTest = DropdownSetting(
-                    name = "TestDropdown",
-                    options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5", "Option 6", "Option 7", "Option 8", "Option 9", "Option 10"),
-                    defaultIndex = 0,
-                    description = "This is a test dropdown setting!!!"
+                    name = "BossInfoDropdown",
+                    options = listOf("XP", "Kills", "Time", "KPH", "XP + Kills", "XP + Time", "XP + KPH", "Kills + Time", "Kills + KPH", "Time + KPH", "XP + Kills + Time", "XP + Kills + KPH", "XP + Time + KPH", "Kills + Time + KPH", "XP + Kills + Time + KPH"),
+                    defaultIndex = 14,
+                    description = "Information to show in the chat on boss kill."
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
