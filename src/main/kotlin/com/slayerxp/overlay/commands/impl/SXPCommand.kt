@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import com.slayerxp.overlay.ui.OverlayManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.mojang.brigadier.context.CommandContext
+import com.slayerxp.overlay.ui.SettingsScreen.Companion.open as bleh
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 object SXPCommand {
@@ -21,8 +22,7 @@ object SXPCommand {
     }
     
     private fun executeClient(context: CommandContext<FabricClientCommandSource>): Int {
-        OverlayManager.open()
-        modMessage("opened")
+        bleh()
         return 1
     }
 }

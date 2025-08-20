@@ -6,7 +6,7 @@ import com.slayerxp.overlay.settings.impl.*
 
 object FeatureManager {
     private val listOfFeatures = listOf(
-        Overlay, KPHOverlay
+        Overlay, KPHOverlay, test2
     )
     
     fun getAllConfigStates(): Map<String, Any> {
