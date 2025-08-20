@@ -96,17 +96,17 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(kphSwitch)
                 yPos += elementHeight + elementSpacing
 
-                val buttonthing = ButtonSetting(
-                    name = "Test Button",
-                    description = "This is a test button !!!",
+                val openOtherGUI = ButtonSetting(
+                    name = "Open Overlay Manager",
+                    description = "Opens the overlay manager",
                     onClickAction = {
-                        modMessage("Button Clicked!!!!")
+                        OverlayManager.open()
                     }
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
                 }
-                elements.add(buttonthing)
+                elements.add(openOtherGUI)
                 yPos += elementHeight + elementSpacing
 
                 val dropDownSettingTest = DropdownSetting(
