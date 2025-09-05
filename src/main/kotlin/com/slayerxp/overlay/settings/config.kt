@@ -81,4 +81,14 @@ object config {
     fun getDropdown(setting: String, defaultIndex: Int = 0): Int {
         return configData.get(setting)?.asInt ?: defaultIndex
     }
+
+    fun setMultiSelect(setting: String, indices: List<Int>) {
+        val arr = gson.toJsonTree(indices).asJsonArray
+        configData.add(setting, arr)
+        saveConfig()
+    }
+
+    fun getMultiSelect(setting: String, default: Set<Int> = emptySet()): Set<Int> {
+        return configData.getAsJsonArray(setting)?.map { it.asInt }?.toSet() ?: default
+    }
 }
