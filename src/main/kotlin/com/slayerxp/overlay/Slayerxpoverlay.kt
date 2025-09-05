@@ -60,7 +60,7 @@ object Slayerxpoverlay : ModInitializer {
             }
         }
     }
-    val test = APIUtils.requestJson("")
+    ///////////////////val test = APIUtils.requestJson("")//WHY IS HTIS HGERE
     private fun sendWelcomeMessages() {
         val border = "-".repeat(53)
         modMessage(border)
