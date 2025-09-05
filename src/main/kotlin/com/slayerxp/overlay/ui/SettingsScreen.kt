@@ -4,8 +4,7 @@ import com.slayerxp.overlay.core.Element
 import com.slayerxp.overlay.core.SwitchConfig
 import com.slayerxp.overlay.core.DropdownSetting
 import com.slayerxp.overlay.core.ButtonSetting
-import com.slayerxp.overlay.settings.config
-import com.slayerxp.overlay.utils.ChatUtils.modMessage
+import com.slayerxp.overlay.core.CheckboxSetting
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
 import net.minecraft.client.MinecraftClient
@@ -120,6 +119,18 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 }
                 elements.add(dropDownSettingTest)
                 yPos += elementHeight + elementSpacing + 60
+
+                val multiselect = CheckboxSetting(
+                    name = "MultiSelectTest",
+                    options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5"),
+                    defaultSelected = setOf(0, 2),
+                    description = "This is a multi-select test setting"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(multiselect)
+                yPos += elementHeight + elementSpacing
             }
 
             "Overlay" -> {

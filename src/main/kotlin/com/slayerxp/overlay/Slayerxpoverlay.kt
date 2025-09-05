@@ -60,6 +60,7 @@ object Slayerxpoverlay : ModInitializer {
             }
         }
     }
+    val test = APIUtils.requestJson("")
     private fun sendWelcomeMessages() {
         val border = "-".repeat(53)
         modMessage(border)

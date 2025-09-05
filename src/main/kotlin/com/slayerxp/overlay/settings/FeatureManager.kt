@@ -20,6 +20,11 @@ object FeatureManager {
         knownDropdowns.forEach { dropdownName -> // this is COOKED
             states[dropdownName] = config.getDropdown(dropdownName, 0)
         }
+
+        val knownCheckboxes = listOf("MultiSelectTest")
+        knownCheckboxes.forEach { checkboxName ->
+            states[checkboxName] = config.getMultiSelect(checkboxName, setOf(0))
+        }
         
         return states
     }
