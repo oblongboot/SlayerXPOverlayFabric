@@ -4,6 +4,7 @@ import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.utils.Scoreboard
+import com.slayerxp.overlay.utils.StopwatchUtil
 import com.slayerxp.overlay.events.onPacket
 import com.slayerxp.overlay.ui.XPOverlay
 import meteordevelopment.orbit.EventHandler
@@ -15,8 +16,8 @@ import java.text.DecimalFormat
 class onMessage {
 
     companion object {
-        private var questStartTime = 0L
-        private var bossSpawnTime = 0L
+        private var sw1: StopwatchUtil = StopwatchUtil
+        private var sw2: StopwatchUtil = StopwatchUtil
         private var bossTimerStarted = false
         private var messageBool = false
         private var bonus = 1.0
@@ -68,12 +69,10 @@ class onMessage {
             }
         }
 
-
         fun handleSlayerQuestStart() {
             messageBool = true
-            questStartTime = System.currentTimeMillis()
+            sw1.start()
             bossTimerStarted = false
-            bossSpawnTime = 0L
             val tierInfo = Scoreboard.getSlayerTier()
             tier = tierInfo?.tier
         }
@@ -81,6 +80,8 @@ class onMessage {
         fun handleSlayerQuestComplete() {
             if (!messageBool) return
             messageBool = false
+            sw1.stop()
+            sw2.stop()
 
             val currentSlayerType = Scoreboard.getSlayerType()
             if (currentSlayerType == "Not in slayer area!") return
@@ -102,9 +103,9 @@ class onMessage {
 
             val newXP = currentXP + correctXP
 
-            val totalTime = System.currentTimeMillis() - questStartTime
-            val bossTime = if (bossSpawnTime > 0) System.currentTimeMillis() - bossSpawnTime else 0L
-            val spawnTime = totalTime - bossTime
+            val totalTime = sw1.getElapsedTime()
+            val bossTime = sw2.getElapsedTime()
+            val spawnTime = sw1.getElapsedTime() - sw2.getElapsedTime()
 
             val timeStr = String.format("%.2f", totalTime / 1000.0)
             val bossTimeStr = String.format("%.2f", bossTime / 1000.0)
@@ -113,13 +114,13 @@ class onMessage {
             val parts = mutableListOf<String>()
             parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
             parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
-            //parts.add(sessionInfo)
+            // parts.add(sessionInfo)
 
             modMessage(parts.joinToString(" | "))
             APIUtils.getXP()
 
-            questStartTime = 0L
-            bossSpawnTime = 0L
+            sw1.reset()
+            sw2.reset()
             bossTimerStarted = false
             tier = null
         }
@@ -127,14 +128,14 @@ class onMessage {
         fun handleBossSpawn() {
             if (!bossTimerStarted && messageBool) { // not used yet i think
                 bossTimerStarted = true
-                bossSpawnTime = System.currentTimeMillis()
+                sw2.start()
             }
         }
 
         fun updateOverlayDisplay() {
             val slayerType = Scoreboard.getSlayerType()
             if (slayerType == "Not in slayer area!") {
-                //XPOverlay.hide()
+                // XPOverlay.hide()
                 return
             }
 
@@ -161,11 +162,9 @@ class onMessage {
         val message = packet.content().string.trim()
 
         when {
-            
             message == "  SLAYER QUEST STARTED!" -> {
                 handleSlayerQuestStart()
             }
-
             message == "  SLAYER QUEST COMPLETE!" || message == "  NICE! SLAYER BOSS SLAIN!" -> {
                 handleSlayerQuestComplete()
             }
