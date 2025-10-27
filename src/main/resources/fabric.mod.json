@@ -5,10 +5,11 @@
 	"name": "slayerxpoverlay",
 	"description": "slayer xp overlay + more shit !",
 	"authors": [
-		"oblongboot!"
+		"oblongboot!",
+		"djzachh"
 	],
 	"contact": {
-		"homepage": "https://mods.zephyrdevelopment.co.uk",
+		"homepage": "https://mods.oblongboot.dev",
 		"sources": "https://github.com/oblongboot/slayerxpoverlayfabric"
 	},
 	"license": "CC0-1.0",
@@ -18,12 +19,6 @@
 		"main": [
 			{
 				"value": "com.slayerxp.overlay.Slayerxpoverlay",
-				"adapter": "kotlin"
-			}
-		],
-		"fabric-datagen": [
-			{
-				"value": "com.slayerxp.overlay.SlayerxpoverlayDataGenerator",
 				"adapter": "kotlin"
 			}
 		]
