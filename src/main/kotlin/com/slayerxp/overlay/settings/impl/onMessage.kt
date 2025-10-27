@@ -5,7 +5,7 @@ import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.StopwatchUtil
-import com.slayerxp.overlay.events.onPacket
+import com.slayerxp.overlay.events.OnPacket
 import com.slayerxp.overlay.ui.XPOverlay
 import meteordevelopment.orbit.EventHandler
 import kotlinx.coroutines.launch
@@ -156,16 +156,16 @@ class onMessage {
     }
 
     @EventHandler
-    fun onPacketReceived(event: onPacket.Incoming) {
+    fun onPacketReceived(event: OnPacket.Incoming) {
         val packet = event.packet
         if (packet !is GameMessageS2CPacket) return
         val message = packet.content().string.trim()
 
-        when {
-            message == "  SLAYER QUEST STARTED!" -> {
+        when (message) {
+            "  SLAYER QUEST STARTED!" -> {
                 handleSlayerQuestStart()
             }
-            message == "  SLAYER QUEST COMPLETE!" || message == "  NICE! SLAYER BOSS SLAIN!" -> {
+            "  SLAYER QUEST COMPLETE!", "  NICE! SLAYER BOSS SLAIN!" -> {
                 handleSlayerQuestComplete()
             }
         }

@@ -1,10 +1,7 @@
 package com.slayerxp.overlay.settings.impl
 
-import com.slayerxp.overlay.events.onPacket
-import meteordevelopment.orbit.EventHandler
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.settings.Feature
-import com.slayerxp.overlay.utils.ChatUtils.modMessage
 
 object KPHOverlay : Feature {
     override val name = "KPHOverlay"
@@ -13,9 +10,9 @@ object KPHOverlay : Feature {
     override val category = "Overlays"
     
     override var enabled: Boolean
-        get() = config.isToggled(name)
+        get() = Config.isToggled(name)
         set(value) {
-            config.setToggle(name, value)
+            Config.setToggle(name, value)
         }
     
     override fun onToggle(newState: Boolean) {}
