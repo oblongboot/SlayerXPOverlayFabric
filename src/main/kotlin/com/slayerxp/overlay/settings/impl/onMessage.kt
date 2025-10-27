@@ -17,8 +17,8 @@ import java.text.DecimalFormat
 class onMessage {
 
     companion object {
-        private var sw1: StopwatchUtil = StopwatchUtil
-        private var sw2: StopwatchUtil = StopwatchUtil
+        private var sw1: StopwatchUtil = StopwatchUtil()
+        private var sw2: StopwatchUtil = StopwatchUtil()
         private var bossTimerStarted = false
         private var messageBool = false
         private var bonus = 1.0
@@ -72,7 +72,6 @@ class onMessage {
         }
 
         fun handleSlayerQuestStart() {
-//            modMessage("Quest Started Successfully")
             messageBool = true
             sw1.start()
             bossTimerStarted = false
@@ -84,7 +83,6 @@ class onMessage {
 
         fun handleSlayerQuestComplete() {
             if (!messageBool) return
-//            modMessage("Quest Ended Successfully")
             messageBool = false
             sw1.stop()
             sw2.stop()
@@ -131,14 +129,6 @@ class onMessage {
             tier = null
         }
 
-        fun handleBossSpawn() {
-            // I dont think this ever gets used with the new detection I made @oblong
-            if (!bossTimerStarted && messageBool) { // not used yet i think
-                bossTimerStarted = true
-                sw2.start()
-            }
-        }
-
         fun updateOverlayDisplay() {
             val slayerType = Scoreboard.getSlayerType()
             if (slayerType == "Not in slayer area!") {
@@ -169,10 +159,10 @@ class onMessage {
         val message = packet.content().string.trim()
 
         when (message) {
-            "  SLAYER QUEST STARTED!" -> {
+            "SLAYER QUEST STARTED!" -> {
                 handleSlayerQuestStart()
             }
-            "  SLAYER QUEST COMPLETE!", "  NICE! SLAYER BOSS SLAIN!" -> {
+            "SLAYER QUEST COMPLETE!", "NICE! SLAYER BOSS SLAIN!" -> {
                 handleSlayerQuestComplete()
             }
         }

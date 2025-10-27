@@ -51,7 +51,8 @@ object SXPDevCommand {
         if (devSetting == "armorstand") {
             val armorStands = getArmorStands()
             for (stand in armorStands) {
-                println(stand.toString());
+                println(stand.name.toString());
+                println(stand.uuid.toString());
             }
         }
         
