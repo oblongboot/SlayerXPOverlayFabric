@@ -6,5 +6,5 @@ interface Feature {
     val default: Boolean
     val category: String
     var enabled: Boolean
-    fun onToggle(newState: Boolean) { println("$newState")}
+    fun onToggle(newState: Boolean) {}
 }

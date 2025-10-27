@@ -28,6 +28,12 @@ object Slayerxpoverlay : ModInitializer {
         EVENT_BUS.registerLambdaFactory("com.slayerxp.overlay") { lookupInMethod, klass ->
             lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
         }
+
+        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BossHighlight)
+        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Overlay)
+        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.KPHOverlay)
+        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Test2)
+
         EVENT_BUS.subscribe(onMessage())
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
