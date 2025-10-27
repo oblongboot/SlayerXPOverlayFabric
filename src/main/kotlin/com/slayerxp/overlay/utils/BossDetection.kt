@@ -6,7 +6,7 @@ import net.minecraft.util.math.Box
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import com.slayerxp.overlay.utils.StopwatchUtil
 
-//import com.slayerxp.overlay.utils.ChatUtils.modMessage
+import com.slayerxp.overlay.utils.ChatUtils.modMessage
 
 fun getArmorStands(radius: Double = 35.0, yRange: Double = 10.0): MutableList<ArmorStandEntity> {
     val client = MinecraftClient.getInstance();
@@ -25,6 +25,7 @@ fun getArmorStands(radius: Double = 35.0, yRange: Double = 10.0): MutableList<Ar
     }
 }
 
+// Fuck Primal Fears. idc that they still break this. Only broken half a month out of the year
 fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
     val client = MinecraftClient.getInstance();
     val pName = client.player?.name?.string;
@@ -35,8 +36,8 @@ fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
         val armorStands = getArmorStands();
 
         for (stand in armorStands) {
-            if (stand.name.toString() == String.format("Spawned by: %s", pName) && lastUUID[0] != stand.uuid.toString()) {
-//                modMessage("Boss Detected")
+            if (stand.name.string == String.format("Spawned by: %s", pName) && lastUUID[0] != stand.uuid.toString()) {
+                modMessage("Boss Detected");
                 sw.start();
                 running = false;
                 // Why can't I pass a string by reference in kotlin
