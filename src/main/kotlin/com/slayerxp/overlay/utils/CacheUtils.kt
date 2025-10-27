@@ -1,9 +1,7 @@
-package com.slayerxp.overlay.util
+package com.slayerxp.overlay.utils
 
 import java.util.LinkedHashMap
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 /**
 * beep boop

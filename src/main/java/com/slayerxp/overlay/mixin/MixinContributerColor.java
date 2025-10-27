@@ -1,15 +1,5 @@
 package com.slayerxp.overlay.mixin;
 
-import com.slayerxp.overlay.util.ContributerColors;
-import net.minecraft.client.font.TextHandler;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-
-import java.util.List;
-
 //@Mixin(TextHandler.class)
 //public class MixinContributerColor {
 //
