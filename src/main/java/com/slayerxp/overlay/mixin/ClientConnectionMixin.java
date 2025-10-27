@@ -1,7 +1,7 @@
 package com.slayerxp.overlay.mixin;
 
 import com.slayerxp.overlay.events.EventManager;
-import com.slayerxp.overlay.events.onPacket;
+import com.slayerxp.overlay.events.OnPacket;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.listener.PacketListener;
@@ -18,7 +18,7 @@ public class ClientConnectionMixin {
         if (listener instanceof net.minecraft.client.network.ClientPlayNetworkHandler) {
             
             //System.out.println("Packet intercepted: " + packet.getClass().getSimpleName());
-            EventManager.INSTANCE.getEVENT_BUS().post(new onPacket.Incoming(packet));
+            EventManager.INSTANCE.getEVENT_BUS().post(new OnPacket.Incoming(packet));
         } // bleh
     }
 }

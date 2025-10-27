@@ -1,7 +1,7 @@
 package com.slayerxp.overlay.core
 
 import com.slayerxp.overlay.utils.Render2D
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.settings.FeatureManager
 import net.minecraft.client.gui.DrawContext
 import java.awt.Color
@@ -60,7 +60,7 @@ class SwitchConfig(
     override fun onValueChanged(oldValue: Boolean, newValue: Boolean) {
         if (isInitializing || oldValue == newValue) return
         
-        config.setToggle(name, newValue)
+        Config.setToggle(name, newValue)
         FeatureManager.loadAllFeatureStates()
         println("$name toggled: $oldValue -> $newValue")
     }
