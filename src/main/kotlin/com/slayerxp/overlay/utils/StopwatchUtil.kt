@@ -2,12 +2,12 @@ package com.slayerxp.overlay.utils
 
 object StopwatchUtil {
     var startTime: Long
-    var elapsedTime: Long
+    var elapsedMillis: Long
     var isRunning: Boolean
 
     init {
         this.startTime = 0
-        this.elapsedTime = 0
+        this.elapsedMillis = 0
         this.isRunning = false
     }
 
@@ -20,28 +20,28 @@ object StopwatchUtil {
 
     fun stop() {
         if (this.isRunning) {
-            this.elapsedTime = System.currentTimeMillis() - this.startTime
+            this.elapsedMillis = System.currentTimeMillis() - this.startTime
             this.isRunning = false
         }
     }
 
     fun reset() {
-        this.elapsedTime = 0
+        this.elapsedMillis = 0
         if (this.isRunning) {
             this.startTime = System.currentTimeMillis()
         }
     }
 
     fun getElapsedTime(): Long {
-        return if (this.isRunning) this.elapsedTime + (System.currentTimeMillis() - this.startTime)
-        else this.elapsedTime
+        return if (this.isRunning) this.elapsedMillis + (System.currentTimeMillis() - this.startTime)
+        else this.elapsedMillis
     }
 
     fun stopAndReset() {
         if (this.isRunning) {
             this.isRunning = false
         }
-        this.elapsedTime = 0
+        this.elapsedMillis = 0
     }
 }
 

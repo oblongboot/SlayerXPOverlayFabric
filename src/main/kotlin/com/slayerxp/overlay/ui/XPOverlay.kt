@@ -2,12 +2,9 @@ package com.slayerxp.overlay.ui
 
 import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.ui.Overlay as OverlayShitAHHHHH
-import com.slayerxp.overlay.settings.impl.onMessage
-import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.Render2D
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.gui.DrawContext
-import java.text.DecimalFormat
 
 object XPOverlay: OverlayShitAHHHHH {
     override var shouldShow = true
@@ -42,11 +39,11 @@ object XPOverlay: OverlayShitAHHHHH {
     }
 
     override fun savePosition() {
-        config.setLocationOfGUI("overlayWindow", x, y)
+        Config.setLocationOfGUI("overlayWindow", x, y)
     }
 
     private fun loadPosition() {
-        val pos = config.getLocationOfGUI("overlayWindow")
+        val pos = Config.getLocationOfGUI("overlayWindow")
         if (pos != null) {
             x = pos.first
             y = pos.second

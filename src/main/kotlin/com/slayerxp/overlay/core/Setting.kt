@@ -1,7 +1,5 @@
 package com.slayerxp.overlay.core
 
-import net.minecraft.client.gui.DrawContext
-
 abstract class Setting<T>(
     override val name: String,
     override val description: String,

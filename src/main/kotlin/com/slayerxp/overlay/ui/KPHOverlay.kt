@@ -3,13 +3,9 @@ package com.slayerxp.overlay.ui
 
 import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.ui.Overlay as OverlayShitAHHHHH
-import com.slayerxp.overlay.settings.impl.KPHOverlay as KPHOverlayModule
-import com.slayerxp.overlay.settings.impl.onMessage
-import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.Render2D
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.gui.DrawContext
-import java.text.DecimalFormat
 
 object KPHOverlay: OverlayShitAHHHHH {
     override var shouldShow = true
@@ -44,11 +40,11 @@ object KPHOverlay: OverlayShitAHHHHH {
     }
 
     override fun savePosition() {
-        config.setLocationOfGUI("kphOverlay", x, y)
+        Config.setLocationOfGUI("kphOverlay", x, y)
     }
 
     private fun loadPosition() {
-        val pos = config.getLocationOfGUI("kphOverlay")
+        val pos = Config.getLocationOfGUI("kphOverlay")
         if (pos != null) {
             x = pos.first
             y = pos.second
