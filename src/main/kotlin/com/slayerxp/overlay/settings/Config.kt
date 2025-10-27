@@ -5,18 +5,18 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.io.File
 
-object config {
-    private const val cfgFile = "slayerxpoverlay.json"
-    private const val cfgDir = "config/SlayerXPOverlayFabric"
-    private const val cfgPath = "$cfgDir/$cfgFile"
+object Config {
+    private const val CONFIGFILE = "slayerxpoverlay.json"
+    private const val CONFIGDIR = "config/SlayerXPOverlayFabric"
+    private const val CONFIGPATH = "$CONFIGDIR/$CONFIGFILE"
 
     private val gson = Gson()
-    private val configFile = File(cfgPath)
+    private val configFile = File(CONFIGPATH)
 
     private var configData: JsonObject = JsonObject()
 
     init {
-        val dir = File(cfgDir)
+        val dir = File(CONFIGDIR)
         if (!dir.exists()) dir.mkdirs()
 
         if (!configFile.exists()) {

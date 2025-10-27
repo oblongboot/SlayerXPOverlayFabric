@@ -1,7 +1,7 @@
 package com.slayerxp.overlay.core
 
 import com.slayerxp.overlay.utils.Render2D
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.gui.DrawContext
 import java.awt.Color
 
@@ -170,7 +170,7 @@ class CheckboxSetting(
     }
 
     override fun onValueChanged(oldValue: Set<Int>, newValue: Set<Int>) {
-        config.setMultiSelect(name, newValue.toList())
+        Config.setMultiSelect(name, newValue.toList())
         println("$name changed: $newValue")
     }
 

@@ -16,17 +16,18 @@ import com.slayerxp.overlay.ui.XPOverlay
 import com.slayerxp.overlay.ui.KPHOverlay
 import com.slayerxp.overlay.settings.impl.KPHOverlay as KPHModule
 import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils.getXP
 
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
     const val VERSION = "@@VERSION@@"
+
     override fun onInitialize() {
-        EVENT_BUS.registerLambdaFactory("com.slayerxp.overlay", { lookupInMethod, klass ->
+        EVENT_BUS.registerLambdaFactory("com.slayerxp.overlay") { lookupInMethod, klass ->
             lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
-        })
+        }
         EVENT_BUS.subscribe(onMessage())
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
@@ -34,13 +35,13 @@ object Slayerxpoverlay : ModInitializer {
         MessageCompanion.initialize()
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { _, _, _ ->
             try {
-                if (config.isToggled("firstTimeInstall")) {
+                if (Config.isToggled("firstTimeInstall")) {
                     logger.debug("First time install flag already set, skipping welcome message.")
                     getXP()
                     return@Join
                 }
                 sendWelcomeMessages()
-                config.setToggle("firstTimeInstall", true)
+                Config.setToggle("firstTimeInstall", true)
                 logger.info("Welcome message sent and firstTimeInstall toggled to true.")
 
             } catch (ex: Exception) {

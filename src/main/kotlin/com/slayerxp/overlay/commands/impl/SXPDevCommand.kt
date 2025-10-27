@@ -1,7 +1,7 @@
 package com.slayerxp.overlay.commands.impl
 
 import com.slayerxp.overlay.utils.APIUtils
-import com.slayerxp.overlay.settings.config
+import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.ui.SettingsScreen.Companion.open as bleh
 import com.slayerxp.overlay.settings.FeatureManager
@@ -42,7 +42,7 @@ object SXPDevCommand {
         if (devSetting == "test1") {
             FeatureManager.loadAllFeatureStates()
         }
-        if (devSetting == "test2") { config.toggle(debug) }
+        if (devSetting == "test2") { Config.toggle(debug) }
         if (devSetting == "scoreboarddebug") { val e = Scoreboard.getSlayerType(); modMessage("Scoreboard area: $e") }
         if (devSetting == "gui") {bleh()}
         
