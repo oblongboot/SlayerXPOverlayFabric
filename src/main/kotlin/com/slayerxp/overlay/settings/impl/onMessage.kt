@@ -5,6 +5,7 @@ import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.StopwatchUtil
+import com.slayerxp.overlay.utils.bossChecker
 import com.slayerxp.overlay.events.OnPacket
 import com.slayerxp.overlay.ui.XPOverlay
 import meteordevelopment.orbit.EventHandler
@@ -23,7 +24,8 @@ class onMessage {
         private var bonus = 1.0
         private var tier: String? = null
         private var correctXP = 0L
-
+        // I hate kotlin why can't I pass a string by reference
+        private var lastUUID: Array<String> = arrayOf("Penis");
         private val numberFormatter = DecimalFormat("#,###")
         private var mapLoaded = false
 
@@ -70,15 +72,19 @@ class onMessage {
         }
 
         fun handleSlayerQuestStart() {
+//            modMessage("Quest Started Successfully")
             messageBool = true
             sw1.start()
             bossTimerStarted = false
             val tierInfo = Scoreboard.getSlayerTier()
             tier = tierInfo?.tier
+
+            bossChecker(sw2, lastUUID);
         }
 
         fun handleSlayerQuestComplete() {
             if (!messageBool) return
+//            modMessage("Quest Ended Successfully")
             messageBool = false
             sw1.stop()
             sw2.stop()
@@ -126,6 +132,7 @@ class onMessage {
         }
 
         fun handleBossSpawn() {
+            // I dont think this ever gets used with the new detection I made @oblong
             if (!bossTimerStarted && messageBool) { // not used yet i think
                 bossTimerStarted = true
                 sw2.start()
