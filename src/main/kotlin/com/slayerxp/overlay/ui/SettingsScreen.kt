@@ -109,8 +109,19 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 }
                 elements.add(openOtherGUI)
                 yPos += elementHeight + elementSpacing
+                
+                val HighlightsToggle = SwitchConfig(
+                    name = "BossHighlight",
+                    default = false,
+                    description = "Highlight bosses!!!"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(HighlightsToggle)
+                yPos += elementHeight + elementSpacing
 
-                val dropDownSettingTest = DropdownSetting(
+                val bossInfoDropDown = DropdownSetting(
                     name = "BossInfoDropdown",
                     options = listOf("XP", "Kills", "Time", "KPH", "XP + Kills", "XP + Time", "XP + KPH", "Kills + Time", "Kills + KPH", "Time + KPH", "XP + Kills + Time", "XP + Kills + KPH", "XP + Time + KPH", "Kills + Time + KPH", "XP + Kills + Time + KPH"),
                     defaultIndex = 14,
@@ -119,22 +130,9 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     x = sidebarWidth + 20
                     y = yPos
                 }
-                elements.add(dropDownSettingTest)
+                elements.add(bossInfoDropDown)
                 yPos += elementHeight + elementSpacing + 60
-
-                val multiselect = CheckboxSetting(
-                    name = "MultiSelectTest",
-                    options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5"),
-                    defaultSelected = setOf(0, 2),
-                    description = "This is a multi-select test setting"
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(multiselect)
-                yPos += elementHeight + elementSpacing
             }
-
             "Overlay" -> {
                 val colorSwitch = SwitchConfig(
                     name = "test2",
