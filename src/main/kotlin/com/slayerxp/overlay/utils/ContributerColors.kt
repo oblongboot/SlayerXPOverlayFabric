@@ -1,11 +1,11 @@
-package com.slayerxp.overlay.util
+package com.slayerxp.overlay.utils
 
-import com.slayerxp.overlay.utils.APIUtils
 import kotlinx.coroutines.*
 import net.minecraft.text.OrderedText
 import net.minecraft.text.StringVisitable
 import net.minecraft.text.Style
 import java.util.*
+import kotlin.collections.iterator
 import kotlin.time.Duration.Companion.minutes
 
 object ContributerColors {

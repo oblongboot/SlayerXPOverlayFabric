@@ -1,11 +1,9 @@
 package com.slayerxp.overlay.core
 
 import com.slayerxp.overlay.utils.Render2D
-import com.slayerxp.overlay.settings.config
-import com.slayerxp.overlay.settings.FeatureManager
+import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.gui.DrawContext
 import java.awt.Color
-import kotlin.math.abs
 
 class DropdownSetting(
     name: String,
@@ -190,7 +188,7 @@ class DropdownSetting(
     }
 
     override fun onValueChanged(oldValue: Int, newValue: Int) {
-        config.setDropdown(name, newValue)
+        Config.setDropdown(name, newValue)
         println("$name changed: ${options.getOrNull(oldValue)} -> ${options.getOrNull(newValue)}")
     }
 
