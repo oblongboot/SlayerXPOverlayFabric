@@ -59,11 +59,14 @@ class SwitchConfig(
 
     override fun onValueChanged(oldValue: Boolean, newValue: Boolean) {
         if (isInitializing || oldValue == newValue) return
-        
+
         Config.setToggle(name, newValue)
         FeatureManager.loadAllFeatureStates()
+        FeatureManager.notifyToggleChanged(name, newValue)
+
         println("$name toggled: $oldValue -> $newValue")
     }
+
 
     private fun isWithinBounds2(mouseX: Int, mouseY: Int): Boolean {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
