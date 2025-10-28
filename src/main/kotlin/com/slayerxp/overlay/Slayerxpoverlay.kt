@@ -35,6 +35,7 @@ object Slayerxpoverlay : ModInitializer {
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Test2)
 
         EVENT_BUS.subscribe(onMessage())
+        EVENT_BUS.subscribe(com.slayerxp.overlay.features.BossHighlightFeat())
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
