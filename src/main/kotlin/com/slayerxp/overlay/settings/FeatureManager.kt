@@ -52,7 +52,7 @@ object FeatureManager {
             states[feature.name] = Config.isToggled(feature.name)
         }
 
-        val knownDropdowns = listOf("BossInfoDropdown")
+        val knownDropdowns = listOf("BossInfoDropdown", "MessageColor")
         knownDropdowns.forEach { dropdownName ->
             states[dropdownName] = Config.getDropdown(dropdownName, 0)
         }
