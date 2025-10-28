@@ -1,6 +1,6 @@
 package com.slayerxp.overlay.utils
 
-object StopwatchUtil {
+class StopwatchUtil {
     var startTime: Long
     var elapsedMillis: Long
     var isRunning: Boolean

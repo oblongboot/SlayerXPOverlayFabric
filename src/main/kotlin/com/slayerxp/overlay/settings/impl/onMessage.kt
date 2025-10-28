@@ -5,6 +5,7 @@ import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.StopwatchUtil
+import com.slayerxp.overlay.utils.bossChecker
 import com.slayerxp.overlay.events.OnPacket
 import com.slayerxp.overlay.ui.XPOverlay
 import meteordevelopment.orbit.EventHandler
@@ -16,14 +17,15 @@ import java.text.DecimalFormat
 class onMessage {
 
     companion object {
-        private var sw1: StopwatchUtil = StopwatchUtil
-        private var sw2: StopwatchUtil = StopwatchUtil
+        private var sw1: StopwatchUtil = StopwatchUtil()
+        private var sw2: StopwatchUtil = StopwatchUtil()
         private var bossTimerStarted = false
         private var messageBool = false
         private var bonus = 1.0
         private var tier: String? = null
         private var correctXP = 0L
-
+        // I hate kotlin why can't I pass a string by reference
+        private var lastUUID: Array<String> = arrayOf("Penis");
         private val numberFormatter = DecimalFormat("#,###")
         private var mapLoaded = false
 
@@ -75,6 +77,8 @@ class onMessage {
             bossTimerStarted = false
             val tierInfo = Scoreboard.getSlayerTier()
             tier = tierInfo?.tier
+
+            bossChecker(sw2, lastUUID);
         }
 
         fun handleSlayerQuestComplete() {
@@ -125,13 +129,6 @@ class onMessage {
             tier = null
         }
 
-        fun handleBossSpawn() {
-            if (!bossTimerStarted && messageBool) { // not used yet i think
-                bossTimerStarted = true
-                sw2.start()
-            }
-        }
-
         fun updateOverlayDisplay() {
             val slayerType = Scoreboard.getSlayerType()
             if (slayerType == "Not in slayer area!") {
@@ -162,10 +159,10 @@ class onMessage {
         val message = packet.content().string.trim()
 
         when (message) {
-            "  SLAYER QUEST STARTED!" -> {
+            "SLAYER QUEST STARTED!" -> {
                 handleSlayerQuestStart()
             }
-            "  SLAYER QUEST COMPLETE!", "  NICE! SLAYER BOSS SLAIN!" -> {
+            "SLAYER QUEST COMPLETE!", "NICE! SLAYER BOSS SLAIN!" -> {
                 handleSlayerQuestComplete()
             }
         }
