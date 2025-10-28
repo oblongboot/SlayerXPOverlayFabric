@@ -174,6 +174,18 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(detailedSwitch)
             }
 
+            "Blaze" -> {
+                val BVDamage = SwitchConfig(
+                    name = "BurningVengeanceDamage",
+                    default = false,
+                    description = "Says the Damage of your first Burning Vengeance Activation in chat"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(BVDamage)
+            }
+
             "Other" -> {
                 val debugSwitch = SwitchConfig(
                     name = "DebugMode",
@@ -205,7 +217,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private fun setupCategories() {
         categories.clear()
         var yPos = 40
-        val catNames = listOf("General", "Overlay", "KPH", "Other")
+        val catNames = listOf("General", "Overlay", "KPH", "Blaze", "Other")
 
         catNames.forEachIndexed { index, name ->
             categories.add(

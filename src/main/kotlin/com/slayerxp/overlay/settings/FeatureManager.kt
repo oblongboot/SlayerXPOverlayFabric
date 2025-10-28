@@ -62,6 +62,12 @@ object FeatureManager {
             states[checkboxName] = Config.getMultiSelect(checkboxName, setOf(0))
         }
 
+        // I dont think this was implemented because it wasnt working for me
+        val knownSwitches = listOf("BurningVengeanceDamage")
+        knownSwitches.forEach {switchName ->
+            states[switchName] = Config.isToggled(switchName)
+        }
+
         return states
     }
 
