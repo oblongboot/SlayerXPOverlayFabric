@@ -12,6 +12,9 @@ import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
+// Temp remove later
+import com.slayerxp.overlay.utils.getArmorStands
+
 object SXPDevCommand {
     fun registerClient() {
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
@@ -45,6 +48,13 @@ object SXPDevCommand {
         if (devSetting == "test2") { Config.toggle(debug) }
         if (devSetting == "scoreboarddebug") { val e = Scoreboard.getSlayerType(); modMessage("Scoreboard area: $e") }
         if (devSetting == "gui") {bleh()}
+        if (devSetting == "armorstand") {
+            val armorStands = getArmorStands()
+            for (stand in armorStands) {
+                println(stand.name.toString());
+                println(stand.uuid.toString());
+            }
+        }
         
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
