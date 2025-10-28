@@ -4,8 +4,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.util.math.Box
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-//import com.slayerxp.overlay.utils.StopwatchUtil
-//import com.slayerxp.overlay.utils.Scoreboard
+import com.slayerxp.overlay.settings.Config
 
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 
@@ -46,7 +45,7 @@ fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
 
                 val cSlayer = Scoreboard.getSlayerType()
                 // Add config checks after they are made
-                if (cSlayer == "Blaze") {
+                if (cSlayer == "Blaze" && Config.isToggled("BurningVengeanceDamage")) {
                     burningDamage();
                 }
                 break;
