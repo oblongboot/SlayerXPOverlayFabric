@@ -4,7 +4,8 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.util.math.Box
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import com.slayerxp.overlay.utils.StopwatchUtil
+//import com.slayerxp.overlay.utils.StopwatchUtil
+//import com.slayerxp.overlay.utils.Scoreboard
 
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 
@@ -37,12 +38,34 @@ fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
 
         for (stand in armorStands) {
             if (stand.name.string == String.format("Spawned by: %s", pName) && lastUUID[0] != stand.uuid.toString()) {
-                modMessage("Boss Detected");
                 sw.start();
                 running = false;
                 // Why can't I pass a string by reference in kotlin
                 // Fuck it, it's an array now
                 lastUUID[0] = stand.uuid.toString();
+
+                val cSlayer = Scoreboard.getSlayerType()
+                // Add config checks after they are made
+                if (cSlayer == "Blaze") {
+                    burningDamage();
+                }
+                break;
+            }
+        }
+    });
+}
+
+fun burningDamage() {
+    var running = true;
+
+    ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { c ->
+        if (!running) return@EndTick;
+        val armorStands = getArmorStands(5.0);
+
+        for (stand in armorStands) {
+            if (stand.name.string.contains("ﬗ")) {
+                running = false;
+                modMessage(String.format("Burning Vengeance Damage: %s", stand.name.string));
                 break;
             }
         }
