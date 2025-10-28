@@ -18,7 +18,7 @@ public class ClientConnectionMixin {
         if (listener instanceof net.minecraft.client.network.ClientPlayNetworkHandler) {
             
             //System.out.println("Packet intercepted: " + packet.getClass().getSimpleName());
-            EventManager.INSTANCE.getEVENT_BUS().post(new OnPacket.Incoming(packet));
+            EventManager.INSTANCE.post(new OnPacket.Incoming(packet));
         } // bleh
     }
 }
