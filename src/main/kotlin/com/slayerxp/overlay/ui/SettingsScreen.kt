@@ -132,6 +132,23 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 }
                 elements.add(bossInfoDropDown)
                 yPos += elementHeight + elementSpacing + 60
+
+                val messageColorDropDown = DropdownSetting(
+                    name = "MessageColor",
+                    options = listOf(
+                        "&bSXP » &3message",
+                        "&4SXP » &cmessage",
+                        "&5SXP » &dmessage",
+                        "&2SXP » &amessage",
+                        "&6SXP » &emessage"
+                    ),
+                    description = "Changes the color of SXP chat messages"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(messageColorDropDown)
+                yPos += elementHeight + elementSpacing + 60
             }
             "Overlay" -> {
                 val colorSwitch = SwitchConfig(
