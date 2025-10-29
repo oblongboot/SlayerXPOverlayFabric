@@ -7,6 +7,9 @@ import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.core.CheckboxSetting
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
+import com.slayerxp.overlay.utils.ChatUtils.prefix
+import com.slayerxp.overlay.utils.ChatUtils.colors
+import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -142,7 +145,11 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                         "&2SXP » &amessage",
                         "&6SXP » &emessage"
                     ),
-                    description = "Changes the color of SXP chat messages"
+                    description = "Changes the color of SXP chat messages",
+                    onValueChangeAction = {
+                        val num = Config.getDropdown("MessageColor")
+                        prefix = String.format("§%sSlayerXPOverlay »§%s", colors[num][0], colors[num][1])
+                    }
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
