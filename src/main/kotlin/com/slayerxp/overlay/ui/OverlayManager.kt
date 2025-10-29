@@ -22,6 +22,7 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
                 val manager = OverlayManager()
                 manager.addOverlay(KPHOverlay)
                 manager.addOverlay(XPOverlay)
+                manager.addOverlay(BVOverlay)
                 MinecraftClient.getInstance().setScreen(manager)
             }
         }
