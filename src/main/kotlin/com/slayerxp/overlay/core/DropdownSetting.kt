@@ -9,7 +9,8 @@ class DropdownSetting(
     name: String,
     val options: List<String>,
     defaultIndex: Int = 0,
-    description: String = ""
+    description: String = "",
+    private val onValueChangeAction: (() -> Unit)? = null
 ) : Setting<Int>(name, description, defaultIndex) {
     override val width = 240
     override val height = 30
@@ -189,6 +190,7 @@ class DropdownSetting(
 
     override fun onValueChanged(oldValue: Int, newValue: Int) {
         Config.setDropdown(name, newValue)
+        onValueChangeAction?.invoke()
         println("$name changed: ${options.getOrNull(oldValue)} -> ${options.getOrNull(newValue)}")
     }
 
