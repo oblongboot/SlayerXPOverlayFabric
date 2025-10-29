@@ -51,7 +51,7 @@ class onMessage {
         private suspend fun loadSlayerMap() {
             try {
                 val slayerAreaMap = APIUtils.requestJson<Map<String, String>>(
-                    "https://raw.githubusercontent.com/oblongboot/SlayerXPOverlayFabric/refs/heads/data/SlayerMap.json"
+                    "https://oblongboot.dev/slayerxpoverlay/SlayerMap.json"
                 )
                 Scoreboard.setSlayerAreaMap(slayerAreaMap)
             } catch (e: Exception) {
