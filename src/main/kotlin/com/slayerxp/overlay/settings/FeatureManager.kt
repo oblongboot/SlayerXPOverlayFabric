@@ -63,7 +63,7 @@ object FeatureManager {
         }
 
         // I dont think this was implemented because it wasnt working for me
-        val knownSwitches = listOf("BurningVengeanceDamage")
+        val knownSwitches = listOf("BurningVengeanceDamage", "BurningVengeanceTimer")
         knownSwitches.forEach {switchName ->
             states[switchName] = Config.isToggled(switchName)
         }
