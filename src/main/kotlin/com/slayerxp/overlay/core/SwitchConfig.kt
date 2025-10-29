@@ -9,7 +9,8 @@ import java.awt.Color
 class SwitchConfig(
     name: String,
     default: Boolean = false,
-    description: String = ""
+    description: String = "",
+    private val onValueChangeAction: (() -> Unit)? = null
 ) : Setting<Boolean>(name, description, default) {
     override val width = 240
     override val height = 30
@@ -63,6 +64,7 @@ class SwitchConfig(
         Config.setToggle(name, newValue)
         FeatureManager.loadAllFeatureStates()
         FeatureManager.notifyToggleChanged(name, newValue)
+        onValueChangeAction?.invoke()
 
         println("$name toggled: $oldValue -> $newValue")
     }
