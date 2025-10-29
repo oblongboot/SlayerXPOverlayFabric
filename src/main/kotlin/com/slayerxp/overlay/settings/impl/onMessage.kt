@@ -24,7 +24,6 @@ class onMessage {
         private var bonus = 1.0
         private var tier: String? = null
         private var correctXP = 0L
-        // I hate kotlin why can't I pass a string by reference
         private var lastUUID: Array<String> = arrayOf("Penis");
         private val numberFormatter = DecimalFormat("#,###")
         private var mapLoaded = false
@@ -107,6 +106,15 @@ class onMessage {
 
             val newXP = currentXP + correctXP
 
+            when (currentSlayerType) {
+                "Zombie" -> APIUtils.ZombieXP = newXP
+                "Spider" -> APIUtils.SpiderXP = newXP
+                "Sven" -> APIUtils.WolfXP = newXP
+                "Enderman" -> APIUtils.EmanXP = newXP
+                "Blaze" -> APIUtils.BlazeXP = newXP
+                "Vampire" -> APIUtils.VampireXP = newXP
+            }
+
             val totalTime = sw1.getElapsedTime()
             val bossTime = sw2.getElapsedTime()
             val spawnTime = sw1.getElapsedTime() - sw2.getElapsedTime()
@@ -116,12 +124,12 @@ class onMessage {
             val spawnTimeStr = String.format("%.2f", spawnTime / 1000.0)
 
             val parts = mutableListOf<String>()
-            parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
-            parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
-            // parts.add(sessionInfo)
+            //parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
+            //parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
 
-            modMessage(parts.joinToString(" | "))
-            APIUtils.getXP()
+            //modMessage(parts.joinToString(" | "))
+
+            updateOverlayDisplay()
 
             sw1.reset()
             sw2.reset()
@@ -132,7 +140,6 @@ class onMessage {
         fun updateOverlayDisplay() {
             val slayerType = Scoreboard.getSlayerType()
             if (slayerType == "Not in slayer area!") {
-                // XPOverlay.hide()
                 return
             }
 
@@ -164,6 +171,7 @@ class onMessage {
             }
             "SLAYER QUEST COMPLETE!", "NICE! SLAYER BOSS SLAIN!" -> {
                 handleSlayerQuestComplete()
+                return
             }
         }
 
