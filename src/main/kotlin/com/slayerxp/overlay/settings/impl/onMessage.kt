@@ -2,12 +2,11 @@ package com.slayerxp.overlay.settings.impl
 
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
-import com.slayerxp.overlay.utils.APIUtils
-import com.slayerxp.overlay.utils.Scoreboard
-import com.slayerxp.overlay.utils.StopwatchUtil
-import com.slayerxp.overlay.utils.bossChecker
 import com.slayerxp.overlay.events.OnPacket
+import com.slayerxp.overlay.settings.Config
+import com.slayerxp.overlay.ui.KPHOverlay.updateKPH
 import com.slayerxp.overlay.ui.XPOverlay
+import com.slayerxp.overlay.utils.*
 import meteordevelopment.orbit.EventHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
@@ -19,14 +18,21 @@ class onMessage {
     companion object {
         private var sw1: StopwatchUtil = StopwatchUtil()
         private var sw2: StopwatchUtil = StopwatchUtil()
+        private var sessionTimer: StopwatchUtil = StopwatchUtil()
+
         private var bossTimerStarted = false
         private var messageBool = false
         private var bonus = 1.0
         private var tier: String? = null
         private var correctXP = 0L
-        private var lastUUID: Array<String> = arrayOf("Penis");
+        private var lastUUID: Array<String> = arrayOf("Penis")
         private val numberFormatter = DecimalFormat("#,###")
         private var mapLoaded = false
+        // kph shit!
+        private var sessionKills = 0
+        private var lastKillTime = 0L
+        private var isSessionActive = false
+        private const val SESSIONTIMEOUTINMS = 10 * 60 * 1000L
 
         private val SLAYER_XP_VALUES = mapOf(
             "Zombie" to mapOf("I" to 5L, "II" to 25L, "III" to 100L, "IV" to 500L, "V" to 1500L),
@@ -84,6 +90,7 @@ class onMessage {
         fun handleSlayerQuestComplete(skipCheck: Boolean = false) {
             if (!messageBool) return
             messageBool = false
+            kphStartAutoUpdate()
             sw1.stop()
             sw2.stop()
 
@@ -132,12 +139,59 @@ class onMessage {
             //modMessage(parts.joinToString(" | "))
 
             if (skipCheck) updateOverlayDisplay(true) else updateOverlayDisplay(false)
+            sessionKills++
+            val now = System.currentTimeMillis()
 
+            if (!isSessionActive) {
+                sessionTimer.start()
+                isSessionActive = true
+                modMessage("Slayer session started! Now measuring KPH!!")
+            } else {
+                if (now - lastKillTime > SESSIONTIMEOUTINMS) {
+                    sessionTimer.reset()
+                    sessionTimer.start()
+                    sessionKills = 1 // idt this should even show but like, might aswell add here aswell ig? not really sure
+                    modMessage("Session reset after inactivity! No longer measuring KPH!") // 10 mins is enough right..
+                }
+            }
+            val elapsedMs = sessionTimer.getElapsedTime()
+            val kph = if (elapsedMs > 0 && sessionKills > 0) {
+                ((sessionKills.toDouble() / elapsedMs) * 3600000).toInt()
+            } else 0
+            lastKillTime = now
             sw1.reset()
             sw2.reset()
             bossTimerStarted = false
             tier = null
+            updateKPH(kph)
         }
+
+        private var kphUpdaterRunning = false
+
+        private fun kphStartAutoUpdate() {
+            if (!isSessionActive || kphUpdaterRunning) return
+            if (!Config.isToggled("KPHOverlay")) return
+            kphUpdaterRunning = true
+
+            fun loop() {
+                if (!isSessionActive) {
+                    kphUpdaterRunning = false
+                    return
+                }
+
+                val elapsedMs = sessionTimer.getElapsedTime()
+                val kph = if (elapsedMs > 0 && sessionKills > 0) {
+                    ((sessionKills.toDouble() / elapsedMs) * 3_600_000).toInt()
+                } else 0
+
+                updateKPH(kph)
+
+                Scheduler.scheduleTask(500) { loop() }
+            }
+
+            loop()
+        }
+
 
         fun updateOverlayDisplay(skipCheck: Boolean = false) {
             val slayerType = Scoreboard.getSlayerType()
@@ -162,10 +216,20 @@ class onMessage {
         }
     }
 
+    fun checkForIdleTimeout() {
+        if (isSessionActive && System.currentTimeMillis() - lastKillTime > SESSIONTIMEOUTINMS) {
+            isSessionActive = false
+            sessionTimer.stop()
+            modMessage("Slayer session ended (idle > 5m).")
+        }
+    }
+
+
     @EventHandler
     fun onPacketReceived(event: OnPacket.Incoming) {
         val packet = event.packet
         if (packet !is GameMessageS2CPacket) return
+        checkForIdleTimeout() // doing it for every packet would be too shit performace so like, yeah
         val message = packet.content().string.trim()
 
         when (message) {
