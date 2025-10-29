@@ -19,6 +19,8 @@ import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
 import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils.getXP
+import com.slayerxp.overlay.utils.ChatUtils.prefix
+import com.slayerxp.overlay.utils.ChatUtils.colors
 
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
@@ -67,6 +69,12 @@ object Slayerxpoverlay : ModInitializer {
                 //empty
             }
         }
+
+        // Random Prefix Color Shit
+        // Keep this at the bottom because it isn't very important
+        // Add important stuff above this if needed
+        val num = Config.getDropdown("MessageColor")
+        prefix = String.format("§%sSlayerXPOverlay »§%s", colors[num][0], colors[num][1])
     }
     ///////////////////val test = APIUtils.requestJson("")//WHY IS HTIS HGERE
     private fun sendWelcomeMessages() {
