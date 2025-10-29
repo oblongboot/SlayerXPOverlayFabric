@@ -1,6 +1,7 @@
 package com.slayerxp.overlay.settings.impl
 
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
+import net.minecraft.client.MinecraftClient
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.events.OnPacket
 import com.slayerxp.overlay.settings.Config
@@ -11,6 +12,7 @@ import meteordevelopment.orbit.EventHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import java.text.DecimalFormat
 
 class onMessage {
@@ -133,10 +135,16 @@ class onMessage {
             val spawnTimeStr = String.format("%.2f", spawnTime / 1000.0)
 
             val parts = mutableListOf<String>()
-            //parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
-            //parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
+            parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
+            parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
 
-            //modMessage(parts.joinToString(" | "))
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(500)
+
+                MinecraftClient.getInstance().execute {
+                    modMessage(parts.joinToString(" | "))
+                }
+            }
 
             if (skipCheck) updateOverlayDisplay(true) else updateOverlayDisplay(false)
             sessionKills++
