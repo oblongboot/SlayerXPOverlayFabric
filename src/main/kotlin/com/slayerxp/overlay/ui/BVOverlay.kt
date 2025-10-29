@@ -1,15 +1,12 @@
 package com.slayerxp.overlay.ui
 
-import com.slayerxp.overlay.utils.ChatUtils.prefix
-import com.slayerxp.overlay.ui.Overlay as OverlayShitAHHHHH
 import com.slayerxp.overlay.utils.Render2D
 import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.gui.DrawContext
-import java.text.DecimalFormat
 
-object XPOverlay: OverlayShitAHHHHH {
+object BVOverlay: Overlay {
     override var shouldShow = true
-    private var label = "$prefix Loading!"
+    var label = ""
     override var x = 100
     override var y = 100
     override val width = 150
@@ -22,14 +19,8 @@ object XPOverlay: OverlayShitAHHHHH {
         loadPosition()
     }
 
-    override fun show() { shouldShow = true }
-    override fun hide() { shouldShow = false }
-
-    fun updateXP(slayer: String, xp: Int) {
-        // I got annoyed at the overlay not being comma seperated
-        val temp = DecimalFormat("#,###").format(xp)
-        label = "$prefix $slayer XP: $temp"
-    }
+    override fun show() {shouldShow = true }
+    override fun hide() {shouldShow = false }
 
     override fun draw(ctx: DrawContext) {
         if (!shouldShow) return
@@ -42,11 +33,11 @@ object XPOverlay: OverlayShitAHHHHH {
     }
 
     override fun savePosition() {
-        Config.setLocationOfGUI("overlayWindow", x, y)
+        Config.setLocationOfGUI("bvOverlay", x, y)
     }
 
     private fun loadPosition() {
-        val pos = Config.getLocationOfGUI("overlayWindow")
+        val pos = Config.getLocationOfGUI("bvOverlay")
         if (pos != null) {
             x = pos.first
             y = pos.second

@@ -14,11 +14,15 @@ import com.slayerxp.overlay.settings.impl.onMessage
 import com.slayerxp.overlay.commands.CommandsManager
 import com.slayerxp.overlay.ui.XPOverlay
 import com.slayerxp.overlay.ui.KPHOverlay
+import com.slayerxp.overlay.ui.BVOverlay
 import com.slayerxp.overlay.settings.impl.KPHOverlay as KPHModule
 import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
+import com.slayerxp.overlay.settings.impl.BVOverlay as BVOverlayModule
 import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils.getXP
+import com.slayerxp.overlay.utils.ChatUtils.prefix
+import com.slayerxp.overlay.utils.ChatUtils.colors
 
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
@@ -32,6 +36,7 @@ object Slayerxpoverlay : ModInitializer {
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BossHighlight)
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Overlay)
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.KPHOverlay)
+        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BVOverlay)
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Test2)
 
         EVENT_BUS.subscribe(onMessage())
@@ -66,7 +71,19 @@ object Slayerxpoverlay : ModInitializer {
             } else {
                 //empty
             }
+//            if (BVOverlayModule.enabled) {
+//                BVOverlay.draw(drawContext)
+//            } else {
+//                //empty
+//            }
+            BVOverlay.draw(drawContext)
         }
+
+        // Random Prefix Color Shit
+        // Keep this at the bottom because it isn't very important
+        // Add important stuff above this if needed
+        val num = Config.getDropdown("MessageColor")
+        prefix = String.format("§%sSlayerXPOverlay »§%s", colors[num][0], colors[num][1])
     }
     ///////////////////val test = APIUtils.requestJson("")//WHY IS HTIS HGERE
     private fun sendWelcomeMessages() {

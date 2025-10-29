@@ -7,6 +7,9 @@ import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.core.CheckboxSetting
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
+import com.slayerxp.overlay.utils.ChatUtils.prefix
+import com.slayerxp.overlay.utils.ChatUtils.colors
+import com.slayerxp.overlay.settings.Config
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -132,6 +135,27 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 }
                 elements.add(bossInfoDropDown)
                 yPos += elementHeight + elementSpacing + 60
+
+                val messageColorDropDown = DropdownSetting(
+                    name = "MessageColor",
+                    options = listOf(
+                        "&bSXP » &3message",
+                        "&4SXP » &cmessage",
+                        "&5SXP » &dmessage",
+                        "&2SXP » &amessage",
+                        "&6SXP » &emessage"
+                    ),
+                    description = "Changes the color of SXP chat messages",
+                    onValueChangeAction = {
+                        val num = Config.getDropdown("MessageColor")
+                        prefix = String.format("§%sSlayerXPOverlay »§%s", colors[num][0], colors[num][1])
+                    }
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(messageColorDropDown)
+                yPos += elementHeight + elementSpacing + 60
             }
             "Overlay" -> {
                 val colorSwitch = SwitchConfig(
@@ -155,6 +179,29 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     y = yPos
                 }
                 elements.add(detailedSwitch)
+            }
+
+            "Blaze" -> {
+                val BVDamage = SwitchConfig(
+                    name = "BurningVengeanceDamage",
+                    default = false,
+                    description = "Says the Damage of your first Burning Vengeance Activation in chat"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(BVDamage)
+                yPos += elementHeight + elementSpacing + 60
+
+                val BVTimer = SwitchConfig(
+                    name = "BurningVengeanceTimer",
+                    default = false,
+                    description = "Counts down the time until Burning Vengeance Activates"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(BVTimer)
             }
 
             "Other" -> {
@@ -188,7 +235,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private fun setupCategories() {
         categories.clear()
         var yPos = 40
-        val catNames = listOf("General", "Overlay", "KPH", "Other")
+        val catNames = listOf("General", "Overlay", "KPH", "Blaze", "Other")
 
         catNames.forEachIndexed { index, name ->
             categories.add(
