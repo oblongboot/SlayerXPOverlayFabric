@@ -14,8 +14,10 @@ import com.slayerxp.overlay.settings.impl.onMessage
 import com.slayerxp.overlay.commands.CommandsManager
 import com.slayerxp.overlay.ui.XPOverlay
 import com.slayerxp.overlay.ui.KPHOverlay
+import com.slayerxp.overlay.ui.BVOverlay
 import com.slayerxp.overlay.settings.impl.KPHOverlay as KPHModule
 import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
+import com.slayerxp.overlay.settings.impl.BVOverlay as BVOverlayModule
 import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils.getXP
@@ -34,6 +36,7 @@ object Slayerxpoverlay : ModInitializer {
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BossHighlight)
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Overlay)
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.KPHOverlay)
+        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BVOverlay)
         com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Test2)
 
         EVENT_BUS.subscribe(onMessage())
@@ -68,6 +71,12 @@ object Slayerxpoverlay : ModInitializer {
             } else {
                 //empty
             }
+//            if (BVOverlayModule.enabled) {
+//                BVOverlay.draw(drawContext)
+//            } else {
+//                //empty
+//            }
+            BVOverlay.draw(drawContext)
         }
 
         // Random Prefix Color Shit

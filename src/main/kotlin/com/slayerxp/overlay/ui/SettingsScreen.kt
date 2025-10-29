@@ -191,6 +191,17 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     y = yPos
                 }
                 elements.add(BVDamage)
+                yPos += elementHeight + elementSpacing + 60
+
+                val BVTimer = SwitchConfig(
+                    name = "BurningVengeanceTimer",
+                    default = false,
+                    description = "Counts down the time until Burning Vengeance Activates"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(BVTimer)
             }
 
             "Other" -> {
