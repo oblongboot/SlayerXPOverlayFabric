@@ -3,8 +3,10 @@ package com.slayerxp.overlay.commands.impl
 import com.slayerxp.overlay.utils.APIUtils
 import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.Scoreboard
+import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.ui.SettingsScreen.Companion.open as bleh
 import com.slayerxp.overlay.settings.FeatureManager
+import com.slayerxp.overlay.settings.impl.onMessage
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
@@ -37,7 +39,12 @@ object SXPDevCommand {
     private fun executeClient(context: CommandContext<FabricClientCommandSource>): Int {
         val devSetting = StringArgumentType.getString(context, "devSetting")
         val debug = StringArgumentType.getString(context, "debug")
-        
+        if (devSetting == "simslayer") {
+            onMessage.handleSlayerQuestStart(true)
+            modMessage("starting sim, ends in 50 ticks")
+            Scheduler.scheduleTask(50) {modMessage("completing"); onMessage.handleSlayerQuestComplete(true)}
+            //onMessage.handleSlayerQuestComplete()
+        }
         if (devSetting == "getXP") {
             APIUtils.getXP()
             modMessage("getting xp")

@@ -70,25 +70,27 @@ class onMessage {
             }
         }
 
-        fun handleSlayerQuestStart() {
+        fun handleSlayerQuestStart(skipCheck: Boolean = false) {
             messageBool = true
             sw1.start()
             bossTimerStarted = false
             val tierInfo = Scoreboard.getSlayerTier()
             tier = tierInfo?.tier
 
+            if (skipCheck) return 
             bossChecker(sw2, lastUUID);
         }
 
-        fun handleSlayerQuestComplete() {
+        fun handleSlayerQuestComplete(skipCheck: Boolean = false) {
             if (!messageBool) return
             messageBool = false
             sw1.stop()
             sw2.stop()
 
-            val currentSlayerType = Scoreboard.getSlayerType()
-            if (currentSlayerType == "Not in slayer area!") return
+            var currentSlayerType = Scoreboard.getSlayerType()
+            if (currentSlayerType == "Not in slayer area!" && !skipCheck) return
             val tierValue = tier ?: "I"
+            if (skipCheck) currentSlayerType = "Zombie"
             correctXP = SLAYER_XP_VALUES[currentSlayerType]?.get(tierValue) ?: 5L
             if (currentSlayerType != "Vampire") {
                 correctXP = (correctXP * bonus).toLong()
@@ -129,7 +131,7 @@ class onMessage {
 
             //modMessage(parts.joinToString(" | "))
 
-            updateOverlayDisplay()
+            if (skipCheck) updateOverlayDisplay(true) else updateOverlayDisplay(false)
 
             sw1.reset()
             sw2.reset()
@@ -137,14 +139,15 @@ class onMessage {
             tier = null
         }
 
-        fun updateOverlayDisplay() {
+        fun updateOverlayDisplay(skipCheck: Boolean = false) {
             val slayerType = Scoreboard.getSlayerType()
-            if (slayerType == "Not in slayer area!") {
+            if (slayerType == "Not in slayer area!" && !skipCheck) {
                 return
             }
 
             val apiData = APIUtils.getCachedXP()
             val xp = when (slayerType) {
+                "Not in slayer area!" -> apiData.zombie // fallbcak for `/sxpdev simslayer a`
                 "Zombie" -> apiData.zombie
                 "Spider" -> apiData.spider
                 "Sven" -> apiData.wolf
@@ -154,7 +157,7 @@ class onMessage {
                 else -> 0L
             }
 
-            XPOverlay.updateXP(slayerType, xp.toInt())
+            XPOverlay.updateXP(if (slayerType == "Not in slayer area!") "Zombie" else slayerType, xp.toInt())
             XPOverlay.show()
         }
     }
