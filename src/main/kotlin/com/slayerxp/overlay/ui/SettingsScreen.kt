@@ -5,7 +5,7 @@ import com.slayerxp.overlay.core.SwitchConfig
 import com.slayerxp.overlay.core.DropdownSetting
 import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.core.CheckboxSetting
-import com.slayerxp.overlay.features.AutoCallMaddoxFeat
+//import com.slayerxp.overlay.features.AutoCallMaddoxFeat
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
