@@ -19,6 +19,7 @@ import com.slayerxp.overlay.settings.impl.KPHOverlay as KPHModule
 import com.slayerxp.overlay.settings.impl.Overlay as OverlayModule
 import com.slayerxp.overlay.settings.impl.BVOverlay as BVOverlayModule
 import com.slayerxp.overlay.settings.Config
+import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.utils.APIUtils.getXP
 import com.slayerxp.overlay.utils.ChatUtils.prefix
@@ -33,11 +34,12 @@ object Slayerxpoverlay : ModInitializer {
             lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
         }
 
-        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BossHighlight)
-        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Overlay)
-        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.KPHOverlay)
-        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BVOverlay)
-        com.slayerxp.overlay.settings.FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Test2)
+        FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BossHighlight)
+        FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Overlay)
+        FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.KPHOverlay)
+        FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.BVOverlay)
+        FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.Test2)
+        FeatureManager.registerFeature(com.slayerxp.overlay.settings.impl.AutoCallMaddox)
 
         EVENT_BUS.subscribe(onMessage())
         EVENT_BUS.subscribe(com.slayerxp.overlay.features.BossHighlightFeat())
