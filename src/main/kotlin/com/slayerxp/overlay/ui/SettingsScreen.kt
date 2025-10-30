@@ -8,9 +8,7 @@ import com.slayerxp.overlay.core.CheckboxSetting
 import com.slayerxp.overlay.features.AutoCallMaddoxFeat
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
-import com.slayerxp.overlay.utils.ChatUtils.prefix
-import com.slayerxp.overlay.utils.ChatUtils.colors
-import com.slayerxp.overlay.settings.Config
+import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -148,14 +146,27 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     ),
                     description = "Changes the color of SXP chat messages",
                     onValueChangeAction = {
-                        val num = Config.getDropdown("MessageColor")
-                        prefix = String.format("§%sSlayerXPOverlay »§%s", colors[num][0], colors[num][1])
+                        updatePrefix()
                     }
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
                 }
                 elements.add(messageColorDropDown)
+                yPos += elementHeight + elementSpacing + 60
+
+                val shortPrefix = SwitchConfig(
+                    name = "ShortPrefix",
+                    default = false,
+                    description = "Changes the prefix from SlayerXPOverlay to SXP",
+                    onValueChangeAction = {
+                        updatePrefix()
+                    }
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(shortPrefix)
                 yPos += elementHeight + elementSpacing + 60
             }
             "General QOL" -> {
