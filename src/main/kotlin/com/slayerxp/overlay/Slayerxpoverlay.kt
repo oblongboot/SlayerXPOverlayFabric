@@ -44,6 +44,8 @@ object Slayerxpoverlay : ModInitializer {
 
         EVENT_BUS.subscribe(onMessage())
         EVENT_BUS.subscribe(com.slayerxp.overlay.features.BossHighlightFeat())
+        EVENT_BUS.subscribe(com.slayerxp.overlay.features.AutoCallMaddoxFeat())
+        
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
