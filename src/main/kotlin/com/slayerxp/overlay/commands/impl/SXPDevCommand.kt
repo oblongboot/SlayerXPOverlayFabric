@@ -6,6 +6,9 @@ import com.slayerxp.overlay.utils.Scoreboard
 import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.ui.SettingsScreen.Companion.open as bleh
 import com.slayerxp.overlay.settings.FeatureManager
+import net.minecraft.client.MinecraftClient
+import net.minecraft.text.Style
+import com.slayerxp.overlay.utils.ChatUtils.getGradientStyleMessage
 import com.slayerxp.overlay.settings.impl.onMessage
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
@@ -79,7 +82,9 @@ object SXPDevCommand {
             }
             modMessage(parts.joinToString(" | "))
         }
-        
+        if (devSetting == "testgradient") {
+            MinecraftClient.getInstance().player?.sendMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35), false)
+        }
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
     }
