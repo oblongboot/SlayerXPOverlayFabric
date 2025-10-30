@@ -134,18 +134,6 @@ class onMessage {
             val bossTimeStr = String.format("%.2f", bossTime / 1000.0)
             val spawnTimeStr = String.format("%.2f", spawnTime / 1000.0)
 
-            val parts = mutableListOf<String>()
-            parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
-            parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
-
-            CoroutineScope(Dispatchers.Default).launch {
-                delay(500)
-
-                MinecraftClient.getInstance().execute {
-                    modMessage(parts.joinToString(" | "))
-                }
-            }
-
             if (skipCheck) updateOverlayDisplay(true) else updateOverlayDisplay(false)
             sessionKills++
             val now = System.currentTimeMillis()
@@ -166,6 +154,30 @@ class onMessage {
             val kph = if (elapsedMs > 0 && sessionKills > 0) {
                 ((sessionKills.toDouble() / elapsedMs) * 3600000).toInt()
             } else 0
+
+            val parts = mutableListOf<String>()
+            val options = Config.getMultiSelect("BossInfoCheckbox")
+            if (options.contains(0)) {
+                parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
+            }
+            if (options.contains(1)) {
+                parts.add("Kills: $sessionKills")
+            }
+            if (options.contains(2)) {
+                parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
+            }
+            if (options.contains(3)) {
+                parts.add("KPH: $kph")
+            }
+
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(500)
+
+                MinecraftClient.getInstance().execute {
+                    modMessage(parts.joinToString(" | "))
+                }
+            }
+
             lastKillTime = now
             sw1.reset()
             sw2.reset()

@@ -122,16 +122,20 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(HighlightsToggle)
                 yPos += elementHeight + elementSpacing
 
-                val bossInfoDropDown = DropdownSetting(
-                    name = "BossInfoDropdown",
-                    options = listOf("XP", "Kills", "Time", "KPH", "XP + Kills", "XP + Time", "XP + KPH", "Kills + Time", "Kills + KPH", "Time + KPH", "XP + Kills + Time", "XP + Kills + KPH", "XP + Time + KPH", "Kills + Time + KPH", "XP + Kills + Time + KPH"),
-                    defaultIndex = 14,
-                    description = "Information to show in the chat on boss kill."
+                val bossInfoCheckbox = CheckboxSetting(
+                    name = "BossInfoCheckbox",
+                    options = listOf(
+                        "XP",
+                        "Kills",
+                        "Time",
+                        "KPH"
+                    ),
+                    defaultSelected = setOf(0, 2)
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
                 }
-                elements.add(bossInfoDropDown)
+                elements.add(bossInfoCheckbox)
                 yPos += elementHeight + elementSpacing + 60
 
                 val messageColorDropDown = DropdownSetting(
