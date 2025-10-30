@@ -52,12 +52,12 @@ object FeatureManager {
             states[feature.name] = Config.isToggled(feature.name)
         }
 
-        val knownDropdowns = listOf("BossInfoDropdown", "MessageColor")
+        val knownDropdowns = listOf("MessageColor")
         knownDropdowns.forEach { dropdownName ->
             states[dropdownName] = Config.getDropdown(dropdownName, 0)
         }
 
-        val knownCheckboxes = listOf("MultiSelectTest")
+        val knownCheckboxes = listOf("MultiSelectTest", "BossInfoCheckbox")
         knownCheckboxes.forEach { checkboxName ->
             states[checkboxName] = Config.getMultiSelect(checkboxName, setOf(0))
         }
