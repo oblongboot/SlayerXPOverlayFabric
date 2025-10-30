@@ -7,7 +7,7 @@ import meteordevelopment.orbit.EventHandler
 import net.minecraft.client.MinecraftClient
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
 
-object AutoCallMaddoxFeat {
+class AutoCallMaddoxFeat {
     @EventHandler
     fun onChatMessage(event: OnPacket.Incoming) {
         val packet = event.packet
