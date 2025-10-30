@@ -13,8 +13,8 @@ class AutoCallMaddoxFeat {
         val packet = event.packet
         if (packet !is GameMessageS2CPacket) return
         if (!Config.isToggled("AutoCallMaddox")) return
-        val msg = packet.content().toString()
-        if (msg !== "  SLAYER QUEST FAILED!") return
-        Scheduler.scheduleTask(20) { MinecraftClient.getInstance().networkHandler?.sendChatMessage("/call Maddox") }
+        val msg = packet.content().string.trim()
+        if (msg != "SLAYER QUEST FAILED!") return
+        Scheduler.scheduleTask(5) { MinecraftClient.getInstance().networkHandler?.sendChatMessage("/call Maddox") }
     }
 }
