@@ -62,6 +62,23 @@ object SXPDevCommand {
                 println(stand.uuid.toString());
             }
         }
+        if (devSetting == "bossinfo") {
+            val parts = mutableListOf<String>()
+            val options = Config.getMultiSelect("BossInfoCheckbox")
+            if (options.contains(0)) {
+                parts.add("Slayer XP: 69,420,676")
+            }
+            if (options.contains(1)) {
+                parts.add("Kills: 40")
+            }
+            if (options.contains(2)) {
+                parts.add("Time: 31s, Boss: 15s, Spawn: 16s")
+            }
+            if (options.contains(3)) {
+                parts.add("KPH: 20")
+            }
+            modMessage(parts.joinToString(" | "))
+        }
         
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
