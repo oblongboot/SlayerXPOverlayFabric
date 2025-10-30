@@ -9,6 +9,8 @@ import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import com.slayerxp.overlay.ui.BVOverlay
 
+var isBossSpawned = false
+
 fun getArmorStands(radius: Double = 35.0, yRange: Double = 10.0): MutableList<ArmorStandEntity> {
     val client = MinecraftClient.getInstance();
 
@@ -31,7 +33,7 @@ fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
     val client = MinecraftClient.getInstance();
     val pName = client.player?.name?.string;
     var running = true;
-
+    var bossUUID = null
     ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { c ->
         if (!running) return@EndTick;
         val armorStands = getArmorStands();
@@ -39,7 +41,15 @@ fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
         for (stand in armorStands) {
             if (stand.name.string == String.format("Spawned by: %s", pName) && lastUUID[0] != stand.uuid.toString()) {
                 sw.start();
+                isBossSpawned = true
                 running = false;
+                if (isBossSpawned && bossUUID != null) {
+                    val bossStillExists = armorStands.any { it.uuid.toString() == bossUUID }
+                    if (!bossStillExists) {
+                        isBossSpawned = false
+                        bossUUID = null
+                    }
+                }
                 // Why can't I pass a string by reference in kotlin
                 // Fuck it, it's an array now
                 lastUUID[0] = stand.uuid.toString();

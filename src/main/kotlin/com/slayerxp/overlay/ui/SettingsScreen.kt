@@ -5,6 +5,7 @@ import com.slayerxp.overlay.core.SwitchConfig
 import com.slayerxp.overlay.core.DropdownSetting
 import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.core.CheckboxSetting
+import com.slayerxp.overlay.features.AutoCallMaddoxFeat
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.utils.ChatUtils.prefix
@@ -157,17 +158,17 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(messageColorDropDown)
                 yPos += elementHeight + elementSpacing + 60
             }
-            "Overlay" -> {
-                val colorSwitch = SwitchConfig(
-                    name = "test2",
-                    default = true,
-                    description = "hi vro"
+            "General QOL" -> {
+                val autoCallMaddox = SwitchConfig(
+                    name = "AutoCallMaddox",
+                    default = false
                 ).apply {
-                    x = sidebarWidth + 20
+                    x = sidebarWidth +20
                     y = yPos
                 }
-                elements.add(colorSwitch)
+                elements.add(autoCallMaddox)
             }
+
 
             "KPH" -> {
                 val detailedSwitch = SwitchConfig(
@@ -235,7 +236,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private fun setupCategories() {
         categories.clear()
         var yPos = 40
-        val catNames = listOf("General", "Overlay", "KPH", "Blaze", "Other")
+        val catNames = listOf("General", "General QOL", "KPH", "Blaze", "Other")
 
         catNames.forEachIndexed { index, name ->
             categories.add(
