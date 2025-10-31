@@ -7,6 +7,7 @@ import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.core.CheckboxSetting
 //import com.slayerxp.overlay.features.AutoCallMaddoxFeat
 import com.slayerxp.overlay.settings.FeatureManager
+import com.slayerxp.overlay.core.ColorboxSetting
 import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
 import net.minecraft.client.MinecraftClient
@@ -40,7 +41,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private var selectedCategory: Category? = null
     private val startTime = System.currentTimeMillis()
 
-    private val particles = List(50) { index ->
+    private val particles = List(50) { _ ->
         Particle(
             Random.nextDouble(0.1, 0.3),
             Random.nextFloat() * 3 + 1f,
@@ -221,15 +222,15 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             }
 
             "Other" -> {
-                val debugSwitch = SwitchConfig(
-                    name = "DebugMode",
-                    default = false,
-                    description = "Enable debug shi"
+                val colorbox = ColorboxSetting(
+                    name = "debugshit",
+                    defaultColor = Color(0x12, 0x55, 0x13, 0x31),
+                    description = "shit"
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
                 }
-                elements.add(debugSwitch)
+                elements.add(colorbox)
             }
         }
 
