@@ -91,4 +91,29 @@ object Config {
     fun getMultiSelect(setting: String, default: Set<Int> = emptySet()): Set<Int> {
         return configData.getAsJsonArray(setting)?.map { it.asInt }?.toSet() ?: default
     }
+
+    fun setColor(setting: String, color: java.awt.Color) {
+        val hexColor = String.format("%02X%02X%02X%02X", color.red, color.green, color.blue, color.alpha)
+        configData.addProperty(setting, hexColor)
+        saveConfig()
+    }
+    
+    fun getColor(setting: String, default: java.awt.Color): java.awt.Color {
+        val hexString = configData.get(setting)?.asString ?: return default
+        
+        return try {
+            // rrggbbaa
+            if (hexString.length != 8) return default
+            
+            val r = hexString.substring(0, 2).toInt(16)
+            val g = hexString.substring(2, 4).toInt(16)
+            val b = hexString.substring(4, 6).toInt(16)
+            val a = hexString.substring(6, 8).toInt(16)
+            
+            java.awt.Color(r, g, b, a)
+        } catch (e: Exception) {
+            println("Failed to parse color for '$setting': $hexString")
+            default
+        }
+    }
 }

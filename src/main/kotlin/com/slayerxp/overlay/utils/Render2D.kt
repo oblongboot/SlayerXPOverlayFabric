@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.util.Formatting
+import org.lwjgl.glfw.GLFW
 import java.awt.Color
 import kotlin.math.max
 
@@ -103,5 +104,13 @@ object Render2D {
     object Mouse {
         val x get() = mouse.x * scaledWidth / max(1, screenWidth)
         val y get() = mouse.y * scaledHeight / max(1, screenHeight)
+        fun isDown(button: Int): Boolean {
+            return when(button) {
+                0 -> GLFW.glfwGetMouseButton(MinecraftClient.getInstance().window.handle, GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS
+                1 -> GLFW.glfwGetMouseButton(MinecraftClient.getInstance().window.handle, GLFW.GLFW_MOUSE_BUTTON_2) == GLFW.GLFW_PRESS
+                2 -> GLFW.glfwGetMouseButton(MinecraftClient.getInstance().window.handle, GLFW.GLFW_MOUSE_BUTTON_3) == GLFW.GLFW_PRESS
+                else -> false
+            }
+        }
     }
 }
