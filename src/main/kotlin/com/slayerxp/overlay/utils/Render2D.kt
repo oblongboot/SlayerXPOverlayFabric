@@ -104,6 +104,7 @@ object Render2D {
     object Mouse {
         val x get() = mouse.x * scaledWidth / max(1, screenWidth)
         val y get() = mouse.y * scaledHeight / max(1, screenHeight)
+
         fun isDown(button: Int): Boolean {
             return when(button) {
                 0 -> GLFW.glfwGetMouseButton(MinecraftClient.getInstance().window.handle, GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS
@@ -111,6 +112,5 @@ object Render2D {
                 2 -> GLFW.glfwGetMouseButton(MinecraftClient.getInstance().window.handle, GLFW.GLFW_MOUSE_BUTTON_3) == GLFW.GLFW_PRESS
                 else -> false
             }
-        }
     }
 }
