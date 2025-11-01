@@ -18,17 +18,21 @@ object ChatUtils {
 
     fun modMessage(message: String?) {
         if (mc.player != null) {
-            val finalMessage: Text = Text.literal("$prefix $message")
+            val NotfinalMessage: Text = Text.literal("$prefix $message")
+            val finalMessage = getGradientStyleMessage(
+                NotfinalMessage.string,
+                Config.getColor("MessageColorSelector1", java.awt.Color(33, 15, 235)).rgb,
+                Config.getColor("MessageColorSelector2", java.awt.Color(255, 87, 51)).rgb
+            )
             mc.player!!.sendMessage(finalMessage, false)
         }
     }
 
     fun updatePrefix() {
-        val num = Config.getDropdown("MessageColor")
         prefix = if (!Config.isToggled("ShortPrefix")) {
-            String.format("§%sSlayerXPOverlay »§%s", colors[num][0], colors[num][1])
+            "SlayerXPOverlay »"
         } else {
-            String.format("§%sSXP »§%s", colors[num][0], colors[num][1])
+            "SXP »"
         }
     }
 

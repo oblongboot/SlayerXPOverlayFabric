@@ -102,7 +102,6 @@ object Config {
         val hexString = configData.get(setting)?.asString ?: return default
         
         return try {
-            // rrggbbaa
             if (hexString.length != 8) return default
             
             val r = hexString.substring(0, 2).toInt(16)
@@ -113,6 +112,16 @@ object Config {
             java.awt.Color(r, g, b, a)
         } catch (e: Exception) {
             println("Failed to parse color for '$setting': $hexString")
+            default
+        }
+    }
+
+    fun getColorAsHex(setting: String, default: String = "#FFFFFFFF"): String {
+        val hexString = configData.get(setting)?.asString ?: return default.removePrefix("#")
+        
+        return if (hexString.length == 8) {
+            "#$hexString"
+        } else {
             default
         }
     }

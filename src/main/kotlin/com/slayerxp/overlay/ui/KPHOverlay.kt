@@ -1,15 +1,14 @@
 package com.slayerxp.overlay.ui
-
-
 import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.ui.Overlay as OverlayShitAHHHHH
 import com.slayerxp.overlay.utils.Render2D
 import com.slayerxp.overlay.settings.Config
+import com.slayerxp.overlay.utils.ChatUtils.getGradientStyleMessage
 import net.minecraft.client.gui.DrawContext
 
 object KPHOverlay: OverlayShitAHHHHH {
     override var shouldShow = true
-    private var label = "$prefix KPH Loading!"
+    private var label: net.minecraft.text.Text = net.minecraft.text.Text.literal("$prefix KPH Loading!")
     override var x = 100
     override var y = 100
     override val width = 150
@@ -17,32 +16,43 @@ object KPHOverlay: OverlayShitAHHHHH {
     private var dragging = false
     private var dragOffsetX = 0
     private var dragOffsetY = 0
-
+    
+    private val DEFAULT_COLOR_1 = java.awt.Color(33, 15, 235)  // #210FEB
+    private val DEFAULT_COLOR_2 = java.awt.Color(255, 87, 51)  // #FF5733
+    
     init {
         loadPosition()
+        label = getGradientStyleMessage(
+            "$prefix KPH Loading!", 
+            Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
+            Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
+        )
     }
-
+    
     override fun show() { shouldShow = true }
     override fun hide() { shouldShow = false }
-
+    
     fun updateKPH(kph: Int) {
-        label = "$prefix $kph kills/hour! "
+        label = getGradientStyleMessage(
+            "$prefix KPH: $kph", 
+            Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
+            Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
+        )
     }
-
+    
     override fun draw(ctx: DrawContext) {
         if (!shouldShow) return
-
         if (dragging) {
             x = (Render2D.Mouse.x - dragOffsetX).toInt()
             y = (Render2D.Mouse.y - dragOffsetY).toInt()
         }
-        Render2D.drawString(ctx, label, x + 10, y + 15)
+        Render2D.drawStringTextFormat(ctx, label, x + 10, y + 15)
     }
-
+    
     override fun savePosition() {
         Config.setLocationOfGUI("kphOverlay", x, y)
     }
-
+    
     private fun loadPosition() {
         val pos = Config.getLocationOfGUI("kphOverlay")
         if (pos != null) {

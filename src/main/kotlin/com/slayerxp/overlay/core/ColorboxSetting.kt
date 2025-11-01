@@ -278,9 +278,14 @@ class ColorboxSetting(
         updateHSVFromColor(value)
     }
 
-    override fun onValueChanged(oldValue: Color, newValue: Color) {
+    override public fun onValueChanged(oldValue: Color, newValue: Color) {
         Config.setColor(name, newValue)
         onValueChangeAction?.invoke(newValue)
+    }
+
+    fun svs(color: Color) {
+        value = color
+        updateHSVFromColor(color)
     }
 
     private fun isWithinBounds(

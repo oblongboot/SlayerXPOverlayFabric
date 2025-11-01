@@ -7,6 +7,7 @@ import com.slayerxp.overlay.core.ButtonSetting
 import com.slayerxp.overlay.core.CheckboxSetting
 //import com.slayerxp.overlay.features.AutoCallMaddoxFeat
 import com.slayerxp.overlay.settings.FeatureManager
+import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.core.ColorboxSetting
 import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
@@ -113,16 +114,6 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(openOtherGUI)
                 yPos += elementHeight + elementSpacing
                 
-                val HighlightsToggle = SwitchConfig(
-                    name = "BossHighlight",
-                    default = false,
-                    description = "Highlight bosses!!!"
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(HighlightsToggle)
-                yPos += elementHeight + elementSpacing
 
                 val bossInfoCheckbox = CheckboxSetting(
                     name = "BossInfoCheckbox",
@@ -138,27 +129,8 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     y = yPos
                 }
                 elements.add(bossInfoCheckbox)
-                yPos += elementHeight + elementSpacing + 60
+                yPos += elementHeight + elementSpacing + 20
 
-                val messageColorDropDown = DropdownSetting(
-                    name = "MessageColor",
-                    options = listOf(
-                        "&bSXP » &3message",
-                        "&4SXP » &cmessage",
-                        "&5SXP » &dmessage",
-                        "&2SXP » &amessage",
-                        "&6SXP » &emessage"
-                    ),
-                    description = "Changes the color of SXP chat messages",
-                    onValueChangeAction = {
-                        updatePrefix()
-                    }
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(messageColorDropDown)
-                yPos += elementHeight + elementSpacing + 60
 
                 val shortPrefix = SwitchConfig(
                     name = "ShortPrefix",
@@ -183,6 +155,17 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     y = yPos
                 }
                 elements.add(autoCallMaddox)
+                
+                val HighlightsToggle = SwitchConfig(
+                    name = "BossHighlight",
+                    default = false,
+                    description = "Highlight bosses!!!"
+                ).apply {
+                    x = sidebarWidth + 20
+                    y = yPos
+                }
+                elements.add(HighlightsToggle)
+                yPos += elementHeight + elementSpacing
             }
 
 
@@ -221,16 +204,28 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 elements.add(BVTimer)
             }
 
-            "Other" -> {
-                val colorbox = ColorboxSetting(
-                    name = "debugshit",
-                    defaultColor = Color(0x12, 0x55, 0x13, 0x31),
-                    description = "shit"
+            "Colors" -> {
+                val messageColorSelector1 = ColorboxSetting(
+                    name = "MessageColorSelector1",
+                    defaultColor = Color(0, 255, 255),
+                    description = "Start Color for the chat message gradient"
                 ).apply {
                     x = sidebarWidth + 20
                     y = yPos
                 }
-                elements.add(colorbox)
+                elements.add(messageColorSelector1)
+                yPos += elementHeight + elementSpacing
+
+                val messageColorSelector2 = ColorboxSetting(
+                    name = "MessageColorSelector2",
+                    defaultColor = Color(0, 0, 255),
+                    description = "End Color for the chat message gradient"
+                ).apply {
+                    x = sidebarWidth + 270
+                    y = yPos - 30
+                }
+                elements.add(messageColorSelector2)
+                yPos += elementHeight + elementSpacing
             }
         }
 
@@ -245,6 +240,10 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     val currentState = configStates[element.name] as? Int ?: element.default
                     element.value = currentState
                 }
+                is ColorboxSetting -> {
+                    val currentColor = Config.getColor(element.name, element.default)
+                    element.svs(currentColor)
+                }
             }
         }
     }
@@ -252,7 +251,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private fun setupCategories() {
         categories.clear()
         var yPos = 40
-        val catNames = listOf("General", "General QOL", "KPH", "Blaze", "Other")
+        val catNames = listOf("General", "General QOL", "KPH", "Blaze", "Colors")
 
         catNames.forEachIndexed { index, name ->
             categories.add(

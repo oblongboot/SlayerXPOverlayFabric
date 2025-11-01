@@ -46,6 +46,26 @@ object Render2D {
 
         if (scale != 1f) matrices.popMatrix()
     }
+
+    @JvmOverloads
+    fun drawStringTextFormat(
+        ctx: DrawContext,
+        text: net.minecraft.text.Text,
+        x: Int,
+        y: Int,
+        scale: Float = 1f,
+        shadow: Boolean = true
+    ) {
+        val matrices = ctx.matrices
+        if (scale != 1f) {
+            matrices.pushMatrix()
+            matrices.scale(scale, scale)
+        }
+
+        ctx.drawText(textRenderer, text, x, y, -1, shadow)
+
+        if (scale != 1f) matrices.popMatrix()
+    }
     @JvmOverloads
     fun drawStringNW(ctx: DrawContext, str: String, x: Int, y: Int, scale: Float = 1f, shadow: Boolean = true) {
         var yy = y
