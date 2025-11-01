@@ -112,5 +112,6 @@ object Render2D {
                 2 -> GLFW.glfwGetMouseButton(MinecraftClient.getInstance().window.handle, GLFW.GLFW_MOUSE_BUTTON_3) == GLFW.GLFW_PRESS
                 else -> false
             }
+        }
     }
 }
