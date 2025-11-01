@@ -21,6 +21,7 @@ import com.slayerxp.overlay.settings.impl.BVOverlay as BVOverlayModule
 import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
+import kotlinx.coroutines.launch
 import com.slayerxp.overlay.utils.APIUtils.getXP
 import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.utils.ChatUtils.colors
@@ -88,6 +89,11 @@ object Slayerxpoverlay : ModInitializer {
         // Keep this at the bottom because it isn't very important
         // Add important stuff above this if needed
         updatePrefix()
+
+    APIUtils.scope.launch {
+        APIUtils.fetchContributors()
+    }
+
     }
     ///////////////////val test = APIUtils.requestJson("")//WHY IS HTIS HGERE
     private fun sendWelcomeMessages() {
@@ -98,4 +104,5 @@ object Slayerxpoverlay : ModInitializer {
         modMessage("GitHub: https://github.com/oblongboot/SlayerXPOverlayFabric")
         modMessage(border)
     }
+    
 }

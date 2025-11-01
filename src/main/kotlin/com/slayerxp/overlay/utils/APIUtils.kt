@@ -16,6 +16,7 @@ object APIUtils {
 
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     val json = Json { ignoreUnknownKeys = true }
+    private var cachedContributors: List<Contributor> = emptyList()
 
     /**
      * Generic request function to return parsed JSON from a URL.
@@ -49,6 +50,12 @@ object APIUtils {
         }
     }
 
+    @Serializable
+    data class Contributor(
+        val name: String,
+        val color: String = "#FFD700" // default to gold!
+    )
+    fun getContributors(): List<Contributor> = cachedContributors
     private suspend fun xp() {
         val ign = ChatUtils.mc.player?.gameProfile?.name ?: return
         //ChatUtils.modMessage(ign)
@@ -66,6 +73,14 @@ object APIUtils {
 
         }
     }
+
+    suspend fun fetchContributors() {
+        val result = requestJson<List<Contributor>>("https://oblongboot.dev/slayerxpoverlay/Contributers.json")
+        if (result != null) {
+            cachedContributors = result
+        }
+    }
+
 
     fun getXP() {
         scope.launch {

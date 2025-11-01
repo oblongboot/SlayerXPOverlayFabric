@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ClientConnectionMixin",
-		"Mixin3DRendering"
+		"Mixin3DRendering",
+		"MixinContributerColor"
 	],
 	"injectors": {
 		"defaultRequire": 1
