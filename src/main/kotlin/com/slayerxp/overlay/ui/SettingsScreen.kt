@@ -157,17 +157,17 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                 }
                 elements.add(autoCallMaddox)
                 
-                val HighlightsToggle = SwitchConfig(
-                    name = "BossHighlight",
-                    default = false,
-                    description = "Highlight bosses!!!"
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(HighlightsToggle)
-                yPos += elementHeight + elementSpacing
-            }
+            //     val HighlightsToggle = SwitchConfig(
+            //         name = "BossHighlight",
+            //         default = false,
+            //         description = "Highlight bosses!!!"
+            //     ).apply {
+            //         x = sidebarWidth + 20
+            //         y = yPos
+            //     }
+            //     elements.add(HighlightsToggle)
+            //     yPos += elementHeight + elementSpacing
+            // } // cba
 
 
             "KPH" -> {
