@@ -3,7 +3,7 @@ import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.ui.Overlay as OverlayShitAHHHHH
 import com.slayerxp.overlay.utils.Render2D
 import com.slayerxp.overlay.settings.Config
-import com.slayerxp.overlay.utils.ChatUtils.getGradientStyleMessage
+import com.slayerxp.overlay.utils.ChatUtils.getColoredMessage
 import net.minecraft.client.gui.DrawContext
 import java.text.DecimalFormat
 
@@ -23,8 +23,8 @@ object XPOverlay: OverlayShitAHHHHH {
     
     init {
         loadPosition()
-        label = getGradientStyleMessage(
-            "$prefix Loading!", 
+        label = getColoredMessage(
+            "Loading!",
             Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
             Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
         )
@@ -36,8 +36,8 @@ object XPOverlay: OverlayShitAHHHHH {
     fun updateXP(slayer: String, xp: Int) {
         // I got annoyed at the overlay not being comma seperated
         val temp = DecimalFormat("#,###").format(xp)
-        label = getGradientStyleMessage(
-            "$prefix $slayer XP: $temp",
+        label = getColoredMessage(
+            "$slayer XP: $temp",
             Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
             Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
         )

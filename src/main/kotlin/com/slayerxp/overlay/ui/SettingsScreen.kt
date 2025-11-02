@@ -11,6 +11,7 @@ import com.slayerxp.overlay.settings.Config
 import com.slayerxp.overlay.core.ColorboxSetting
 import com.slayerxp.overlay.utils.Scheduler
 import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
+import com.slayerxp.overlay.utils.ChatUtils.isGradient
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
@@ -225,6 +226,20 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     y = yPos - 30
                 }
                 elements.add(messageColorSelector2)
+                yPos += elementHeight + elementSpacing
+
+                val gradientSwitch = SwitchConfig(
+                    name = "IsGradient",
+                    default = false,
+                    description = "Sends the message in a gradient",
+                    onValueChangeAction = {
+                        isGradient = Config.isToggled("IsGradient");
+                    }
+                ).apply {
+                    x = sidebarWidth + 20;
+                    y = yPos
+                }
+                elements.add(gradientSwitch)
                 yPos += elementHeight + elementSpacing
             }
         }
