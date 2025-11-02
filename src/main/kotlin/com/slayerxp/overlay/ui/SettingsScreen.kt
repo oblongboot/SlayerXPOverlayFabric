@@ -231,14 +231,14 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
 
                 val gradientSwitch = SwitchConfig(
                     name = "IsGradient",
-                    default = false,
+                    default = true,
                     description = "Sends the message in a gradient",
                     onValueChangeAction = {
                         isGradient = Config.isToggled("IsGradient");
                     }
                 ).apply {
                     x = sidebarWidth + 20;
-                    y = yPos
+                    y = yPos + 180
                 }
                 elements.add(gradientSwitch)
                 yPos += elementHeight + elementSpacing
