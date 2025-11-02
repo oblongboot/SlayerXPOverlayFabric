@@ -168,6 +168,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             //     elements.add(HighlightsToggle)
             //     yPos += elementHeight + elementSpacing
             // } // cba
+            }
 
 
             "KPH" -> {
