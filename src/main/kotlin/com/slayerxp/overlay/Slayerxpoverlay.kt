@@ -6,6 +6,7 @@ import com.slayerxp.overlay.settings.impl.onMessage.Companion as MessageCompanio
 import com.slayerxp.overlay.utils.APIUtils
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderTickCounter
 import org.slf4j.LoggerFactory
@@ -29,6 +30,7 @@ import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
     const val VERSION = "@@VERSION@@"
+    var shouldCheck = true
 
     override fun onInitialize() {
         EVENT_BUS.registerLambdaFactory("com.slayerxp.overlay") { lookupInMethod, klass ->
@@ -50,21 +52,41 @@ object Slayerxpoverlay : ModInitializer {
         APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
         MessageCompanion.initialize()
-        ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { _, _, _ ->
-            try {
-                if (Config.isToggled("firstTimeInstall")) {
-                    logger.debug("First time install flag already set, skipping welcome message.")
-                    getXP()
-                    return@Join
-                }
-                sendWelcomeMessages()
-                Config.setToggle("firstTimeInstall", true)
-                logger.info("Welcome message sent and firstTimeInstall toggled to true.")
+        ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
+            APIUtils.scope.launch {
+                try {
+                    if (Config.isToggled("firstTimeInstall")) {
+                        logger.debug("First time install flag already set, skipping welcome message.")
+                        APIUtils.getXP()
+                    } else {
+                        sendWelcomeMessages()
+                        Config.setToggle("firstTimeInstall", true)
+                        logger.info("Welcome message sent and firstTimeInstall toggled to true.")
+                    }
+                    APIUtils.scope.launch {
+                        try {
+                            if (!shouldCheck) return@launch
+                            shouldCheck = false
+                            val updateAvailable = com.slayerxp.overlay.utils.UpdateChecker.isUpdateAvailable("1.0.0")
+                            if (updateAvailable) {
+                                MinecraftClient.getInstance().execute {
+                                    modMessage(
+                                        "A new version of SlayerXPOverlayFabric is available! " +
+                                        "You are running version v1.0.0. " +
+                                        "Please check the GitHub page for the latest version."
+                                    )
+                                }
+                            }
+                        } catch (ex: Exception) {
+                            ex.printStackTrace()
+                        }
+                    }
 
-            } catch (ex: Exception) {
-                logger.error("Error during SlayerXPOverlayFabric first time install check: ", ex)
+                } catch (ex: Exception) {
+                    logger.error("Error during SlayerXPOverlayFabric first time install check: ", ex)
+                }
             }
-        })
+        }
         HudRenderCallback.EVENT.register { drawContext: DrawContext, _: RenderTickCounter ->
             if (OverlayModule.enabled) {
                 XPOverlay.draw(drawContext)
@@ -95,14 +117,14 @@ object Slayerxpoverlay : ModInitializer {
     }
 
     }
-    ///////////////////val test = APIUtils.requestJson("")//WHY IS HTIS HGERE
     private fun sendWelcomeMessages() {
         val border = "-".repeat(53)
-        modMessage(border)
-        modMessage("Thank you for installing SlayerXPOverlayFabric!")
-        modMessage("Credits: oblongboot (and Februari10 for the help!)")
-        modMessage("GitHub: https://github.com/oblongboot/SlayerXPOverlayFabric")
-        modMessage(border)
+        MinecraftClient.getInstance().execute {
+            modMessage(border)
+            modMessage("Thank you for installing SlayerXPOverlayFabric!")
+            modMessage("Credits: oblongboot (and Februari10 for the help!)")
+            modMessage("GitHub: https://github.com/oblongboot/SlayerXPOverlayFabric")
+            modMessage(border)
+        }
     }
-    
 }
