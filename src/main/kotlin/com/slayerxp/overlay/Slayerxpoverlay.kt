@@ -23,8 +23,7 @@ import com.slayerxp.overlay.settings.FeatureManager
 import com.slayerxp.overlay.utils.ChatUtils.modMessage
 import kotlinx.coroutines.launch
 import com.slayerxp.overlay.utils.APIUtils.getXP
-import com.slayerxp.overlay.utils.ChatUtils.prefix
-import com.slayerxp.overlay.utils.ChatUtils.colors
+import com.slayerxp.overlay.utils.ChatUtils.isGradient
 import com.slayerxp.overlay.utils.ChatUtils.updatePrefix
 
 object Slayerxpoverlay : ModInitializer {
@@ -89,6 +88,7 @@ object Slayerxpoverlay : ModInitializer {
         // Keep this at the bottom because it isn't very important
         // Add important stuff above this if needed
         updatePrefix()
+        isGradient = Config.isToggled("IsGradient")
 
     APIUtils.scope.launch {
         APIUtils.fetchContributors()

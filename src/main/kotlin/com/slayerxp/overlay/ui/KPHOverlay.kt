@@ -3,7 +3,7 @@ import com.slayerxp.overlay.utils.ChatUtils.prefix
 import com.slayerxp.overlay.ui.Overlay as OverlayShitAHHHHH
 import com.slayerxp.overlay.utils.Render2D
 import com.slayerxp.overlay.settings.Config
-import com.slayerxp.overlay.utils.ChatUtils.getGradientStyleMessage
+import com.slayerxp.overlay.utils.ChatUtils.getColoredMessage
 import net.minecraft.client.gui.DrawContext
 
 object KPHOverlay: OverlayShitAHHHHH {
@@ -22,8 +22,8 @@ object KPHOverlay: OverlayShitAHHHHH {
     
     init {
         loadPosition()
-        label = getGradientStyleMessage(
-            "$prefix KPH Loading!", 
+        label = getColoredMessage(
+            "KPH Loading!",
             Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
             Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
         )
@@ -33,8 +33,8 @@ object KPHOverlay: OverlayShitAHHHHH {
     override fun hide() { shouldShow = false }
     
     fun updateKPH(kph: Int) {
-        label = getGradientStyleMessage(
-            "$prefix KPH: $kph", 
+        label = getColoredMessage(
+            "KPH: $kph",
             Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
             Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
         )

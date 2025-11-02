@@ -3,24 +3,18 @@ package com.slayerxp.overlay.utils
 import net.minecraft.client.MinecraftClient
 import net.minecraft.text.Text
 import com.slayerxp.overlay.settings.Config
+import net.minecraft.text.Style
 
 object ChatUtils {
-    var prefix = "§bSlayerXPOverlay »§3"
+    var prefix = "SlayerXPOverlay »"
     @JvmField
     val mc: MinecraftClient = MinecraftClient.getInstance()
-    val colors: Array<Array<String>> = arrayOf(
-        arrayOf("b", "3"),
-        arrayOf("4", "c"),
-        arrayOf("5", "d"),
-        arrayOf("2", "a"),
-        arrayOf("6", "e")
-    )
+    var isGradient = false;
 
     fun modMessage(message: String?) {
-        if (mc.player != null) {
-            val NotfinalMessage: Text = Text.literal("$prefix $message")
-            val finalMessage = getGradientStyleMessage(
-                NotfinalMessage.string,
+        if (mc.player != null && message != null) {
+            val finalMessage = getColoredMessage(
+                message,
                 Config.getColor("MessageColorSelector1", java.awt.Color(33, 15, 235)).rgb,
                 Config.getColor("MessageColorSelector2", java.awt.Color(255, 87, 51)).rgb
             )
@@ -37,7 +31,7 @@ object ChatUtils {
     }
 
     fun getGradientStyleMessage(message: String, startColor: Int, endColor: Int): Text {
-        val msg = net.minecraft.text.Text.empty()
+        val msg = Text.empty()
         val len = message.length
         for (i in message.indices) {
             val c = message[i]
@@ -47,10 +41,25 @@ object ChatUtils {
             val b = ((1 - ratio) * (startColor and 0xFF) + ratio * (endColor and 0xFF)).toInt()
             val color = (r shl 16) or (g shl 8) or b
                 
-            val charText = net.minecraft.text.Text.literal(c.toString())
-                .setStyle(net.minecraft.text.Style.EMPTY.withColor(color))
+            val charText = Text.literal(c.toString())
+                .setStyle(Style.EMPTY.withColor(color))
             msg.append(charText)
         }
         return msg
+    }
+
+    fun getNormalStyleMessage(message: String, color1: Int, color2: Int): Text {
+        val msg = Text.empty()
+        msg.append(Text.literal("$prefix ").setStyle(Style.EMPTY.withColor(color1)))
+        msg.append(Text.literal(message).setStyle(Style.EMPTY.withColor(color2)))
+        return msg
+    }
+
+    fun getColoredMessage(message: String, color1: Int, color2: Int): Text {
+        if (isGradient) {
+            val temp = "$prefix $message"
+            return getGradientStyleMessage(temp, color1, color2)
+        }
+        return getNormalStyleMessage(message, color1, color2)
     }
 }
