@@ -142,7 +142,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
                     }
                 ).apply {
                     x = sidebarWidth + 20
-                    y = yPos
+                    y = yPos + 65
                 }
                 elements.add(shortPrefix)
                 yPos += elementHeight + elementSpacing + 60
@@ -170,18 +170,6 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             // } // cba
             }
 
-
-            "KPH" -> {
-                val detailedSwitch = SwitchConfig(
-                    name = "testSwitch",
-                    default = false,
-                    description = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaneeedmakelongsoicantestifthetextgoesweirdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(detailedSwitch)
-            }
 
             "Blaze" -> {
                 val BVDamage = SwitchConfig(
@@ -267,7 +255,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
     private fun setupCategories() {
         categories.clear()
         var yPos = 40
-        val catNames = listOf("General", "General QOL", "KPH", "Blaze", "Colors")
+        val catNames = listOf("General", "General QOL", "Blaze", "Colors")
 
         catNames.forEachIndexed { index, name ->
             categories.add(
