@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "com.slayerxp.overlay.mixin",
+	"package": "dev.oblongboot.sxp.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ClientConnectionMixin",

@@ -18,7 +18,7 @@
 	"entrypoints": {
 		"main": [
 			{
-				"value": "com.slayerxp.overlay.Slayerxpoverlay",
+				"value": "dev.oblongboot.sxp.Slayerxpoverlay",
 				"adapter": "kotlin"
 			}
 		]

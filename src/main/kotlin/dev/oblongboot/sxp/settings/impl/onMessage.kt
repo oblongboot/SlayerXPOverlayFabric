@@ -1,0 +1,267 @@
+package dev.oblongboot.sxp.settings.impl
+
+import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
+import net.minecraft.client.MinecraftClient
+import dev.oblongboot.sxp.utils.ChatUtils.modMessage
+import dev.oblongboot.sxp.events.OnPacket
+import dev.oblongboot.sxp.settings.Config
+import dev.oblongboot.sxp.ui.KPHOverlay.updateKPH
+import dev.oblongboot.sxp.ui.XPOverlay
+import dev.oblongboot.sxp.utils.*
+import meteordevelopment.orbit.EventHandler
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import java.text.DecimalFormat
+
+class onMessage {
+
+    companion object {
+        private var sw1: StopwatchUtil = StopwatchUtil()
+        private var sw2: StopwatchUtil = StopwatchUtil()
+        private var sessionTimer: StopwatchUtil = StopwatchUtil()
+
+        private var bossTimerStarted = false
+        private var messageBool = false
+        private var bonus = 1.0
+        private var tier: String? = null
+        private var correctXP = 0L
+        private var lastUUID: Array<String> = arrayOf("Penis")
+        private val numberFormatter = DecimalFormat("#,###")
+        private var mapLoaded = false
+        // kph shit!
+        private var sessionKills = 0
+        private var lastKillTime = 0L
+        private var isSessionActive = false
+        private const val SESSIONTIMEOUTINMS = 10 * 60 * 1000L
+
+        private val SLAYER_XP_VALUES = mapOf(
+            "Zombie" to mapOf("I" to 5L, "II" to 25L, "III" to 100L, "IV" to 500L, "V" to 1500L),
+            "Spider" to mapOf("I" to 5L, "II" to 25L, "III" to 100L, "IV" to 500L, "V" to 1500L),
+            "Sven" to mapOf("I" to 5L, "II" to 25L, "III" to 100L, "IV" to 500L, "V" to 1500L),
+            "Enderman" to mapOf("I" to 5L, "II" to 25L, "III" to 100L, "IV" to 500L, "V" to 1500L),
+            "Blaze" to mapOf("I" to 5L, "II" to 25L, "III" to 100L, "IV" to 500L, "V" to 1500L),
+            "Vampire" to mapOf("I" to 10L, "II" to 25L, "III" to 60L, "IV" to 120L, "V" to 150L)
+        )
+
+        fun initialize() {
+            if (!mapLoaded) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    loadSlayerMap()
+                    loadMayorData()
+                    mapLoaded = true
+                }
+            }
+        }
+
+        private suspend fun loadSlayerMap() {
+            try {
+                val slayerAreaMap = APIUtils.requestJson<Map<String, String>>(
+                    "https://oblongboot.dev/slayerxpoverlay/SlayerMap.json"
+                )
+                Scoreboard.setSlayerAreaMap(slayerAreaMap)
+            } catch (e: Exception) {
+                modMessage("Failed to load slayer area map from GitHub, using fallback")
+                Scoreboard.setSlayerAreaMap(null)
+            }
+        }
+
+        private suspend fun loadMayorData() {
+            try {
+                val mayorResponse = APIUtils.requestJson<Boolean>(
+                    "https://slayerxpoverlay.hypickelapi.workers.dev/mayor"
+                )
+                bonus = if (mayorResponse == true) 1.25 else 1.0
+            } catch (e: Exception) {
+                bonus = 1.0
+            }
+        }
+
+        fun handleSlayerQuestStart(skipCheck: Boolean = false) {
+            messageBool = true
+            sw1.start()
+            bossTimerStarted = false
+            val tierInfo = Scoreboard.getSlayerTier()
+            tier = tierInfo?.tier
+
+            if (skipCheck) return 
+            bossChecker(sw2, lastUUID);
+        }
+
+        fun handleSlayerQuestComplete(skipCheck: Boolean = false) {
+            if (!messageBool) return
+            messageBool = false
+            kphStartAutoUpdate()
+            sw1.stop()
+            sw2.stop()
+
+            var currentSlayerType = Scoreboard.getSlayerType()
+            if (currentSlayerType == "Not in slayer area!" && !skipCheck) return
+            val tierValue = tier ?: "I"
+            if (skipCheck) currentSlayerType = "Zombie"
+            correctXP = SLAYER_XP_VALUES[currentSlayerType]?.get(tierValue) ?: 5L
+            if (currentSlayerType != "Vampire") {
+                correctXP = (correctXP * bonus).toLong()
+            }
+            val apiData = APIUtils.getCachedXP()
+            val currentXP = when (currentSlayerType) {
+                "Zombie" -> apiData.zombie
+                "Spider" -> apiData.spider
+                "Sven" -> apiData.wolf
+                "Enderman" -> apiData.enderman
+                "Blaze" -> apiData.blaze
+                "Vampire" -> apiData.vampire
+                else -> 0L
+            }
+
+            val newXP = currentXP + correctXP
+
+            when (currentSlayerType) {
+                "Zombie" -> APIUtils.ZombieXP = newXP
+                "Spider" -> APIUtils.SpiderXP = newXP
+                "Sven" -> APIUtils.WolfXP = newXP
+                "Enderman" -> APIUtils.EmanXP = newXP
+                "Blaze" -> APIUtils.BlazeXP = newXP
+                "Vampire" -> APIUtils.VampireXP = newXP
+            }
+
+            val totalTime = sw1.getElapsedTime()
+            val bossTime = sw2.getElapsedTime()
+            val spawnTime = sw1.getElapsedTime() - sw2.getElapsedTime()
+
+            val timeStr = String.format("%.2f", totalTime / 1000.0)
+            val bossTimeStr = String.format("%.2f", bossTime / 1000.0)
+            val spawnTimeStr = String.format("%.2f", spawnTime / 1000.0)
+
+            if (skipCheck) updateOverlayDisplay(true) else updateOverlayDisplay(false)
+            sessionKills++
+            val now = System.currentTimeMillis()
+
+            if (!isSessionActive) {
+                sessionTimer.start()
+                isSessionActive = true
+                modMessage("Slayer session started! Now measuring KPH!!")
+            } else {
+                if (now - lastKillTime > SESSIONTIMEOUTINMS) {
+                    sessionTimer.reset()
+                    sessionTimer.start()
+                    sessionKills = 1 // idt this should even show but like, might aswell add here aswell ig? not really sure
+                    modMessage("Session reset after inactivity! No longer measuring KPH!") // 10 mins is enough right..
+                }
+            }
+            val elapsedMs = sessionTimer.getElapsedTime()
+            val kph = if (elapsedMs > 0 && sessionKills > 0) {
+                ((sessionKills.toDouble() / elapsedMs) * 3600000).toInt()
+            } else 0
+
+            val parts = mutableListOf<String>()
+            val options = Config.getMultiSelect("BossInfoCheckbox")
+            if (options.contains(0)) {
+                parts.add("Slayer XP: ${numberFormatter.format(newXP)}")
+            }
+            if (options.contains(1)) {
+                parts.add("Kills: $sessionKills")
+            }
+            if (options.contains(2)) {
+                parts.add("Time: ${timeStr}s, Boss: ${bossTimeStr}s, Spawn: ${spawnTimeStr}s")
+            }
+            if (options.contains(3)) {
+                parts.add("KPH: $kph")
+            }
+
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(500)
+
+                MinecraftClient.getInstance().execute {
+                    modMessage(parts.joinToString(" | "))
+                }
+            }
+
+            lastKillTime = now
+            sw1.reset()
+            sw2.reset()
+            bossTimerStarted = false
+            tier = null
+            updateKPH(kph)
+        }
+
+        private var kphUpdaterRunning = false
+
+        private fun kphStartAutoUpdate() {
+            if (!isSessionActive || kphUpdaterRunning) return
+            if (!Config.isToggled("KPHOverlay")) return
+            kphUpdaterRunning = true
+
+            fun loop() {
+                if (!isSessionActive) {
+                    kphUpdaterRunning = false
+                    return
+                }
+
+                val elapsedMs = sessionTimer.getElapsedTime()
+                val kph = if (elapsedMs > 0 && sessionKills > 0) {
+                    ((sessionKills.toDouble() / elapsedMs) * 3_600_000).toInt()
+                } else 0
+
+                updateKPH(kph)
+
+                Scheduler.scheduleTask(500) { loop() }
+            }
+
+            loop()
+        }
+
+
+        fun updateOverlayDisplay(skipCheck: Boolean = false) {
+            val slayerType = Scoreboard.getSlayerType()
+            if (slayerType == "Not in slayer area!" && !skipCheck) {
+                return
+            }
+
+            val apiData = APIUtils.getCachedXP()
+            val xp = when (slayerType) {
+                "Not in slayer area!" -> apiData.zombie // fallbcak for `/sxpdev simslayer a`
+                "Zombie" -> apiData.zombie
+                "Spider" -> apiData.spider
+                "Sven" -> apiData.wolf
+                "Enderman" -> apiData.enderman
+                "Blaze" -> apiData.blaze
+                "Vampire" -> apiData.vampire
+                else -> 0L
+            }
+
+            XPOverlay.updateXP(if (slayerType == "Not in slayer area!") "Zombie" else slayerType, xp.toInt())
+            XPOverlay.show()
+        }
+    }
+
+    fun checkForIdleTimeout() {
+        if (isSessionActive && System.currentTimeMillis() - lastKillTime > SESSIONTIMEOUTINMS) {
+            isSessionActive = false
+            sessionTimer.stop()
+            modMessage("Slayer session ended (idle > 5m).")
+        }
+    }
+
+
+    @EventHandler
+    fun onPacketReceived(event: OnPacket.Incoming) {
+        val packet = event.packet
+        if (packet !is GameMessageS2CPacket) return
+        checkForIdleTimeout() // doing it for every packet would be too shit performace so like, yeah
+        val message = packet.content().string.trim()
+
+        when (message) {
+            "SLAYER QUEST STARTED!" -> {
+                handleSlayerQuestStart()
+            }
+            "SLAYER QUEST COMPLETE!", "NICE! SLAYER BOSS SLAIN!" -> {
+                handleSlayerQuestComplete()
+                return
+            }
+        }
+
+        updateOverlayDisplay()
+    }
+}
