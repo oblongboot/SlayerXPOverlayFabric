@@ -1,16 +1,16 @@
-package dev.oblongboot.sxp.util
+package dev.oblongboot.sxp.utils
 
 import dev.oblongboot.sxp.events.Context
-import dev.oblongboot.sxp.utils.RenderUtils.Layers as RendererLayers
-import net.minecraft.client.render.VertexRendering
+import dev.oblongboot.sxp.utils.render.Layers
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
 import java.awt.Color
+import kotlin.math.cos
+import kotlin.math.sin
 
 // all these must be called with something like @EventHandler fun onRender(event: WorldRenderEvent) to work properly
 // the file with @EventHandler must be subscribed to the event bus in onInitialise func in slayerxpoverlay.kt
-
 object Render3D {
     
     /**
@@ -35,34 +35,62 @@ object Render3D {
         phase: Boolean = false,
         translate: Boolean = true
     ) {
+
         if (!ctx.stacksInit) return
-        
+
         var cx = x
         var cy = y
         var cz = z
-        
-        val layer = if (phase) RendererLayers.TRIANGLE_STRIP_ESP else RendererLayers.TRIANGLE_STRIP
-        val camPos = ctx.camera!!.pos.negate()
-        
+
+        val layer = if (phase) Layers.QUADS_ESP else Layers.QUADS
+        val camPos = ctx.camera.cameraPos.negate()
+
         if (!phase) {
             cx += 0.003
             cy += 0.003
             cz += 0.003
         }
-        
+
         if (translate) {
             ctx.matrixStack!!.push()
             ctx.matrixStack!!.translate(camPos.x, camPos.y, camPos.z)
         }
-        
-        VertexRendering.drawFilledBox(
-            ctx.matrixStack!!,
-            ctx.consumers!!.getBuffer(layer),
-            cx, cy, cz,
-            cx + width, cy + height, cz + depth,
-            color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f
+
+        val matrix = ctx.matrixStack!!.peek().positionMatrix
+        val buffer = ctx.consumers.getBuffer(layer)
+
+        val r = color.red / 255f
+        val g = color.green / 255f
+        val b = color.blue / 255f
+        val a = color.alpha / 255f
+
+        val minX = cx
+        val minY = cy
+        val minZ = cz
+        val maxX = cx + width
+        val maxY = cy + height
+        val maxZ = cz + depth
+
+        val vertices = listOf(
+            Vec3d(minX, minY, minZ), Vec3d(maxX, minY, minZ),
+            Vec3d(maxX, minY, maxZ), Vec3d(minX, minY, maxZ),
+            Vec3d(minX, maxY, minZ), Vec3d(minX, maxY, maxZ),
+            Vec3d(maxX, maxY, maxZ), Vec3d(maxX, maxY, minZ),
+            Vec3d(minX, minY, minZ), Vec3d(minX, maxY, minZ),
+            Vec3d(maxX, maxY, minZ), Vec3d(maxX, minY, minZ),
+            Vec3d(maxX, minY, maxZ), Vec3d(maxX, maxY, maxZ),
+            Vec3d(minX, maxY, maxZ), Vec3d(minX, minY, maxZ),
+            Vec3d(minX, minY, minZ), Vec3d(minX, minY, maxZ),
+            Vec3d(minX, maxY, maxZ), Vec3d(minX, maxY, minZ),
+            Vec3d(maxX, minY, minZ), Vec3d(maxX, maxY, minZ),
+            Vec3d(maxX, maxY, maxZ), Vec3d(maxX, minY, maxZ)
         )
-        
+
+        vertices.forEach { vec3d ->
+            buffer.vertex(matrix, vec3d.x.toFloat(), vec3d.y.toFloat(), vec3d.z.toFloat())
+                .color(r, g, b, a)
+        }
+
         if (translate) ctx.matrixStack!!.pop()
     }
     
@@ -114,23 +142,78 @@ object Render3D {
         translate: Boolean = true
     ) {
         if (!ctx.stacksInit) return
-        
-        val layer = if (phase) RendererLayers.LINES_ESP else RendererLayers.LINES
-        val camPos = ctx.camera!!.pos.negate()
-        
+
+        val layer = if (phase) Layers.LINES_ESP else Layers.LINES
+        val camPos = ctx.camera.cameraPos.negate()
+
         if (translate) {
             ctx.matrixStack!!.push()
             ctx.matrixStack!!.translate(camPos.x, camPos.y, camPos.z)
         }
-        
-        VertexRendering.drawBox(
-            ctx.matrixStack!!.peek(),
-            ctx.consumers!!.getBuffer(layer),
-            x, y, z,
-            x + width, y + height, z + depth,
-            color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f
+
+        val matrix = ctx.matrixStack!!.peek().positionMatrix
+        val buffer = ctx.consumers.getBuffer(layer)
+
+        val r = color.red / 255f
+        val g = color.green / 255f
+        val b = color.blue / 255f
+        val a = color.alpha / 255f
+
+        val minX = x.toFloat()
+        val minY = y.toFloat()
+        val minZ = z.toFloat()
+        val maxX = (x + width).toFloat()
+        val maxY = (y + height).toFloat()
+        val maxZ = (z + depth).toFloat()
+
+        val vertices = listOf(
+            Vec3d(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3d(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3d(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3d(minX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3d(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3d(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3d(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3d(minX.toDouble(), maxY.toDouble(), minZ.toDouble())
         )
-        
+
+        val normals = mutableListOf<Vec3d>()
+
+        for (i in 0 until vertices.size - 1 step 2) {
+            val start = vertices[i]
+            val end = vertices[i + 1]
+            val direction = end.subtract(start).normalize()
+            normals.add(direction)
+            normals.add(direction)
+        }
+
+        vertices.zip(normals).forEach { (vec3d, normal) ->
+            buffer.vertex(
+                matrix,
+                vec3d.x.toFloat(),
+                vec3d.y.toFloat(),
+                vec3d.z.toFloat()
+            )
+                .color(r, g, b, a)
+                .normal(normal.x.toFloat(), normal.y.toFloat(), normal.z.toFloat())
+        }
+
         if (translate) ctx.matrixStack!!.pop()
     }
     
@@ -180,8 +263,8 @@ object Render3D {
     ) {
         if (!ctx.stacksInit) return
         
-        val layer = if (phase) RendererLayers.LINES_ESP else RendererLayers.LINES
-        val camPos = ctx.camera!!.pos.negate()
+        val layer = if (phase) Layers.LINES_ESP else Layers.LINES
+        val camPos = ctx.camera.cameraPos.negate()
         
         if (translate) {
             ctx.matrixStack!!.push()
@@ -189,7 +272,7 @@ object Render3D {
         }
         
         val matrixEntry = ctx.matrixStack!!.peek()
-        val buffer = ctx.consumers!!.getBuffer(layer)
+        val buffer = ctx.consumers.getBuffer(layer)
         
         buffer.vertex(matrixEntry, start.x.toFloat(), start.y.toFloat(), start.z.toFloat())
             .color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
@@ -204,7 +287,7 @@ object Render3D {
     /**
      * Draws a tracer line from your camera to a target position
      * like those lines pointing to entities in ESP mods
-     * its not hard to explain, just a tracer
+     * it's not hard to explain, just a tracer
      * 
      * @param ctx Rendering context
      * @param target Where the line should point to
@@ -220,7 +303,7 @@ object Render3D {
         if (!ctx.stacksInit) return
         
         ctx.matrixStack!!.push()
-        ctx.matrixStack!!.translate(-ctx.camera!!.pos.x, -ctx.camera!!.pos.y, -ctx.camera!!.pos.z)
+        ctx.matrixStack!!.translate(-ctx.camera.cameraPos.x, -ctx.camera.cameraPos.y, -ctx.camera.cameraPos.z)
         
         renderLine(ctx, Vec3d.ZERO, target, color, phase, false)
         
@@ -292,8 +375,8 @@ object Render3D {
     ) {
         if (!ctx.stacksInit) return
         
-        val layer = if (phase) RendererLayers.LINES_ESP else RendererLayers.LINES
-        val camPos = ctx.camera!!.pos.negate()
+        val layer = if (phase) Layers.LINES_ESP else Layers.LINES
+        val camPos = ctx.camera.cameraPos.negate()
         
         if (translate) {
             ctx.matrixStack!!.push()
@@ -301,7 +384,7 @@ object Render3D {
         }
         
         val matrixEntry = ctx.matrixStack!!.peek()
-        val buffer = ctx.consumers!!.getBuffer(layer)
+        val buffer = ctx.consumers.getBuffer(layer)
         
         val cx = center.x
         val cy = center.y
@@ -314,19 +397,19 @@ object Render3D {
 
         for (i in 0..segments) {
             val lat = Math.PI * i / segments
-            val sinLat = Math.sin(lat)
-            val cosLat = Math.cos(lat)
+            val sinLat = sin(lat)
+            val cosLat = cos(lat)
             
             for (j in 0 until segments) {
                 val lng1 = 2 * Math.PI * j / segments
                 val lng2 = 2 * Math.PI * (j + 1) / segments
                 
-                val x1 = cx + radius * sinLat * Math.cos(lng1)
+                val x1 = cx + radius * sinLat * cos(lng1)
                 val y1 = cy + radius * cosLat
-                val z1 = cz + radius * sinLat * Math.sin(lng1)
+                val z1 = cz + radius * sinLat * sin(lng1)
                 
-                val x2 = cx + radius * sinLat * Math.cos(lng2)
-                val z2 = cz + radius * sinLat * Math.sin(lng2)
+                val x2 = cx + radius * sinLat * cos(lng2)
+                val z2 = cz + radius * sinLat * sin(lng2)
                 
                 buffer.vertex(matrixEntry, x1.toFloat(), y1.toFloat(), z1.toFloat())
                     .color(r, g, b, a)
@@ -345,5 +428,5 @@ object Render3D {
     * likely always returns true
      */
     private val Context.stacksInit: Boolean
-        get() = this.matrixStack != null && this.consumers != null && this.camera != null
+        get() = this.matrixStack != null
 }

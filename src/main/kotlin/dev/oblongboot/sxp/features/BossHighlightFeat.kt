@@ -1,11 +1,6 @@
 package dev.oblongboot.sxp.features
 
 import dev.oblongboot.sxp.events.WorldRenderEvent
-import dev.oblongboot.sxp.util.Render3D
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
-import java.awt.Color
-import net.minecraft.util.math.Box
 import meteordevelopment.orbit.EventHandler
 
 class BossHighlightFeat {
