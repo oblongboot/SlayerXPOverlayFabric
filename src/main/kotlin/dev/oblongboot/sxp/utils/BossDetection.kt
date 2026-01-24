@@ -55,19 +55,19 @@ fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
                 lastUUID[0] = stand.uuid.toString();
 
                 val cSlayer = Scoreboard.getSlayerType()
-                // Add config checks after they are made
-                if (cSlayer == "Blaze" && Config.isToggled("BurningVengeanceDamage")) {
-                    burningDamage();
-                }
-                if (cSlayer == "Blaze" && Config.isToggled("BurningVengeanceTimer")) {
-                    burningTimer(pName);
-                }
+                // Discontinued features. Keeping just in case its somehow used again
+//                if (cSlayer == "Blaze" && Config.isToggled("BurningVengeanceDamage")) {
+//                    burningDamage();
+//                }
+//                if (cSlayer == "Blaze" && Config.isToggled("BurningVengeanceTimer")) {
+//                    burningTimer(pName);
+//                }
                 break;
             }
         }
     });
 }
-
+// Discontinued due to being useless
 fun burningDamage() {
     var running = true;
 
@@ -85,6 +85,7 @@ fun burningDamage() {
     });
 }
 
+// Discontinued due to being useless
 fun burningTimer(pName: String?) {
     var running = true;
 

@@ -47,6 +47,7 @@ object Slayerxpoverlay : ModInitializer {
         EVENT_BUS.subscribe(onMessage())
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.BossHighlightFeat())
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.AutoCallMaddoxFeat())
+        EVENT_BUS.subscribe(dev.oblongboot.sxp.features.MiniBossAlert())
         
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
