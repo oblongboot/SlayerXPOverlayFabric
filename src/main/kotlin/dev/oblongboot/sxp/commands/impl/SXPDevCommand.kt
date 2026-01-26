@@ -61,7 +61,7 @@ object SXPDevCommand {
         if (devSetting == "armorstand") {
             val armorStands = getArmorStands()
             for (stand in armorStands) {
-                println(stand.name.toString());
+                println(stand.name.string);
                 println(stand.uuid.toString());
             }
         }
@@ -84,6 +84,9 @@ object SXPDevCommand {
         }
         if (devSetting == "testgradient") {
             MinecraftClient.getInstance().player?.sendMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35), false)
+        }
+        if (devSetting == "scoreboard") {
+            println(Scoreboard.getScoreboardText())
         }
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
