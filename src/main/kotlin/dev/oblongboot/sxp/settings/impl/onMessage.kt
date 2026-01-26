@@ -253,7 +253,7 @@ class onMessage {
         val message = packet.content().string.trim()
 
         when (message) {
-            "SLAYER QUEST STARTED!" -> {
+            "SLAYER QUEST STARTED!", "YOU COCOONED YOUR SLAYER BOSS" -> {
                 handleSlayerQuestStart()
             }
             "SLAYER QUEST COMPLETE!", "NICE! SLAYER BOSS SLAIN!" -> {
