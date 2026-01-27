@@ -171,28 +171,28 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             }
 
 
-            "Blaze" -> {
-                val BVDamage = SwitchConfig(
-                    name = "BurningVengeanceDamage",
-                    default = false,
-                    description = "Says the Damage of your first Burning Vengeance Activation in chat"
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(BVDamage)
-                yPos += elementHeight + elementSpacing + 60
-
-                val BVTimer = SwitchConfig(
-                    name = "BurningVengeanceTimer",
-                    default = false,
-                    description = "Counts down the time until Burning Vengeance Activates"
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(BVTimer)
-            }
+//            "Blaze" -> {
+//                val BVDamage = SwitchConfig(
+//                    name = "BurningVengeanceDamage",
+//                    default = false,
+//                    description = "Says the Damage of your first Burning Vengeance Activation in chat"
+//                ).apply {
+//                    x = sidebarWidth + 20
+//                    y = yPos
+//                }
+//                elements.add(BVDamage)
+//                yPos += elementHeight + elementSpacing + 60
+//
+//                val BVTimer = SwitchConfig(
+//                    name = "BurningVengeanceTimer",
+//                    default = false,
+//                    description = "Counts down the time until Burning Vengeance Activates"
+//                ).apply {
+//                    x = sidebarWidth + 20
+//                    y = yPos
+//                }
+//                elements.add(BVTimer)
+//            }
 
             "Colors" -> {
                 val messageColorSelector1 = ColorboxSetting(
