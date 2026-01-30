@@ -6,5 +6,6 @@ object CommandsManager {
     fun registerCommands() {
         SXPCommand.registerClient()
         SXPDevCommand.registerClient()
+        SXPResetKPHCommand.registerClient()
     }
 }

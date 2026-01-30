@@ -234,6 +234,13 @@ class onMessage {
             XPOverlay.updateXP(if (slayerType == "Not in slayer area!") "Zombie" else slayerType, xp.toInt())
             XPOverlay.show()
         }
+
+        fun resetKPH() {
+            sessionTimer.reset()
+            sessionKills = 0
+            lastKillTime = 0L
+            updateKPH(0)
+        }
     }
 
     fun checkForIdleTimeout() {
