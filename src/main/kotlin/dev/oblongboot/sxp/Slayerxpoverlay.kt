@@ -1,31 +1,30 @@
 package dev.oblongboot.sxp
 
-import net.fabricmc.api.ModInitializer
+import dev.oblongboot.sxp.commands.CommandsManager
 import dev.oblongboot.sxp.events.EventManager.EVENT_BUS
+import dev.oblongboot.sxp.settings.Config
+import dev.oblongboot.sxp.settings.FeatureManager
+import dev.oblongboot.sxp.settings.impl.KPHOverlay as KPHModule
+import dev.oblongboot.sxp.settings.impl.Overlay as OverlayModule
+import dev.oblongboot.sxp.settings.impl.onMessage
 import dev.oblongboot.sxp.settings.impl.onMessage.Companion as MessageCompanion
+import dev.oblongboot.sxp.ui.BVOverlay
+import dev.oblongboot.sxp.ui.KPHOverlay
+import dev.oblongboot.sxp.ui.XPOverlay
 import dev.oblongboot.sxp.utils.APIUtils
+import dev.oblongboot.sxp.utils.APIUtils.getXP
+import dev.oblongboot.sxp.utils.ChatUtils.isGradient
+import dev.oblongboot.sxp.utils.ChatUtils.modMessage
+import dev.oblongboot.sxp.utils.ChatUtils.updatePrefix
+import java.lang.invoke.MethodHandles
+import kotlinx.coroutines.launch
+import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderTickCounter
 import org.slf4j.LoggerFactory
-import java.lang.invoke.MethodHandles
-import dev.oblongboot.sxp.settings.impl.onMessage
-import dev.oblongboot.sxp.commands.CommandsManager
-import dev.oblongboot.sxp.ui.XPOverlay
-import dev.oblongboot.sxp.ui.KPHOverlay
-import dev.oblongboot.sxp.ui.BVOverlay
-import dev.oblongboot.sxp.settings.impl.KPHOverlay as KPHModule
-import dev.oblongboot.sxp.settings.impl.Overlay as OverlayModule
-import dev.oblongboot.sxp.settings.impl.BVOverlay as BVOverlayModule
-import dev.oblongboot.sxp.settings.Config
-import dev.oblongboot.sxp.settings.FeatureManager
-import dev.oblongboot.sxp.utils.ChatUtils.modMessage
-import kotlinx.coroutines.launch
-import dev.oblongboot.sxp.utils.APIUtils.getXP
-import dev.oblongboot.sxp.utils.ChatUtils.isGradient
-import dev.oblongboot.sxp.utils.ChatUtils.updatePrefix
 
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
@@ -48,7 +47,7 @@ object Slayerxpoverlay : ModInitializer {
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.BossHighlightFeat())
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.AutoCallMaddoxFeat())
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.MiniBossAlert())
-        
+
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
@@ -57,7 +56,9 @@ object Slayerxpoverlay : ModInitializer {
             APIUtils.scope.launch {
                 try {
                     if (Config.isToggled("firstTimeInstall")) {
-                        logger.debug("First time install flag already set, skipping welcome message.")
+                        logger.debug(
+                                "First time install flag already set, skipping welcome message."
+                        )
                         APIUtils.getXP()
                     } else {
                         sendWelcomeMessages()
@@ -68,13 +69,16 @@ object Slayerxpoverlay : ModInitializer {
                         try {
                             if (!shouldCheck) return@launch
                             shouldCheck = false
-                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.0.0")
+                            val updateAvailable =
+                                    dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable(
+                                            "1.2.0"
+                                    )
                             if (updateAvailable) {
                                 MinecraftClient.getInstance().execute {
                                     modMessage(
-                                        "A new version of SlayerXPOverlayFabric is available! " +
-                                        "You are running version v1.0.0. " +
-                                        "Please check the GitHub page for the latest version."
+                                            "A new version of SlayerXPOverlayFabric is available! " +
+                                                    "You are running version v1.2.0. " +
+                                                    "Please check the GitHub page for the latest version."
                                     )
                                 }
                             }
@@ -82,9 +86,11 @@ object Slayerxpoverlay : ModInitializer {
                             ex.printStackTrace()
                         }
                     }
-
                 } catch (ex: Exception) {
-                    logger.error("Error during SlayerXPOverlayFabric first time install check: ", ex)
+                    logger.error(
+                            "Error during SlayerXPOverlayFabric first time install check: ",
+                            ex
+                    )
                 }
             }
         }
@@ -92,18 +98,18 @@ object Slayerxpoverlay : ModInitializer {
             if (OverlayModule.enabled) {
                 XPOverlay.draw(drawContext)
             } else {
-                //empty
+                // empty
             }
             if (KPHModule.enabled) {
                 KPHOverlay.draw(drawContext)
             } else {
-                //empty
+                // empty
             }
-//            if (BVOverlayModule.enabled) {
-//                BVOverlay.draw(drawContext)
-//            } else {
-//                //empty
-//            }
+            //            if (BVOverlayModule.enabled) {
+            //                BVOverlay.draw(drawContext)
+            //            } else {
+            //                //empty
+            //            }
             BVOverlay.draw(drawContext)
         }
 
@@ -113,10 +119,7 @@ object Slayerxpoverlay : ModInitializer {
         updatePrefix()
         isGradient = Config.isToggled("IsGradient")
 
-    APIUtils.scope.launch {
-        APIUtils.fetchContributors()
-    }
-
+        APIUtils.scope.launch { APIUtils.fetchContributors() }
     }
     private fun sendWelcomeMessages() {
         val border = "-".repeat(53)
