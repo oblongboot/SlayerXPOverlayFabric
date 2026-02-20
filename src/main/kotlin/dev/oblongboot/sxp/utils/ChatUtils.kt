@@ -20,7 +20,9 @@ object ChatUtils {
                             Config.getColor("MessageColorSelector2", java.awt.Color(255, 87, 51))
                                     .rgb
                     )
-            mc.player!!.sendMessage(finalMessage, false)
+            mc.execute {
+                mc.player!!.sendMessage(finalMessage, false)
+            }
         }
     }
 
