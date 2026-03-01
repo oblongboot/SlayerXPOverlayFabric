@@ -1,9 +1,9 @@
 package dev.oblongboot.sxp.events
 
 import dev.oblongboot.sxp.events.EventManager
-import net.minecraft.client.render.Camera
-import net.minecraft.client.render.VertexConsumerProvider
-import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.Camera
+import net.minecraft.client.renderer.MultiBufferSource
+import com.mojang.blaze3d.vertex.PoseStack
 
 
 abstract class WorldRenderEvent(val context: Context) {
@@ -16,7 +16,7 @@ abstract class WorldRenderEvent(val context: Context) {
 }
 
 class Context {
-  var matrixStack: MatrixStack? = null
-  lateinit var consumers: VertexConsumerProvider
+  var matrixStack: PoseStack? = null
+  lateinit var consumers: MultiBufferSource
   lateinit var camera: Camera
 }

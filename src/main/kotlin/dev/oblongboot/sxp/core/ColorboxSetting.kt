@@ -2,7 +2,7 @@ package dev.oblongboot.sxp.core
 
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -39,7 +39,7 @@ class ColorboxSetting(
         updateHSVFromColor(value)
     }
 
-    override fun render(ctx: DrawContext) {
+    override fun render(ctx: GuiGraphics) {
         val baseColor = Color(50, 60, 90, 180)
         val isHovered = isWithinBounds(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
         val hoverColor = if (isHovered) baseColor.brighter() else baseColor
@@ -72,7 +72,7 @@ class ColorboxSetting(
 
         Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
         Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
-        val textY = y + (height - Render2D.textRenderer.fontHeight) / 2
+        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
         Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
 
         val previewX = x + width - previewSize - 10
@@ -95,7 +95,7 @@ class ColorboxSetting(
     }
 
 
-    private fun drawSVPicker(ctx: DrawContext, px: Int, py: Int, w: Int, h: Int) {
+    private fun drawSVPicker(ctx: GuiGraphics, px: Int, py: Int, w: Int, h: Int) {
         val stripWidth = 4
         val stripHeight = 8
 
@@ -114,7 +114,7 @@ class ColorboxSetting(
         Render2D.drawOutline(ctx, cursorX - 3, cursorY - 3, 6, 6, Color.BLACK)
     }
 
-    private fun drawHueBar(ctx: DrawContext, hx: Int, hy: Int, w: Int, h: Int) {
+    private fun drawHueBar(ctx: GuiGraphics, hx: Int, hy: Int, w: Int, h: Int) {
         val stripHeight = 4
         for (i in 0 until h step stripHeight) {
             val hueVal = i.toFloat() / h
@@ -128,7 +128,7 @@ class ColorboxSetting(
         Render2D.drawWhateverTheFuckThisIs(ctx, hx - 2, cursorY - 2, w + 4, 4, 0, Color.WHITE)
     }
 
-    private fun drawAlphaSlider(ctx: DrawContext, ax: Int, ay: Int, w: Int, h: Int) {
+    private fun drawAlphaSlider(ctx: GuiGraphics, ax: Int, ay: Int, w: Int, h: Int) {
         val checkSize = 8
         for (i in 0 until w step checkSize) {
             for (j in 0 until h step checkSize) {

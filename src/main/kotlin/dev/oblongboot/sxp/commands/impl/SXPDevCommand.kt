@@ -6,8 +6,8 @@ import dev.oblongboot.sxp.utils.Scoreboard
 import dev.oblongboot.sxp.utils.Scheduler
 import dev.oblongboot.sxp.ui.SettingsScreen.Companion.open as bleh
 import dev.oblongboot.sxp.settings.FeatureManager
-import net.minecraft.client.MinecraftClient
-import net.minecraft.text.Style
+import net.minecraft.client.Minecraft
+import net.minecraft.network.chat.Style
 import dev.oblongboot.sxp.utils.ChatUtils.getGradientStyleMessage
 import dev.oblongboot.sxp.settings.impl.onMessage
 import dev.oblongboot.sxp.utils.ChatUtils.modMessage
@@ -83,7 +83,7 @@ object SXPDevCommand {
             modMessage(parts.joinToString(" | "))
         }
         if (devSetting == "testgradient") {
-            MinecraftClient.getInstance().player?.sendMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35), false)
+            Minecraft.getInstance().player?.displayClientMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35), false)
         }
         if (devSetting == "scoreboard") {
             println(Scoreboard.getScoreboardText())

@@ -12,25 +12,25 @@ import dev.oblongboot.sxp.core.ColorboxSetting
 import dev.oblongboot.sxp.utils.Scheduler
 import dev.oblongboot.sxp.utils.ChatUtils.updatePrefix
 import dev.oblongboot.sxp.utils.ChatUtils.isGradient
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.text.Text
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import dev.oblongboot.sxp.utils.Render2D
-import net.minecraft.client.gui.Click
-import net.minecraft.client.input.KeyInput
+import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.client.input.KeyEvent
 import java.awt.Color
 import kotlin.math.sin
 import kotlin.math.cos
 import kotlin.random.Random
 
-class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
+class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     companion object {
         fun open() {
             Scheduler.scheduleTask(1) {
-                MinecraftClient.getInstance().setScreen(SettingsScreen())
+                Minecraft.getInstance().setScreen(SettingsScreen())
             }
         }
     }
@@ -61,7 +61,7 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         selectedCategory?.let { updateElementsForCategory(it.name) }
     }
 
-    private fun renderParticles(ctx: DrawContext) {
+    private fun renderParticles(ctx: GuiGraphics) {
         val width = Render2D.scaledWidth
         val height = Render2D.scaledHeight
 
@@ -283,22 +283,22 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         }
     }
 
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         context.fill(0, 0, sidebarWidth, height, Color(0, 0, 0, 128).rgb)
         context.fill(sidebarWidth - 1, 0, sidebarWidth, height, Color(40, 40, 50, 255).rgb)
         context.fill(sidebarWidth, 0, width, height, Color(40, 60, 120, 150).rgb)
 
         val title = "§bSlayerXPOverlay §3Config"
-        val titleWidth = textRenderer.getWidth(title)
-        context.drawTextWithShadow(textRenderer, title, (sidebarWidth - titleWidth) / 2, 20, Color.WHITE.rgb)
+        val titleWidth = font.width(title)
+        context.drawString(font, title, (sidebarWidth - titleWidth) / 2, 20, Color.WHITE.rgb)
 
         categories.forEach { cat ->
             val bgColor = if (cat.selected) Color(0, 120, 255, 255).rgb else Color(30, 60, 120, 200).rgb
             context.fill(cat.x, cat.y, cat.x + cat.width, cat.y + cat.height, bgColor)
 
-            val textX = cat.x + (cat.width - textRenderer.getWidth(cat.name)) / 2
-            val textY = cat.y + (cat.height - textRenderer.fontHeight) / 2
-            context.drawTextWithShadow(textRenderer, cat.name, textX, textY, Color.WHITE.rgb)
+            val textX = cat.x + (cat.width - font.width(cat.name)) / 2
+            val textY = cat.y + (cat.height - font.lineHeight) / 2
+            context.drawString(font, cat.name, textX, textY, Color.WHITE.rgb)
         }
 
         renderParticles(context)
@@ -313,14 +313,14 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
             "Press 'O' to open overlay manager",
             "Press ESC to close this menu"
         ).forEach {
-            context.drawTextWithShadow(textRenderer, it, 15, instructionY, Color.GRAY.rgb)
+            context.drawString(font, it, 15, instructionY, Color.GRAY.rgb)
             instructionY += 15
         }
 
         super.render(context, mouseX, mouseY, delta)
     }
 
-    override fun mouseClicked(click: Click, doubled: Boolean): Boolean {
+    override fun mouseClicked(click: MouseButtonEvent, doubled: Boolean): Boolean {
         if (click.button() == 0) {
             categories.forEach { cat ->
                 if (cat.contains(click.x.toInt(), click.y.toInt())) {
@@ -339,10 +339,10 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         return super.mouseClicked(click, doubled)
     }
 
-    override fun keyPressed(input: KeyInput): Boolean {
-        when (input.keycode) {
+    override fun keyPressed(input: KeyEvent): Boolean {
+        when (input.input()) {
             GLFW.GLFW_KEY_ESCAPE -> {
-                close()
+                onClose()
                 return true
             }
             GLFW.GLFW_KEY_O -> {
@@ -362,9 +362,9 @@ class SettingsScreen : Screen(Text.of("SlayerXPOverlay Config")) {
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
     }
 
-    override fun shouldPause() = false
+    override fun isPauseScreen() = false
     override fun shouldCloseOnEsc() = true
-    override fun renderBackground(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {}
+    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {}
 
     private data class Particle(
         val speed: Double,

@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.render.RenderTickCounter
+import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.DeltaTracker
 import org.slf4j.LoggerFactory
 
 object Slayerxpoverlay : ModInitializer {
@@ -74,7 +74,7 @@ object Slayerxpoverlay : ModInitializer {
                                             "1.2.1"
                                     )
                             if (updateAvailable) {
-                                MinecraftClient.getInstance().execute {
+                                Minecraft.getInstance().execute {
                                     modMessage(
                                             "A new version of SlayerXPOverlayFabric is available! " +
                                                     "You are running version v1.2.1. " +
@@ -94,7 +94,7 @@ object Slayerxpoverlay : ModInitializer {
                 }
             }
         }
-        HudRenderCallback.EVENT.register { drawContext: DrawContext, _: RenderTickCounter ->
+        HudRenderCallback.EVENT.register { drawContext: GuiGraphics, _: DeltaTracker ->
             if (OverlayModule.enabled) {
                 XPOverlay.draw(drawContext)
             } else {
@@ -123,7 +123,7 @@ object Slayerxpoverlay : ModInitializer {
     }
     private fun sendWelcomeMessages() {
         val border = "-".repeat(53)
-        MinecraftClient.getInstance().execute {
+        Minecraft.getInstance().execute {
             modMessage(border)
             modMessage("Thank you for installing SlayerXPOverlayFabric!")
             modMessage("Credits: oblongboot (and Februari10 for the help!)")

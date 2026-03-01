@@ -4,11 +4,11 @@ import dev.oblongboot.sxp.ui.Overlay as OverlayShitAHHHHH
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.utils.ChatUtils.getColoredMessage
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 
 object KPHOverlay: OverlayShitAHHHHH {
     override var shouldShow = true
-    private var label: net.minecraft.text.Text = net.minecraft.text.Text.literal("$prefix KPH Loading!")
+    private var label: net.minecraft.network.chat.Component = net.minecraft.network.chat.Component.literal("$prefix KPH Loading!")
     override var x = 100
     override var y = 100
     override val width = 150
@@ -40,7 +40,7 @@ object KPHOverlay: OverlayShitAHHHHH {
         )
     }
     
-    override fun draw(ctx: DrawContext) {
+    override fun draw(ctx: GuiGraphics) {
         if (!shouldShow) return
         if (dragging) {
             x = (Render2D.Mouse.x - dragOffsetX).toInt()
