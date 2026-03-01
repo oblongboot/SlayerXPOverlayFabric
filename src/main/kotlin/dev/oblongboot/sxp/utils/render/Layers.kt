@@ -1,42 +1,45 @@
 package dev.oblongboot.sxp.utils.render
 
-import net.minecraft.client.gl.RenderPipelines
-import net.minecraft.client.render.*
+import net.minecraft.client.renderer.RenderPipelines
+import net.minecraft.client.renderer.rendertype.LayeringTransform
+import net.minecraft.client.renderer.rendertype.OutputTarget
+import net.minecraft.client.renderer.rendertype.RenderSetup
+import net.minecraft.client.renderer.rendertype.RenderType
 
 // stolen from [progreso](https://github.com/ya-ilya/progreso/blob/master/progreso-client/src/main/kotlin/org/progreso/client/util/render/Render3D.kt)
 // all credit to ya-ilya
 object Layers {
 
-    val LINES = RenderLayer.of(
+    val LINES = RenderType.create(
         "slayerxpoverlay/lines",
         RenderSetup
             .builder(RenderPipelines.LINES)
-            .layeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-            .outputTarget(OutputTarget.ITEM_ENTITY_TARGET)
-            .build()
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .createRenderSetup()
     )
-    
-    val LINES_ESP = RenderLayer.of(
+
+    val LINES_ESP = RenderType.create(
         "slayerxpoverlay/lines_esp",
         RenderSetup
             .builder(Pipelines.LINES_ESP)
-            .layeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-            .outputTarget(OutputTarget.ITEM_ENTITY_TARGET)
-            .build()
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .createRenderSetup()
     )
 
-    val QUADS: RenderLayer = RenderLayer.of(
+    val QUADS: RenderType = RenderType.create(
         "slayerxpoverlay/quads",
         RenderSetup
             .builder(Pipelines.QUADS)
-            .build()
+            .createRenderSetup()
     )
 
-    val QUADS_ESP: RenderLayer = RenderLayer.of(
+    val QUADS_ESP: RenderType = RenderType.create(
         "slayerxpoverlay/quads_esp",
         RenderSetup
             .builder(Pipelines.QUADS_ESP)
-            .build()
+            .createRenderSetup()
     )
 
 //    val BEACON_BEAM_OPAQUE = RenderLayer.of(

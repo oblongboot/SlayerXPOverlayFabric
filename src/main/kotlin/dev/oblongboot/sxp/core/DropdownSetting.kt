@@ -2,7 +2,7 @@ package dev.oblongboot.sxp.core
 
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 import java.awt.Color
 
 class DropdownSetting(
@@ -20,7 +20,7 @@ class DropdownSetting(
     private var animHeight = 0f
     private val animSpeed = 0.25f
 
-    override fun render(ctx: DrawContext) {
+    override fun render(ctx: GuiGraphics) {
         val currentText = options.getOrNull(value) ?: "N/A"
         val baseColor = Color(50, 60, 90, 180) 
         val isHovered = isWithinBounds(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
@@ -33,7 +33,7 @@ class DropdownSetting(
         Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
         Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
         
-        val textY = y + (height - Render2D.textRenderer.fontHeight) / 2
+        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
         Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
         
         val displayText = if (value >= 0 && value < options.size) {
@@ -75,7 +75,7 @@ class DropdownSetting(
                 Render2D.drawWhateverTheFuckThisIs(ctx, x, optionY, width, optionHeight, 3, optionColor)
                 Render2D.drawOutline(ctx, x, optionY, width, optionHeight, Color(0, 130, 200))
                 
-                val optionTextY = optionY + (optionHeight - Render2D.textRenderer.fontHeight) / 2
+                val optionTextY = optionY + (optionHeight - Render2D.textRenderer.lineHeight) / 2
                 Render2D.drawString(ctx, options[optionIndex], x + 10, optionTextY, 1f, true)
             }
             

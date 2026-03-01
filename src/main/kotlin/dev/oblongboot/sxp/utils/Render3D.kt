@@ -2,9 +2,9 @@ package dev.oblongboot.sxp.utils
 
 import dev.oblongboot.sxp.events.Context
 import dev.oblongboot.sxp.utils.render.Layers
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Box
-import net.minecraft.util.math.Vec3d
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.Vec3
 import java.awt.Color
 import kotlin.math.cos
 import kotlin.math.sin
@@ -43,7 +43,7 @@ object Render3D {
         var cz = z
 
         val layer = if (phase) Layers.QUADS_ESP else Layers.QUADS
-        val camPos = ctx.camera.cameraPos.negate()
+        val camPos = ctx.camera.position().reverse()
 
         if (!phase) {
             cx += 0.003
@@ -52,11 +52,11 @@ object Render3D {
         }
 
         if (translate) {
-            ctx.matrixStack!!.push()
+            ctx.matrixStack!!.pushPose()
             ctx.matrixStack!!.translate(camPos.x, camPos.y, camPos.z)
         }
 
-        val matrix = ctx.matrixStack!!.peek().positionMatrix
+        val matrix = ctx.matrixStack!!.last().pose()
         val buffer = ctx.consumers.getBuffer(layer)
 
         val r = color.red / 255f
@@ -72,26 +72,26 @@ object Render3D {
         val maxZ = cz + depth
 
         val vertices = listOf(
-            Vec3d(minX, minY, minZ), Vec3d(maxX, minY, minZ),
-            Vec3d(maxX, minY, maxZ), Vec3d(minX, minY, maxZ),
-            Vec3d(minX, maxY, minZ), Vec3d(minX, maxY, maxZ),
-            Vec3d(maxX, maxY, maxZ), Vec3d(maxX, maxY, minZ),
-            Vec3d(minX, minY, minZ), Vec3d(minX, maxY, minZ),
-            Vec3d(maxX, maxY, minZ), Vec3d(maxX, minY, minZ),
-            Vec3d(maxX, minY, maxZ), Vec3d(maxX, maxY, maxZ),
-            Vec3d(minX, maxY, maxZ), Vec3d(minX, minY, maxZ),
-            Vec3d(minX, minY, minZ), Vec3d(minX, minY, maxZ),
-            Vec3d(minX, maxY, maxZ), Vec3d(minX, maxY, minZ),
-            Vec3d(maxX, minY, minZ), Vec3d(maxX, maxY, minZ),
-            Vec3d(maxX, maxY, maxZ), Vec3d(maxX, minY, maxZ)
+            Vec3(minX, minY, minZ), Vec3(maxX, minY, minZ),
+            Vec3(maxX, minY, maxZ), Vec3(minX, minY, maxZ),
+            Vec3(minX, maxY, minZ), Vec3(minX, maxY, maxZ),
+            Vec3(maxX, maxY, maxZ), Vec3(maxX, maxY, minZ),
+            Vec3(minX, minY, minZ), Vec3(minX, maxY, minZ),
+            Vec3(maxX, maxY, minZ), Vec3(maxX, minY, minZ),
+            Vec3(maxX, minY, maxZ), Vec3(maxX, maxY, maxZ),
+            Vec3(minX, maxY, maxZ), Vec3(minX, minY, maxZ),
+            Vec3(minX, minY, minZ), Vec3(minX, minY, maxZ),
+            Vec3(minX, maxY, maxZ), Vec3(minX, maxY, minZ),
+            Vec3(maxX, minY, minZ), Vec3(maxX, maxY, minZ),
+            Vec3(maxX, maxY, maxZ), Vec3(maxX, minY, maxZ)
         )
 
         vertices.forEach { vec3d ->
-            buffer.vertex(matrix, vec3d.x.toFloat(), vec3d.y.toFloat(), vec3d.z.toFloat())
-                .color(r, g, b, a)
+            buffer.addVertex(matrix, vec3d.x.toFloat(), vec3d.y.toFloat(), vec3d.z.toFloat())
+                .setColor(r, g, b, a)
         }
 
-        if (translate) ctx.matrixStack!!.pop()
+        if (translate) ctx.matrixStack!!.popPose()
     }
     
     /**
@@ -106,7 +106,7 @@ object Render3D {
      */
     fun renderFilledBox(
         ctx: Context,
-        box: Box,
+        box: AABB,
         color: Color,
         phase: Boolean = false,
         translate: Boolean = true
@@ -114,7 +114,7 @@ object Render3D {
         renderFilledBox(
             ctx,
             box.minX, box.minY, box.minZ,
-            box.lengthX, box.lengthY, box.lengthZ,
+            box.xsize, box.ysize, box.zsize,
             color, phase, translate
         )
     }
@@ -144,14 +144,14 @@ object Render3D {
         if (!ctx.stacksInit) return
 
         val layer = if (phase) Layers.LINES_ESP else Layers.LINES
-        val camPos = ctx.camera.cameraPos.negate()
+        val camPos = ctx.camera.position().reverse()
 
         if (translate) {
-            ctx.matrixStack!!.push()
+            ctx.matrixStack!!.pushPose()
             ctx.matrixStack!!.translate(camPos.x, camPos.y, camPos.z)
         }
 
-        val matrix = ctx.matrixStack!!.peek().positionMatrix
+        val matrix = ctx.matrixStack!!.last().pose()
         val buffer = ctx.consumers.getBuffer(layer)
 
         val r = color.red / 255f
@@ -167,33 +167,33 @@ object Render3D {
         val maxZ = (z + depth).toFloat()
 
         val vertices = listOf(
-            Vec3d(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
-            Vec3d(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
-            Vec3d(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
-            Vec3d(minX.toDouble(), maxY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
-            Vec3d(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), maxY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
-            Vec3d(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
-            Vec3d(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
-            Vec3d(minX.toDouble(), maxY.toDouble(), minZ.toDouble())
+            Vec3(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3(minX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3(minX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), minY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), minY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), maxY.toDouble(), minZ.toDouble()),
+            Vec3(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3(maxX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), maxY.toDouble(), maxZ.toDouble()),
+            Vec3(minX.toDouble(), maxY.toDouble(), minZ.toDouble())
         )
 
-        val normals = mutableListOf<Vec3d>()
+        val normals = mutableListOf<Vec3>()
 
         for (i in 0 until vertices.size - 1 step 2) {
             val start = vertices[i]
@@ -204,17 +204,17 @@ object Render3D {
         }
 
         vertices.zip(normals).forEach { (vec3d, normal) ->
-            buffer.vertex(
+            buffer.addVertex(
                 matrix,
                 vec3d.x.toFloat(),
                 vec3d.y.toFloat(),
                 vec3d.z.toFloat()
             )
-                .color(r, g, b, a)
-                .normal(normal.x.toFloat(), normal.y.toFloat(), normal.z.toFloat())
+                .setColor(r, g, b, a)
+                .setNormal(normal.x.toFloat(), normal.y.toFloat(), normal.z.toFloat())
         }
 
-        if (translate) ctx.matrixStack!!.pop()
+        if (translate) ctx.matrixStack!!.popPose()
     }
     
     /**
@@ -229,7 +229,7 @@ object Render3D {
      */
     fun renderOutlinedBox(
         ctx: Context,
-        box: Box,
+        box: AABB,
         color: Color,
         phase: Boolean = false,
         translate: Boolean = true
@@ -237,7 +237,7 @@ object Render3D {
         renderOutlinedBox(
             ctx,
             box.minX, box.minY, box.minZ,
-            box.lengthX, box.lengthY, box.lengthZ,
+            box.xsize, box.ysize, box.zsize,
             color, phase, translate
         )
     }
@@ -255,8 +255,8 @@ object Render3D {
      */
     fun renderLine(
         ctx: Context,
-        start: Vec3d,
-        end: Vec3d,
+        start: Vec3,
+        end: Vec3,
         color: Color,
         phase: Boolean = false,
         translate: Boolean = true
@@ -264,24 +264,24 @@ object Render3D {
         if (!ctx.stacksInit) return
         
         val layer = if (phase) Layers.LINES_ESP else Layers.LINES
-        val camPos = ctx.camera.cameraPos.negate()
+        val camPos = ctx.camera.position().reverse()
         
         if (translate) {
-            ctx.matrixStack!!.push()
+            ctx.matrixStack!!.pushPose()
             ctx.matrixStack!!.translate(camPos.x, camPos.y, camPos.z)
         }
         
-        val matrixEntry = ctx.matrixStack!!.peek()
+        val matrixEntry = ctx.matrixStack!!.last()
         val buffer = ctx.consumers.getBuffer(layer)
         
-        buffer.vertex(matrixEntry, start.x.toFloat(), start.y.toFloat(), start.z.toFloat())
-            .color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
-            .normal(matrixEntry, 0f, 1f, 0f)
-        buffer.vertex(matrixEntry, end.x.toFloat(), end.y.toFloat(), end.z.toFloat())
-            .color(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
-            .normal(matrixEntry, 0f, 1f, 0f)
+        buffer.addVertex(matrixEntry, start.x.toFloat(), start.y.toFloat(), start.z.toFloat())
+            .setColor(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
+            .setNormal(matrixEntry, 0f, 1f, 0f)
+        buffer.addVertex(matrixEntry, end.x.toFloat(), end.y.toFloat(), end.z.toFloat())
+            .setColor(color.red / 255f, color.green / 255f, color.blue / 255f, color.alpha / 255f)
+            .setNormal(matrixEntry, 0f, 1f, 0f)
         
-        if (translate) ctx.matrixStack!!.pop()
+        if (translate) ctx.matrixStack!!.popPose()
     }
     
     /**
@@ -296,18 +296,18 @@ object Render3D {
      */
     fun renderTracer(
         ctx: Context,
-        target: Vec3d,
+        target: Vec3,
         color: Color,
         phase: Boolean = false
     ) {
         if (!ctx.stacksInit) return
         
-        ctx.matrixStack!!.push()
-        ctx.matrixStack!!.translate(-ctx.camera.cameraPos.x, -ctx.camera.cameraPos.y, -ctx.camera.cameraPos.z)
+        ctx.matrixStack!!.pushPose()
+        ctx.matrixStack!!.translate(-ctx.camera.position().x, -ctx.camera.position().y, -ctx.camera.position().z)
         
-        renderLine(ctx, Vec3d.ZERO, target, color, phase, false)
+        renderLine(ctx, Vec3.ZERO, target, color, phase, false)
         
-        ctx.matrixStack!!.pop()
+        ctx.matrixStack!!.popPose()
     }
     
     /**
@@ -327,7 +327,7 @@ object Render3D {
         phase: Boolean = false,
         translate: Boolean = true
     ) {
-        val box = Box(pos)
+        val box = AABB(pos)
         renderOutlinedBox(ctx, box, color, phase, translate)
     }
     
@@ -348,7 +348,7 @@ object Render3D {
         phase: Boolean = false,
         translate: Boolean = true
     ) {
-        val box = Box(pos)
+        val box = AABB(pos)
         renderFilledBox(ctx, box, color, phase, translate)
     }
     
@@ -366,7 +366,7 @@ object Render3D {
      */
     fun renderSphere(
         ctx: Context,
-        center: Vec3d,
+        center: Vec3,
         radius: Double,
         color: Color,
         segments: Int = 16,
@@ -376,14 +376,14 @@ object Render3D {
         if (!ctx.stacksInit) return
         
         val layer = if (phase) Layers.LINES_ESP else Layers.LINES
-        val camPos = ctx.camera.cameraPos.negate()
+        val camPos = ctx.camera.position().reverse()
         
         if (translate) {
-            ctx.matrixStack!!.push()
+            ctx.matrixStack!!.pushPose()
             ctx.matrixStack!!.translate(camPos.x, camPos.y, camPos.z)
         }
         
-        val matrixEntry = ctx.matrixStack!!.peek()
+        val matrixEntry = ctx.matrixStack!!.last()
         val buffer = ctx.consumers.getBuffer(layer)
         
         val cx = center.x
@@ -411,16 +411,16 @@ object Render3D {
                 val x2 = cx + radius * sinLat * cos(lng2)
                 val z2 = cz + radius * sinLat * sin(lng2)
                 
-                buffer.vertex(matrixEntry, x1.toFloat(), y1.toFloat(), z1.toFloat())
-                    .color(r, g, b, a)
-                    .normal(matrixEntry, 0f, 1f, 0f)
-                buffer.vertex(matrixEntry, x2.toFloat(), y1.toFloat(), z2.toFloat())
-                    .color(r, g, b, a)
-                    .normal(matrixEntry, 0f, 1f, 0f)
+                buffer.addVertex(matrixEntry, x1.toFloat(), y1.toFloat(), z1.toFloat())
+                    .setColor(r, g, b, a)
+                    .setNormal(matrixEntry, 0f, 1f, 0f)
+                buffer.addVertex(matrixEntry, x2.toFloat(), y1.toFloat(), z2.toFloat())
+                    .setColor(r, g, b, a)
+                    .setNormal(matrixEntry, 0f, 1f, 0f)
             }
         }
         
-        if (translate) ctx.matrixStack!!.pop()
+        if (translate) ctx.matrixStack!!.popPose()
     }
     
     /**

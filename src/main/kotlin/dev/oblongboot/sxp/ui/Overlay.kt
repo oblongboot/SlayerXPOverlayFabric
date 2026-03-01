@@ -1,6 +1,6 @@
 package dev.oblongboot.sxp.ui
 
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 
 interface Overlay {
     var x: Int
@@ -9,7 +9,7 @@ interface Overlay {
     val height: Int
     var shouldShow: Boolean
     
-    fun draw(ctx: DrawContext)
+    fun draw(ctx: GuiGraphics)
     fun savePosition()
     fun show()
     fun hide()

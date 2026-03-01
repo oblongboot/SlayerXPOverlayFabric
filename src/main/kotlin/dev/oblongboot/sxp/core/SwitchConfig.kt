@@ -3,7 +3,7 @@ package dev.oblongboot.sxp.core
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.settings.FeatureManager
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 import java.awt.Color
 
 class SwitchConfig(
@@ -17,7 +17,7 @@ class SwitchConfig(
     
     private var isInitializing = false
 
-    override fun render(ctx: DrawContext) {
+    override fun render(ctx: GuiGraphics) {
         val toggleText = if (value) "ON" else "OFF"
         val baseColor = if (value) Color(0, 120, 220, 200) else Color(50, 60, 90, 180)
         val isHovered = isWithinBounds2(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
@@ -26,7 +26,7 @@ class SwitchConfig(
         Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
         Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
         
-        val textY = y + (height - Render2D.textRenderer.fontHeight) / 2
+        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
         Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
         
         val toggleColor = if (value) Color(200, 240, 255).rgb else Color(170, 170, 190).rgb
