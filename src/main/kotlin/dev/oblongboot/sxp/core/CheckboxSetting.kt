@@ -2,7 +2,7 @@ package dev.oblongboot.sxp.core
 
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 import java.awt.Color
 
 class CheckboxSetting(
@@ -20,7 +20,7 @@ class CheckboxSetting(
     private val animSpeed = 0.25f
     private var expanded = false
 
-    override fun render(ctx: DrawContext) {
+    override fun render(ctx: GuiGraphics) {
         val baseColor = Color(50, 60, 90, 180)
         val isHovered = isWithinBounds(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
         val hoverColor = if (isHovered) baseColor.brighter() else baseColor
@@ -30,7 +30,7 @@ class CheckboxSetting(
         animHeight += (targetHeight - animHeight) * animSpeed
         Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
         Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
-        val textY = y + (height - Render2D.textRenderer.fontHeight) / 2
+        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
         Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
 
         val selectedSummary = if (value.isNotEmpty()) "${value.size} selected" else "NONE"
@@ -79,7 +79,7 @@ class CheckboxSetting(
 
 
                 val textOffsetX = boxX + boxSize + 6
-                val textOffsetY = optionY + (optionHeight - Render2D.textRenderer.fontHeight) / 2
+                val textOffsetY = optionY + (optionHeight - Render2D.textRenderer.lineHeight) / 2
                 Render2D.drawString(ctx, options[optionIndex], textOffsetX, textOffsetY, 1f, true)
             }
 

@@ -5,16 +5,16 @@ import dev.oblongboot.sxp.ui.KPHOverlay
 import dev.oblongboot.sxp.ui.XPOverlay
 import dev.oblongboot.sxp.utils.ChatUtils.modMessage
 import dev.oblongboot.sxp.utils.Scheduler
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.Click
-import net.minecraft.client.gui.DrawContext
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.input.KeyInput
-import net.minecraft.text.Text
+import net.minecraft.client.Minecraft
+import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.input.KeyEvent
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import java.awt.Color
 
-class OverlayManager : Screen(Text.of("Overlay Manager")) {
+class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
 
     companion object {
         fun open() {
@@ -23,7 +23,7 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
                 manager.addOverlay(KPHOverlay)
                 manager.addOverlay(XPOverlay)
                 manager.addOverlay(BVOverlay)
-                MinecraftClient.getInstance().setScreen(manager)
+                Minecraft.getInstance().setScreen(manager)
             }
         }
     }
@@ -39,14 +39,14 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         overlays.add(overlay)
     }
 
-    override fun close() {
-        super.close()
+    override fun onClose() {
+        super.onClose()
         if (dirty) {
             overlays.forEach { it.savePosition() }
         }
     }
 
-    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         context.fill(0, 0, width, height, Color(0, 0, 0, 150).rgb)
         overlays.forEach { it.draw(context) }
         overlays.forEach { drawHitboxMarker(context, mouseX, mouseY, it) }
@@ -54,7 +54,7 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         super.render(context, mouseX, mouseY, delta)
     }
 
-    private fun drawHitboxMarker(context: DrawContext, mouseX: Int, mouseY: Int, overlay: Overlay) {
+    private fun drawHitboxMarker(context: GuiGraphics, mouseX: Int, mouseY: Int, overlay: Overlay) {
         val x = overlay.x
         val y = overlay.y
         val w = overlay.width.toFloat()
@@ -78,20 +78,20 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         context.fill((x + w - cornerSize).toInt(), (y + h - cornerSize).toInt(), (x + w).toInt(), (y + h).toInt(), Color(255, 255, 0, 200).rgb)
     }
 
-    private fun drawInfoPanel(context: DrawContext, mouseX: Int, mouseY: Int) {
+    private fun drawInfoPanel(context: GuiGraphics, mouseX: Int, mouseY: Int) {
         val posText = "Overlays: ${overlays.size} | Mouse: $mouseX, $mouseY | Dragging: $dragging"
-        context.fill(10, 10, 10 + textRenderer.getWidth(posText) + 10, 25, Color(0, 0, 0, 180).rgb)
-        context.drawTextWithShadow(textRenderer, posText, 15, 15, Color.WHITE.rgb)
+        context.fill(10, 10, 10 + font.width(posText) + 10, 25, Color(0, 0, 0, 180).rgb)
+        context.drawString(font, posText, 15, 15, Color.WHITE.rgb)
     }
 
-    private fun drawHollowRect(context: DrawContext, x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {
+    private fun drawHollowRect(context: GuiGraphics, x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {
         context.fill(x1, y1, x2, y1 + 1, color)
         context.fill(x1, y2 - 1, x2, y2, color)
         context.fill(x1, y1, x1 + 1, y2, color)
         context.fill(x2 - 1, y1, x2, y2, color)
     }
 
-    override fun mouseClicked(click: Click, doubled: Boolean): Boolean {
+    override fun mouseClicked(click: MouseButtonEvent, doubled: Boolean): Boolean {
         if (click.button() == 0) {
             val clickedOverlay = overlays.reversed().find { overlay ->
                 click.x >= overlay.x && click.x <= overlay.x + overlay.width &&
@@ -109,7 +109,7 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         return super.mouseClicked(click, doubled)
     }
 
-    override fun mouseDragged(click: Click, deltaY: Double, offsetY: Double): Boolean {
+    override fun mouseDragged(click: MouseButtonEvent, deltaY: Double, offsetY: Double): Boolean {
         if (dragging && draggedOverlay != null) {
             val overlay = draggedOverlay!!
             val w = overlay.width
@@ -129,7 +129,7 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         return super.mouseDragged(click, deltaY, offsetY)
     }
 
-    override fun mouseReleased(click: Click): Boolean {
+    override fun mouseReleased(click: MouseButtonEvent): Boolean {
         if (dragging) {
             dragging = false
             draggedOverlay = null
@@ -137,17 +137,17 @@ class OverlayManager : Screen(Text.of("Overlay Manager")) {
         return super.mouseReleased(click)
     }
 
-    override fun keyPressed(input: KeyInput): Boolean {
-        when (input.keycode) {
+    override fun keyPressed(input: KeyEvent): Boolean {
+        when (input.input()) {
             GLFW.GLFW_KEY_ESCAPE -> {
-                close()
+                onClose()
                 return true
             }
         }
         return super.keyPressed(input)
     }
 
-    override fun shouldPause() = false
+    override fun isPauseScreen() = false
     override fun shouldCloseOnEsc() = true
-    override fun renderBackground(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {}
+    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {}
 }

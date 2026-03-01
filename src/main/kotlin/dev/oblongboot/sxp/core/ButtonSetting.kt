@@ -1,7 +1,7 @@
 package dev.oblongboot.sxp.core
 
 import dev.oblongboot.sxp.utils.Render2D
-import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.GuiGraphics
 import java.awt.Color
 
 class ButtonSetting(
@@ -12,14 +12,14 @@ class ButtonSetting(
     override val width = 240
     override val height = 30
 
-    override fun render(ctx: DrawContext) {
+    override fun render(ctx: GuiGraphics) {
         val isHovered = isWithinBounds2(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
         val baseColor = Color(50, 90, 150, 180)
         val hoverColor = if (isHovered) baseColor.brighter() else baseColor
         Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
         Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
-        val textY = y + (height - Render2D.textRenderer.fontHeight) / 2
-        val textX = x + (width - Render2D.textRenderer.getWidth(name)) / 2
+        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
+        val textX = x + (width - Render2D.textRenderer.width(name)) / 2
 
         Render2D.drawString(ctx, name, textX, textY, 1f, true)
     }

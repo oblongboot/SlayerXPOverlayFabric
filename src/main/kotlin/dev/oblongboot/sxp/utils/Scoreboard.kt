@@ -1,8 +1,8 @@
 package dev.oblongboot.sxp.utils
 
-import net.minecraft.text.Text
-import net.minecraft.client.MinecraftClient
-import net.minecraft.scoreboard.ScoreboardDisplaySlot
+import net.minecraft.network.chat.Component
+import net.minecraft.client.Minecraft
+import net.minecraft.world.scores.DisplaySlot
 import java.util.regex.Pattern
 
 object Scoreboard {
@@ -75,25 +75,25 @@ object Scoreboard {
     }
     
     fun getScoreboardText(): List<String> {
-        val client = MinecraftClient.getInstance()
-        val scoreboard = client.world?.scoreboard ?: return emptyList()
-        val objective = scoreboard.getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR) ?: return emptyList()
+        val client = Minecraft.getInstance()
+        val scoreboard = client.level?.scoreboard ?: return emptyList()
+        val objective = scoreboard.getDisplayObjective(DisplaySlot.SIDEBAR) ?: return emptyList()
         return try {
-            scoreboard.knownScoreHolders.asSequence()
-                .filter { scoreHolder -> objective in scoreboard.getScoreHolderObjectives(scoreHolder) }
+            scoreboard.trackedPlayers.asSequence()
+                .filter { scoreHolder -> objective in scoreboard.listPlayerScores(scoreHolder) }
                 .map { scoreHolder ->
-                    val score = scoreboard.getOrCreateScore(scoreHolder, objective, true)
-                    val displayText = score.displayText?.string ?: scoreHolder.nameForScoreboard
+                    val score = scoreboard.getOrCreatePlayerScore(scoreHolder, objective, true)
+                    val displayText = score.display()?.string ?: scoreHolder.scoreboardName
                     val teamFormattedName = try {
-                        val team = scoreboard.getScoreHolderTeam(scoreHolder.nameForScoreboard)
+                        val team = scoreboard.getPlayersTeam(scoreHolder.scoreboardName)
                         if (team != null) {
-                            val textToDecorate = score.displayText ?: Text.literal(scoreHolder.nameForScoreboard)
-                            team.decorateName(textToDecorate).string
+                            val textToDecorate = score.display() ?: Component.literal(scoreHolder.scoreboardName)
+                            team.getFormattedName(textToDecorate).string
                         } else null
                     } catch (e: Exception) {
                         null
                     }
-                    Pair(teamFormattedName ?: displayText, score.score)
+                    Pair(teamFormattedName ?: displayText, score.get())
                 }
                 .sortedWith(compareBy<Pair<String, Int>> { it.second }.reversed().thenBy { it.first.lowercase() })
                 .map { (text, _) ->

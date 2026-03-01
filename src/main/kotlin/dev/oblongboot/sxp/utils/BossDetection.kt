@@ -1,32 +1,32 @@
 package dev.oblongboot.sxp.utils
 
-import net.minecraft.client.MinecraftClient
-import net.minecraft.entity.decoration.ArmorStandEntity
-import net.minecraft.util.math.Box
+import net.minecraft.client.Minecraft
+import net.minecraft.world.entity.decoration.ArmorStand
+import net.minecraft.world.phys.AABB
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import dev.oblongboot.sxp.utils.Scoreboard.getScoreboardText
 
 var isBossSpawned = false
 
-fun getArmorStands(radius: Double = 35.0, yRange: Double = 10.0): MutableList<ArmorStandEntity> {
-    val client = MinecraftClient.getInstance();
+fun getArmorStands(radius: Double = 35.0, yRange: Double = 10.0): MutableList<ArmorStand> {
+    val client = Minecraft.getInstance();
 
     // Random checks to make sure a world and player exist
-    val world = client.world ?: return mutableListOf();
+    val world = client.level ?: return mutableListOf();
     val player = client.player ?: return mutableListOf();
 
-    val box = Box(
+    val box = AABB(
         player.x - radius, player.y - yRange, player.z - radius,
         player.x + radius, player.y + yRange, player.z + radius
     );
 
-    return world.getEntitiesByClass(ArmorStandEntity::class.java, box) {
-        it.squaredDistanceTo(player) <= radius * radius
+    return world.getEntitiesOfClass(ArmorStand::class.java, box) {
+        it.distanceToSqr(player) <= radius * radius
     }
 }
 
 fun bossChecker(sw: StopwatchUtil, lastUUID: Array<String>) {
-    val client = MinecraftClient.getInstance();
+    val client = Minecraft.getInstance();
     var running = true;
     ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { c ->
         if (!running) return@EndTick;

@@ -3,7 +3,7 @@
 	"package": "dev.oblongboot.sxp.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ClientConnectionMixin",
+      "ConnectionMixin",
 		"Mixin3DRendering",
 		"MixinContributerColor"
 	],

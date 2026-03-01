@@ -6,8 +6,8 @@ package dev.oblongboot.sxp.utils
  */
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.minecraft.client.MinecraftClient
-import net.minecraft.entity.Entity
+import net.minecraft.client.Minecraft
+import net.minecraft.world.entity.Entity
 
 object Scheduler {
     private val tasks = mutableListOf<Task>()
@@ -19,7 +19,7 @@ object Scheduler {
                 tasks.removeAll {
                     if (it.delay-- > 0) return@removeAll false
 
-                    MinecraftClient.getInstance().submit(it.cb)
+                    Minecraft.getInstance().submit(it.cb)
 
                     return@removeAll true
                 }

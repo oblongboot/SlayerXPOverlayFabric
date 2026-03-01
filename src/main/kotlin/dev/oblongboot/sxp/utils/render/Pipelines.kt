@@ -2,21 +2,21 @@ package dev.oblongboot.sxp.utils.render
 
 import com.mojang.blaze3d.pipeline.RenderPipeline
 import com.mojang.blaze3d.platform.DepthTestFunction
-import net.minecraft.client.gl.RenderPipelines
+import net.minecraft.client.renderer.RenderPipelines
 
 // stolen from [progreso](https://github.com/ya-ilya/progreso/blob/master/progreso-client/src/main/kotlin/org/progreso/client/util/render/Render3D.kt)
 // all credit to ya-ilya
 object Pipelines {
 
     val LINES_ESP = RenderPipelines.register(
-        RenderPipeline.builder(RenderPipelines.RENDERTYPE_LINES_SNIPPET)
+        RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
             .withLocation("slayerxpoverlayfabric/lines_esp")
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST).build()
     )
 
     val QUADS: RenderPipeline = RenderPipelines
         .register(
-            RenderPipeline.builder(RenderPipelines.POSITION_COLOR_SNIPPET)
+            RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                 .withLocation("slayerxpoverlayfabric/quads")
                 .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                 .build()
@@ -24,7 +24,7 @@ object Pipelines {
 
     val QUADS_ESP: RenderPipeline = RenderPipelines
         .register(
-            RenderPipeline.builder(RenderPipelines.POSITION_COLOR_SNIPPET)
+            RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                 .withLocation("slayerxpoverlayfabric/quads_esp")
                 .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST).build()
         )

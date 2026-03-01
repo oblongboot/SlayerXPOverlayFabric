@@ -1,19 +1,22 @@
 package dev.oblongboot.sxp.mixin;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.text.*;
+import dev.oblongboot.sxp.utils.APIUtils;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import dev.oblongboot.sxp.utils.APIUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(TextRenderer.class)
+@Mixin(Font.class)
 public class MixinContributerColor {
-    @ModifyVariable(method = "prepare(Lnet/minecraft/text/OrderedText;FFIZZI)Lnet/minecraft/client/font/TextRenderer$GlyphDrawable;", at = @At("HEAD"), argsOnly = true)
-    private OrderedText modifyContributerColor(OrderedText text) {
+    @ModifyVariable(method = "prepareText(Lnet/minecraft/util/FormattedCharSequence;FFIZZI)Lnet/minecraft/client/gui/Font$PreparedText;", at = @At("HEAD"), argsOnly = true)
+    private FormattedCharSequence modifyContributerColor(FormattedCharSequence text) {
         List<APIUtils.Contributor> contributors = APIUtils.INSTANCE.getContributors();
         for (APIUtils.Contributor c : contributors) {
             int colorOne = parseHexColor(c.getColorOne());
@@ -38,8 +41,8 @@ public class MixinContributerColor {
         }
     }
 
-    private static OrderedText replaceContributorWordWithColor(OrderedText orderedText, String target, int colorOne,
-            int colorTwo) {
+    private static FormattedCharSequence replaceContributorWordWithColor(FormattedCharSequence orderedText, String target, int colorOne,
+                                                                         int colorTwo) {
         List<String> chars = new ArrayList<>();
         List<Style> styles = new ArrayList<>();
 
@@ -57,7 +60,7 @@ public class MixinContributerColor {
         if (!raw.contains(target))
             return orderedText;
 
-        MutableText rebuilt = Text.empty();
+        MutableComponent rebuilt = Component.empty();
         int searchIndex = 0;
         int rawLen = raw.length();
 
@@ -65,13 +68,13 @@ public class MixinContributerColor {
             int found = raw.indexOf(target, searchIndex);
             if (found == -1) {
                 for (int i = searchIndex; i < rawLen; i++) {
-                    rebuilt.append(Text.literal(chars.get(i)).setStyle(styles.get(i)));
+                    rebuilt.append(Component.literal(chars.get(i)).setStyle(styles.get(i)));
                 }
                 break;
             }
 
             for (int i = searchIndex; i < found; i++) {
-                rebuilt.append(Text.literal(chars.get(i)).setStyle(styles.get(i)));
+                rebuilt.append(Component.literal(chars.get(i)).setStyle(styles.get(i)));
             }
 
             int targetLen = target.length();
@@ -81,13 +84,13 @@ public class MixinContributerColor {
                 int color = interpolate(colorOne, colorTwo, ratio);
 
                 Style originalStyle = styles.get(charIndex);
-                rebuilt.append(Text.literal(chars.get(charIndex)).setStyle(originalStyle.withColor(color)));
+                rebuilt.append(Component.literal(chars.get(charIndex)).setStyle(originalStyle.withColor(color)));
             }
 
             searchIndex = found + targetLen;
         }
 
-        return rebuilt.asOrderedText();
+        return rebuilt.getVisualOrderText();
     }
 
     private static int interpolate(int start, int end, float ratio) {
