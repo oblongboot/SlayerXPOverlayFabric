@@ -1,7 +1,7 @@
 package dev.oblongboot.sxp.settings.impl
 
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
-import net.minecraft.client.MinecraftClient
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
+import net.minecraft.client.Minecraft
 import dev.oblongboot.sxp.utils.ChatUtils.modMessage
 import dev.oblongboot.sxp.events.OnPacket
 import dev.oblongboot.sxp.settings.Config
@@ -173,7 +173,7 @@ class onMessage {
             CoroutineScope(Dispatchers.Default).launch {
                 delay(500)
 
-                MinecraftClient.getInstance().execute {
+                Minecraft.getInstance().execute {
                     modMessage(parts.joinToString(" | "))
                 }
             }
@@ -255,7 +255,7 @@ class onMessage {
     @EventHandler
     fun onPacketReceived(event: OnPacket.Incoming) {
         val packet = event.packet
-        if (packet !is GameMessageS2CPacket) return
+        if (packet !is ClientboundSystemChatPacket) return
         checkForIdleTimeout() // doing it for every packet would be too shit performace so like, yeah
         val message = packet.content().string.trim()
 

@@ -4,18 +4,18 @@ import dev.oblongboot.sxp.events.OnPacket
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.utils.Scheduler
 import meteordevelopment.orbit.EventHandler
-import net.minecraft.client.MinecraftClient
-import net.minecraft.sound.SoundCategory
-import net.minecraft.sound.SoundEvents
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket
+import net.minecraft.client.Minecraft
+import net.minecraft.sounds.SoundSource
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.network.chat.Component
+import net.minecraft.ChatFormatting
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 
 class MiniBossAlert {
     @EventHandler
     fun onChatMessage(event: OnPacket.Incoming) {
         val packet = event.packet
-        if (packet !is GameMessageS2CPacket) return
+        if (packet !is ClientboundSystemChatPacket) return
         if (!Config.isToggled("MiniBossAlert")) return
         val msg = packet.content().string.trim()
 
@@ -23,18 +23,18 @@ class MiniBossAlert {
         val match = regex.find(msg) ?: return
         val mini = match.groupValues[1]
 
-        val client = MinecraftClient.getInstance()
+        val client = Minecraft.getInstance()
         val player = client.player ?: return
 
         client.execute {
-            client.inGameHud.setTitle(
-                Text.literal(mini).formatted(Formatting.DARK_RED, Formatting.BOLD)
+            client.gui.setTitle(
+                Component.literal(mini).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD)
             )
 
-            client.inGameHud.setSubtitle(Text.empty())
-            client.inGameHud.setTitleTicks(0, 25, 0)
+            client.gui.setSubtitle(Component.empty())
+            client.gui.setTimes(0, 25, 0)
 
-            client.player?.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value())
+            client.player?.makeSound(SoundEvents.NOTE_BLOCK_PLING.value())
         }
 
     }
