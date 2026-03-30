@@ -17,20 +17,40 @@ class SwitchConfig(
     
     private var isInitializing = false
 
-    override fun render(ctx: GuiGraphics) {
+    override fun render(mouseX: Int, mouseY: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
         val toggleText = if (value) "ON" else "OFF"
-        val baseColor = if (value) Color(0, 120, 220, 200) else Color(50, 60, 90, 180)
-        val isHovered = isWithinBounds2(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
-        val hoverColor = if (isHovered) baseColor.brighter() else baseColor
+        val isHovered = isWithinBounds2(mouseX, mouseY)
+        val baseColor = if (value) skija.argb(150, 0, 100, 200) else skija.argb(100, 20, 30, 50)
+        
+        if (value) {
+            skija.drawRoundedRectGradient(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, 
+                skija.argb(160, 0, 120, 240), skija.argb(160, 0, 80, 180), 
+                dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.LEFT_TO_RIGHT)
+        } else {
+            skija.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, baseColor)
+        }
+        
+        if (isHovered) {
+             skija.drawRoundedGlow(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, skija.argb(50, 0, 150, 255), 10f, 1f)
+        }
+        
+        val alphaBorder = if (value) 200 else 80
+        skija.drawRoundedRectBorderGradient(
+            x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, 1f,
+            skija.argb(alphaBorder, 0, 140, 255), skija.argb(alphaBorder, 0, 90, 200),
+            dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT
+        )
 
-        Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
-        Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
+        val font = dev.oblongboot.sxp.ui.SettingsScreen.elementFont
+        val textY = y + height / 3.8f// - 5f
         
-        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
-        Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
+        val nameColor = if (value || isHovered) skija.argb(255, 255, 255, 255) else skija.argb(255, 200, 210, 225)
+        skija.drawText(name, x + 10f, textY, nameColor, font)
         
-        val toggleColor = if (value) Color(200, 240, 255).rgb else Color(170, 170, 190).rgb
-        Render2D.drawString(ctx, toggleText, x + width - 40, textY, 1f, true)
+        val toggleColor = if (value) skija.argb(255, 220, 240, 255) else skija.argb(255, 140, 150, 170)
+        val tw = skija.getTextWidth(toggleText, font)
+        skija.drawText(toggleText, x + width - tw - 10f, textY, toggleColor, font)
     }
 
     override fun onClick(mouseX: Int, mouseY: Int): Boolean {

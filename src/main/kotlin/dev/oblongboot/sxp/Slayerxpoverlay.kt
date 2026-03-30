@@ -68,12 +68,12 @@ object Slayerxpoverlay : ModInitializer {
                         try {
                             if (!shouldCheck) return@launch
                             shouldCheck = false
-                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.1")
+                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.2")
                             if (updateAvailable) {
                                 Minecraft.getInstance().execute {
                                     modMessage(
                                         "A new version of SlayerXPOverlayFabric is available! " +
-                                        "You are running version v1.2.1. " +
+                                        "You are running version v1.2.2. " +
                                         "Please check the GitHub page for the latest version."
                                     )
                                 }

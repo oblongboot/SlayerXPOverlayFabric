@@ -5,7 +5,10 @@
 	"mixins": [
       "ConnectionMixin",
 		"Mixin3DRendering",
-		"MixinContributerColor"
+		"MixinContributerColor",
+      "MinecraftMixin",
+      "WindowMixin",
+		"HotbarMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

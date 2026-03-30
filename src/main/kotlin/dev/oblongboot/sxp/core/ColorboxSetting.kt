@@ -39,16 +39,17 @@ class ColorboxSetting(
         updateHSVFromColor(value)
     }
 
-    override fun render(ctx: GuiGraphics) {
-        val baseColor = Color(50, 60, 90, 180)
-        val isHovered = isWithinBounds(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
-        val hoverColor = if (isHovered) baseColor.brighter() else baseColor
+    override fun render(mouseX: Int, mouseY: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
+        val baseColor = skija.argb(100, 20, 40, 70)
+        val isHovered = isWithinBounds(mouseX, mouseY)
+        val hoverColor = if (isHovered) skija.argb(160, 40, 80, 140) else baseColor
 
         val targetHeight = if (expanded) pickerHeight + 60 else 0
         animHeight += (targetHeight - animHeight) * animSpeed
 
-        val mouseX = Render2D.Mouse.x.toInt()
-        val mouseY = Render2D.Mouse.y.toInt()
+        val mouseXFloat = mouseX.toFloat()
+        val mouseYFloat = mouseY.toFloat()
         val mouseDown = Render2D.Mouse.isDown(0)
 
         val pickerX = x + 10
@@ -69,87 +70,107 @@ class ColorboxSetting(
             draggingAlpha = false
         }
         aaa = mouseDown
+        
+        skija.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, hoverColor)
 
-        Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
-        Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
-        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
-        Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
+        if (isHovered) {
+             skija.drawRoundedGlow(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, skija.argb(60, 0, 120, 255), 10f, 1f)
+        }
+        
+        val borderColor = if (expanded || isHovered) skija.argb(255, 0, 150, 255) else skija.argb(150, 0, 100, 200)
+        skija.drawRoundedRectBorderGradient(
+            x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, 1f,
+            borderColor, borderColor,
+            dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT
+        )
 
-        val previewX = x + width - previewSize - 10
-        val previewY = y + (height - previewSize) / 2
-        Render2D.drawWhateverTheFuckThisIs(ctx, previewX, previewY, previewSize, previewSize, 3, value)
-        Render2D.drawOutline(ctx, previewX, previewY, previewSize, previewSize, Color.WHITE)
+        val font = dev.oblongboot.sxp.ui.SettingsScreen.elementFont
+        val textY = y + height / 3.8f// - 5f
+        skija.drawText(name, x + 10f, textY, skija.argb(255, 255, 255, 255), font)
+
+        val previewX = x + width - previewSize - 10f
+        val previewY = y + (height - previewSize) / 2f
+        val previewArgb = skija.argb(value.alpha, value.red, value.green, value.blue)
+        skija.drawRoundedRect(previewX, previewY, previewSize.toFloat(), previewSize.toFloat(), 3f, previewArgb)
+        skija.drawRoundedRectBorderGradient(previewX, previewY, previewSize.toFloat(), previewSize.toFloat(), 3f, 1f, skija.argb(150, 255, 255, 255), skija.argb(50, 255, 255, 255), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT)
 
         if (animHeight > 0.5f) {
-            Render2D.drawWhateverTheFuckThisIs(ctx, x, pickerY - 3, width, (animHeight + 6).toInt(), 6, Color(30, 40, 60, 220))
-            drawSVPicker(ctx, pickerX, pickerY, svWidth, pickerHeight)
-            drawHueBar(ctx, hueX, pickerY, hueBarWidth, hueBarHeight)
-            drawAlphaSlider(ctx, pickerX, alphaY, pickerWidth, 15)
-            val finalPreviewX = pickerX + pickerWidth - 60
-            val finalPreviewY = alphaY + 20
-            Render2D.drawWhateverTheFuckThisIs(ctx, finalPreviewX, finalPreviewY, 50, 25, 3, value)
-            Render2D.drawOutline(ctx, finalPreviewX, finalPreviewY, 50, 25, Color.WHITE)
+            skija.drawRoundedRect(x.toFloat(), pickerY - 3f, width.toFloat(), animHeight + 6f, 4f, skija.argb(220, 15, 25, 40))
+            skija.drawRoundedRectBorderGradient(x.toFloat(), pickerY - 3f, width.toFloat(), animHeight + 6f, 4f, 1f, skija.argb(100, 0, 100, 200), skija.argb(100, 0, 100, 200), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT)
+
+            drawSVPicker(pickerX, pickerY, svWidth, pickerHeight)
+            drawHueBar(hueX, pickerY, hueBarWidth, hueBarHeight)
+            drawAlphaSlider(pickerX, alphaY, pickerWidth, 15)
+            
+            val finalPreviewX = pickerX + pickerWidth - 60f
+            val finalPreviewY = alphaY + 20f
+            skija.drawRoundedRect(finalPreviewX, finalPreviewY, 50f, 25f, 3f, previewArgb)
+            skija.drawRoundedRectBorderGradient(finalPreviewX, finalPreviewY, 50f, 25f, 3f, 1f, skija.argb(150, 255, 255, 255), skija.argb(50, 255, 255, 255), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT)
+            
             val hexColor = String.format("#%02X%02X%02X%02X", value.red, value.green, value.blue, value.alpha)
-            Render2D.drawString(ctx, hexColor, pickerX, finalPreviewY + 7, 0.9f, true)
+            val smallFont = dev.oblongboot.sxp.ui.SettingsScreen.smallFont
+            skija.drawText(hexColor, pickerX.toFloat(), finalPreviewY + 15f, skija.argb(255, 180, 200, 230), smallFont)
         }
     }
 
 
-    private fun drawSVPicker(ctx: GuiGraphics, px: Int, py: Int, w: Int, h: Int) {
-        val stripWidth = 4
-        val stripHeight = 8
+    private fun drawSVPicker(px: Int, py: Int, w: Int, h: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
+        val stripWidth = 4f
+        val stripHeight = 8f
 
-        for (i in 0 until w step stripWidth) {
-            for (j in 0 until h step stripHeight) {
+        for (i in 0 until w step stripWidth.toInt()) {
+            for (j in 0 until h step stripHeight.toInt()) {
                 val s = i.toFloat() / w
                 val v = 1f - (j.toFloat() / h)
                 val color = Color.getHSBColor(hue, s, v)
-                Render2D.drawWhateverTheFuckThisIs(ctx, px + i, py + j, stripWidth, stripHeight, 0, color)
+                skija.drawRoundedRect(px + i.toFloat(), py + j.toFloat(), stripWidth, stripHeight, 0f, skija.argb(255, color.red, color.green, color.blue))
             }
         }
 
-        val cursorX = px + (saturation * w).toInt()
-        val cursorY = py + ((1f - brightness) * h).toInt()
-        Render2D.drawOutline(ctx, cursorX - 4, cursorY - 4, 8, 8, Color.WHITE)
-        Render2D.drawOutline(ctx, cursorX - 3, cursorY - 3, 6, 6, Color.BLACK)
+        val cursorX = px + (saturation * w).toFloat()
+        val cursorY = py + ((1f - brightness) * h).toFloat()
+        skija.drawRoundedRectBorderGradient(cursorX - 4f, cursorY - 4f, 8f, 8f, 4f, 1f, skija.argb(255, 255, 255, 255), skija.argb(255, 255, 255, 255), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.LEFT_TO_RIGHT)
+        skija.drawRoundedRectBorderGradient(cursorX - 3f, cursorY - 3f, 6f, 6f, 3f, 1f, skija.argb(255, 0, 0, 0), skija.argb(255, 0, 0, 0), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.LEFT_TO_RIGHT)
     }
 
-    private fun drawHueBar(ctx: GuiGraphics, hx: Int, hy: Int, w: Int, h: Int) {
-        val stripHeight = 4
-        for (i in 0 until h step stripHeight) {
+    private fun drawHueBar(hx: Int, hy: Int, w: Int, h: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
+        val stripHeight = 4f
+        for (i in 0 until h step stripHeight.toInt()) {
             val hueVal = i.toFloat() / h
             val color = Color.getHSBColor(hueVal, 1f, 1f)
-            Render2D.drawWhateverTheFuckThisIs(ctx, hx, hy + i, w, stripHeight, 0, color)
+            skija.drawRoundedRect(hx.toFloat(), hy + i.toFloat(), w.toFloat(), stripHeight, 0f, skija.argb(255, color.red, color.green, color.blue))
         }
 
-        Render2D.drawOutline(ctx, hx, hy, w, h, Color.WHITE)
+        skija.drawRoundedRectBorderGradient(hx.toFloat(), hy.toFloat(), w.toFloat(), h.toFloat(), 0f, 1f, skija.argb(255, 255, 255, 255), skija.argb(255, 255, 255, 255), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.LEFT_TO_RIGHT)
 
-        val cursorY = hy + (hue * h).toInt()
-        Render2D.drawWhateverTheFuckThisIs(ctx, hx - 2, cursorY - 2, w + 4, 4, 0, Color.WHITE)
+        val cursorY = hy + (hue * h).toFloat()
+        skija.drawRoundedRect(hx - 2f, cursorY - 2f, w + 4f, 4f, 2f, skija.argb(255, 255, 255, 255))
     }
 
-    private fun drawAlphaSlider(ctx: GuiGraphics, ax: Int, ay: Int, w: Int, h: Int) {
-        val checkSize = 8
-        for (i in 0 until w step checkSize) {
-            for (j in 0 until h step checkSize) {
-                val isLight = ((i / checkSize) + (j / checkSize)) % 2 == 0
-                val color = if (isLight) Color(200, 200, 200) else Color(100, 100, 100)
-                Render2D.drawWhateverTheFuckThisIs(ctx, ax + i, ay + j, checkSize, checkSize, 0, color)
+    private fun drawAlphaSlider(ax: Int, ay: Int, w: Int, h: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
+        val checkSize = 8f
+        for (i in 0 until w step checkSize.toInt()) {
+            for (j in 0 until h step checkSize.toInt()) {
+                val isLight = ((i / checkSize.toInt()) + (j / checkSize.toInt())) % 2 == 0
+                val color = if (isLight) skija.argb(255, 200, 200, 200) else skija.argb(255, 100, 100, 100)
+                skija.drawRoundedRect(ax + i.toFloat(), ay + j.toFloat(), checkSize, checkSize, 0f, color)
             }
         }
 
         val baseColor = Color(value.red, value.green, value.blue)
-        val stripWidth = 4
-        for (i in 0 until w step stripWidth) {
+        val stripWidth = 4f
+        for (i in 0 until w step stripWidth.toInt()) {
             val a = (i.toFloat() / w * 255).toInt()
-            val color = Color(baseColor.red, baseColor.green, baseColor.blue, a)
-            Render2D.drawWhateverTheFuckThisIs(ctx, ax + i, ay, stripWidth, h, 0, color)
+            skija.drawRoundedRect(ax + i.toFloat(), ay.toFloat(), stripWidth, h.toFloat(), 0f, skija.argb(a, baseColor.red, baseColor.green, baseColor.blue))
         }
 
-        Render2D.drawOutline(ctx, ax, ay, w, h, Color.WHITE)
+        skija.drawRoundedRectBorderGradient(ax.toFloat(), ay.toFloat(), w.toFloat(), h.toFloat(), 0f, 1f, skija.argb(255, 255, 255, 255), skija.argb(255, 255, 255, 255), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.LEFT_TO_RIGHT)
 
-        val cursorX = ax + (alpha.toFloat() / 255f * w).toInt()
-        Render2D.drawWhateverTheFuckThisIs(ctx, cursorX - 2, ay - 2, 4, h + 4, 0, Color.WHITE)
+        val cursorX = ax + (alpha.toFloat() / 255f * w).toFloat()
+        skija.drawRoundedRect(cursorX - 2f, ay - 2f, 4f, h + 4f, 2f, skija.argb(255, 255, 255, 255))
     }
 
     override fun onClick(mouseX: Int, mouseY: Int): Boolean {

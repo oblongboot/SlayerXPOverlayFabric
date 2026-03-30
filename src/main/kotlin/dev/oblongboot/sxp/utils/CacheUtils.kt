@@ -3,9 +3,6 @@ package dev.oblongboot.sxp.utils
 import java.util.LinkedHashMap
 import kotlin.time.Duration
 
-/**
-* beep boop
-*/
 class CacheUtils<K, V>(
     private val maxSize: Int,
     private val ttl: Duration
@@ -27,11 +24,8 @@ class CacheUtils<K, V>(
             val entry = cache[key]
 
             if (entry != null && entry.expiryTimeMs > now) {
-                // Valid cached entry
                 return entry.value
             }
-
-            // Expired or missing, compute and cache
             val newValue = defaultValue()
             cache[key] = CacheEntry(newValue, now + ttl.inWholeMilliseconds)
             return newValue
