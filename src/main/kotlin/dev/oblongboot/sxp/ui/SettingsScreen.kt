@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import dev.oblongboot.sxp.utils.Render2D
+import dev.oblongboot.sxp.utils.skia.SkijaRenderer
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.input.KeyEvent
 import java.awt.Color
@@ -28,6 +29,11 @@ import kotlin.random.Random
 class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     companion object {
+        val titleFont by lazy { io.github.humbleui.skija.Font(io.github.humbleui.skija.FontMgr.getDefault().matchFamilyStyle(null, io.github.humbleui.skija.FontStyle.NORMAL), 28f) }
+        val catFont by lazy { io.github.humbleui.skija.Font(io.github.humbleui.skija.FontMgr.getDefault().matchFamilyStyle(null, io.github.humbleui.skija.FontStyle.NORMAL), 16f) }
+        val elementFont by lazy { io.github.humbleui.skija.Font(io.github.humbleui.skija.FontMgr.getDefault().matchFamilyStyle(null, io.github.humbleui.skija.FontStyle.NORMAL), 14f) }
+        val smallFont by lazy { io.github.humbleui.skija.Font(io.github.humbleui.skija.FontMgr.getDefault().matchFamilyStyle(null, io.github.humbleui.skija.FontStyle.NORMAL), 11f) }
+
         fun open() {
             Scheduler.scheduleTask(1) {
                 Minecraft.getInstance().setScreen(SettingsScreen())
@@ -37,7 +43,7 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     private val elements = mutableListOf<Element>()
     private val elementHeight = 25
-    private val elementSpacing = 5
+    private val elementSpacing = 10
     private val sidebarWidth = 200
     private val categories = mutableListOf<Category>()
     private var selectedCategory: Category? = null
@@ -55,28 +61,36 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
     private val animationTime: Double
         get() = (System.currentTimeMillis() - startTime).toDouble()
 
-    init {
+    private var dialogX = 0f
+    private var dialogY = 0f
+    private var dialogW = 0f
+    private var dialogH = 0f
+    private val sidebarW = 160f
+    private val animation = UIBounceAnimation(400)
+
+    private val DESIGN_WIDTH = 960f
+    private val DESIGN_HEIGHT = 540f
+
+    override fun init() {
+        animation.start()
+        super.init()
+
+        dialogW = 800f
+        dialogH = 500f
+        dialogX = (DESIGN_WIDTH - dialogW) / 2f
+        dialogY = (DESIGN_HEIGHT - dialogH) / 2f
+        
         setupCategories()
-        selectedCategory = categories.firstOrNull()
-        selectedCategory?.let { updateElementsForCategory(it.name) }
+        val targetCatName = selectedCategory?.name ?: categories.firstOrNull()?.name
+        targetCatName?.let { updateElementsForCategory(it) }
     }
 
-    private fun renderParticles(ctx: GuiGraphics) {
-        val width = Render2D.scaledWidth
-        val height = Render2D.scaledHeight
-
-        for ((index, particle) in particles.withIndex()) {
-            val x = ((sin(animationTime * 0.0003 * particle.speed + index + particle.phase) * 0.5 + 0.5) * width).toInt()
-            val y = ((cos(animationTime * 0.0004 * particle.speed + index * 0.5 + particle.phase) * 0.5 + 0.5) * height).toInt()
-            val alpha = ((sin(animationTime * 0.0008 + index) * 0.5 + 0.5) * 255).toInt().coerceIn(50, 255)
-            val color = Color(0, 100, particle.blueIntensity, alpha)
-            Render2D.drawRect(ctx, x, y, particle.size.toInt(), particle.size.toInt(), color)
-        }
-    }
 
     private fun updateElementsForCategory(name: String) {
         elements.clear()
-        var yPos = 100
+        
+        val contentX = dialogX + sidebarW + 15f
+        var currentY = dialogY + 80f
 
         when (name) {
             "General" -> {
@@ -85,89 +99,66 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
                     default = false,
                     description = "Shows Slayer XP in a movable overlay"
                 ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(overlaySwitch)
-                yPos += elementHeight + elementSpacing
+                currentY += elementHeight + elementSpacing
 
                 val kphSwitch = SwitchConfig(
                     name = "KPHOverlay",
                     default = false,
                     description = "Shows slayer kills per hour in a movable overlay"
                 ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(kphSwitch)
-                yPos += elementHeight + elementSpacing
+                currentY += elementHeight + elementSpacing
 
                 val openOtherGUI = ButtonSetting(
                     name = "Open Overlay Manager",
                     description = "Opens the overlay manager",
-                    onClickAction = {
-                        OverlayManager.open()
-                    }
+                    onClickAction = { OverlayManager.open() }
                 ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(openOtherGUI)
-                yPos += elementHeight + elementSpacing
+                currentY += elementHeight + elementSpacing
                 
-
-                val bossInfoCheckbox = CheckboxSetting(
-                    name = "BossInfoCheckbox",
-                    options = listOf(
-                        "XP",
-                        "Kills",
-                        "Time",
-                        "KPH"
-                    ),
-                    defaultSelected = setOf(0, 2)
-                ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
-                }
-                elements.add(bossInfoCheckbox)
-                yPos += elementHeight + elementSpacing + 20
-
-
                 val shortPrefix = SwitchConfig(
                     name = "ShortPrefix",
                     default = false,
                     description = "Changes the prefix from SlayerXPOverlay to SXP",
-                    onValueChangeAction = {
-                        updatePrefix()
-                    }
+                    onValueChangeAction = { updatePrefix() }
                 ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos + 65
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(shortPrefix)
-                yPos += elementHeight + elementSpacing + 60
+                currentY += elementHeight + elementSpacing
+
+                val bossInfoCheckbox = CheckboxSetting(
+                    name = "BossInfoCheckbox",
+                    options = listOf("XP", "Kills", "Time", "KPH"),
+                    defaultSelected = setOf(0, 2)
+                ).apply {
+                    x = contentX.toInt()
+                    y = currentY.toInt()
+                }
+                elements.add(bossInfoCheckbox)
+                currentY += elementHeight + elementSpacing
             }
             "General QOL" -> {
                 val autoCallMaddox = SwitchConfig(
                     name = "AutoCallMaddox",
                     default = false
                 ).apply {
-                    x = sidebarWidth +20
-                    y = yPos
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(autoCallMaddox)
-                
-            //     val HighlightsToggle = SwitchConfig(
-            //         name = "BossHighlight",
-            //         default = false,
-            //         description = "Highlight bosses!!!"
-            //     ).apply {
-            //         x = sidebarWidth + 20
-            //         y = yPos
-            //     }
-            //     elements.add(HighlightsToggle)
-            //     yPos += elementHeight + elementSpacing
-            // } // cba
             }
 
 
@@ -198,38 +189,35 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
                 val messageColorSelector1 = ColorboxSetting(
                     name = "MessageColorSelector1",
                     defaultColor = Color(0, 255, 255),
-                    description = "Start Color for the chat message gradient"
+                    description = "Start Color for chat msgs"
                 ).apply {
-                    x = sidebarWidth + 20
-                    y = yPos
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(messageColorSelector1)
-                yPos += elementHeight + elementSpacing
 
                 val messageColorSelector2 = ColorboxSetting(
                     name = "MessageColorSelector2",
                     defaultColor = Color(0, 0, 255),
-                    description = "End Color for the chat message gradient"
+                    description = "End Color for chat msgs"
                 ).apply {
-                    x = sidebarWidth + 270
-                    y = yPos - 30
+                    x = (contentX + 250f).toInt()
+                    y = currentY.toInt() 
                 }
                 elements.add(messageColorSelector2)
-                yPos += elementHeight + elementSpacing
+                currentY += elementHeight + elementSpacing + 150f
 
                 val gradientSwitch = SwitchConfig(
                     name = "IsGradient",
                     default = true,
                     description = "Sends the message in a gradient",
-                    onValueChangeAction = {
-                        isGradient = Config.isToggled("IsGradient");
-                    }
+                    onValueChangeAction = { isGradient = Config.isToggled("IsGradient") }
                 ).apply {
-                    x = sidebarWidth + 20;
-                    y = yPos + 180
+                    x = contentX.toInt()
+                    y = currentY.toInt()
                 }
                 elements.add(gradientSwitch)
-                yPos += elementHeight + elementSpacing
+                currentY += elementHeight + elementSpacing
             }
         }
 
@@ -253,66 +241,130 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
     }
 
     private fun setupCategories() {
+        val previousSelectedCategory = selectedCategory?.name ?: categories.firstOrNull()?.name
         categories.clear()
-        var yPos = 40
-        val catNames = listOf("General", "General QOL", "Blaze", "Colors")
+        
+        var currentY = dialogY + 80f
+        val catNames = listOf("General", "General QOL", "Colors")
 
         catNames.forEachIndexed { index, name ->
             categories.add(
                 Category(
                     name = name,
-                    x = 7,
-                    y = yPos,
-                    width = sidebarWidth - 14,
+                    x = (dialogX + 10f).toInt(),
+                    y = (currentY - 10f).toInt(),
+                    width = sidebarW.toInt() - 20,
                     height = 32,
-                    selected = index == 0
+                    selected = (name == previousSelectedCategory || (previousSelectedCategory == null && index == 0))
                 )
             )
-            yPos += 37
+            currentY += 40f
         }
+        
+        selectedCategory = categories.find { it.selected } ?: categories.firstOrNull()
+        selectedCategory?.selected = true
     }
 
     override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
-        context.fill(0, 0, sidebarWidth, height, Color(0, 0, 0, 128).rgb)
-        context.fill(sidebarWidth - 1, 0, sidebarWidth, height, Color(40, 40, 50, 255).rgb)
-        context.fill(sidebarWidth, 0, width, height, Color(40, 60, 120, 150).rgb)
+        val window = Minecraft.getInstance().window
+        val sw = window.guiScaledWidth.toFloat()
+        val sh = window.guiScaledHeight.toFloat()
+        val scaleX = sw / DESIGN_WIDTH
+        val scaleY = sh / DESIGN_HEIGHT
+        val finalUIScale = kotlin.math.min(scaleX, scaleY)
+        val offsetX = (sw - DESIGN_WIDTH * finalUIScale) / 2f
+        val offsetY = (sh - DESIGN_HEIGHT * finalUIScale) / 2f
+        val designMouseX = ((mouseX - offsetX) / finalUIScale).toInt()
+        val designMouseY = ((mouseY - offsetY) / finalUIScale).toInt()
 
-        val title = "§bSlayerXPOverlay §3Config"
-        val titleWidth = font.width(title)
-        context.drawString(font, title, (sidebarWidth - titleWidth) / 2, 20, Color.WHITE.rgb)
+        SkijaRenderer.beginFrame(sw, sh)
+        if (!SkijaRenderer.isDrawing) return
 
-        categories.forEach { cat ->
-            val bgColor = if (cat.selected) Color(0, 120, 255, 255).rgb else Color(30, 60, 120, 200).rgb
-            context.fill(cat.x, cat.y, cat.x + cat.width, cat.y + cat.height, bgColor)
+        try {
+            SkijaRenderer.drawBackdropBlur(0f, 0f, sw, sh, 0f, 20f, 0.5f)
+            SkijaRenderer.drawRoundedRect(0f, 0f, sw, sh, 0f, SkijaRenderer.argb(160, 5, 10, 15))
 
-            val textX = cat.x + (cat.width - font.width(cat.name)) / 2
-            val textY = cat.y + (cat.height - font.lineHeight) / 2
-            context.drawString(font, cat.name, textX, textY, Color.WHITE.rgb)
+            val bounceScale = animation.get()
+
+            val centerX = dialogX + dialogW / 2f
+            val centerY = dialogY + dialogH / 2f
+
+            SkijaRenderer.save()
+            SkijaRenderer.translate(offsetX, offsetY)
+            SkijaRenderer.scale(finalUIScale, finalUIScale)
+            SkijaRenderer.translate(centerX, centerY)
+            SkijaRenderer.scale(bounceScale, bounceScale)
+            SkijaRenderer.translate(-centerX, -centerY)
+            
+            SkijaRenderer.drawRoundedRect(dialogX, dialogY, dialogW, dialogH, 10f, SkijaRenderer.argb(230, 15, 20, 30))
+
+            SkijaRenderer.drawRoundedRectBorderGradient(dialogX, dialogY, dialogW, dialogH, 10f, 1f, SkijaRenderer.argb(120, 0, 100, 200), SkijaRenderer.argb(80, 0, 50, 120), SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT)
+
+            val sbX = dialogX
+            SkijaRenderer.drawRoundedRect(sbX, dialogY, sidebarW, dialogH, 10f, SkijaRenderer.argb(60, 10, 15, 25))
+
+            val title = "SXP"
+            val titleW = SkijaRenderer.getTextWidth(title, titleFont)
+            SkijaRenderer.drawText(title, sbX + (sidebarW - titleW) / 2f, dialogY + 30f, SkijaRenderer.argb(255, 240, 245, 255), titleFont)
+
+
+            categories.forEach { cat ->
+                val cx = cat.x.toFloat()
+                val cy = cat.y.toFloat()
+                val cw = cat.width.toFloat()
+                val ch = cat.height.toFloat()
+
+                if (cat.selected) {
+                    SkijaRenderer.drawRoundedGlow(cx, cy, cw, ch, 6f, SkijaRenderer.argb(50, 0, 120, 255), 10f)
+                    SkijaRenderer.drawRoundedRectGradient(cx, cy, cw, ch, 6f, SkijaRenderer.argb(180, 0, 90, 200), SkijaRenderer.argb(180, 0, 60, 150))
+                } else {
+                    val isHovered = cat.contains(designMouseX, designMouseY)
+                    val bgColor = if (isHovered) SkijaRenderer.argb(100, 30, 60, 100) else SkijaRenderer.argb(40, 20, 30, 50)
+                    SkijaRenderer.drawRoundedRect(cx, cy, cw, ch, 6f, bgColor)
+                }
+
+                val tw = SkijaRenderer.getTextWidth(cat.name, catFont)
+                val tx = cx + (cw - tw) / 2f
+                val ty = cy + ch / 2f - 7f
+                val tc = if (cat.selected) SkijaRenderer.argb(255, 255, 255, 255) else SkijaRenderer.argb(200, 200, 200, 220)
+                SkijaRenderer.drawText(cat.name, tx, ty, tc, catFont)
+            }
+
+            elements.forEach { it.render(designMouseX, designMouseY) }
+
+//            var iy = dialogY + dialogH - 45f
+//            listOf(
+//                "Click toggles to enable/disable features",
+//                "Press 'O' to open overlay manager",
+//                "Press ESC to close"
+//            ).forEach {
+//                SkijaRenderer.drawText(it, dialogX + 15f, iy, SkijaRenderer.argb(150, 200, 200, 200), smallFont)
+//                iy += 15f
+//            }
+
+            SkijaRenderer.restore()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            SkijaRenderer.endFrame()
         }
-
-        renderParticles(context)
-
-        elements.forEach { element ->
-            element.render(context)
-        }
-
-        var instructionY = height - 80
-        listOf(
-            "Click toggles to enable/disable features",
-            "Press 'O' to open overlay manager",
-            "Press ESC to close this menu"
-        ).forEach {
-            context.drawString(font, it, 15, instructionY, Color.GRAY.rgb)
-            instructionY += 15
-        }
-
-        super.render(context, mouseX, mouseY, delta)
     }
 
     override fun mouseClicked(click: MouseButtonEvent, doubled: Boolean): Boolean {
+        val window = Minecraft.getInstance().window
+        val sw = window.guiScaledWidth.toFloat()
+        val sh = window.guiScaledHeight.toFloat()
+        val finalUIScale = kotlin.math.min(sw / DESIGN_WIDTH, sh / DESIGN_HEIGHT)
+        val offsetX = (sw - DESIGN_WIDTH * finalUIScale) / 2f
+        val offsetY = (sh - DESIGN_HEIGHT * finalUIScale) / 2f
+
+        val designMouseX = ((click.x - offsetX) / finalUIScale).toInt()
+        val designMouseY = ((click.y - offsetY) / finalUIScale).toInt()
+
         if (click.button() == 0) {
             categories.forEach { cat ->
-                if (cat.contains(click.x.toInt(), click.y.toInt())) {
+                if (cat.contains(designMouseX, designMouseY)) {
                     categories.forEach { it.selected = false }
                     cat.selected = true
                     selectedCategory = cat
@@ -322,7 +374,7 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
             }
 
             elements.forEach { element ->
-                if (element.onClick(click.x.toInt(), click.y.toInt())) return true
+                if (element.onClick(designMouseX, designMouseY)) return true
             }
         }
         return super.mouseClicked(click, doubled)
@@ -343,8 +395,18 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
+        val window = Minecraft.getInstance().window
+        val sw = window.guiScaledWidth.toFloat()
+        val sh = window.guiScaledHeight.toFloat()
+        val finalUIScale = kotlin.math.min(sw / DESIGN_WIDTH, sh / DESIGN_HEIGHT)
+        val offsetX = (sw - DESIGN_WIDTH * finalUIScale) / 2f
+        val offsetY = (sh - DESIGN_HEIGHT * finalUIScale) / 2f
+
+        val designMouseX = ((mouseX - offsetX) / finalUIScale).toInt()
+        val designMouseY = ((mouseY - offsetY) / finalUIScale).toInt()
+
         elements.forEach { element ->
-            if (element is DropdownSetting && element.onScroll(mouseX.toInt(), mouseY.toInt(), verticalAmount)) {
+            if (element is DropdownSetting && element.onScroll(designMouseX, designMouseY, verticalAmount)) {
                 return true
             }
         }

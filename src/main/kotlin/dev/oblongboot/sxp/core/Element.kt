@@ -10,7 +10,7 @@ interface Element {
     val width: Int
     val height: Int
     
-    fun render(ctx: GuiGraphics)
+    fun render(mouseX: Int, mouseY: Int)
     fun onClick(mouseX: Int, mouseY: Int): Boolean
     fun onHover(mouseX: Int, mouseY: Int): Boolean
     fun isWithinBounds(mouseX: Int, mouseY: Int): Boolean {

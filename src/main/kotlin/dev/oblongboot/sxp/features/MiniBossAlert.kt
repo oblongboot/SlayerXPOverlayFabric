@@ -19,7 +19,7 @@ class MiniBossAlert {
         if (!Config.isToggled("MiniBossAlert")) return
         val msg = packet.content().string.trim()
 
-        val regex = Regex("SLAYER MINI-BOSS (.+) has spawned!")
+        val regex = Regex("^SLAYER MINI-BOSS (.+) has spawned!")
         val match = regex.find(msg) ?: return
         val mini = match.groupValues[1]
 

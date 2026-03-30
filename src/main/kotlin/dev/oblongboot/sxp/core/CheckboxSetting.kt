@@ -11,6 +11,8 @@ class CheckboxSetting(
     defaultSelected: Set<Int> = emptySet(),
     description: String = ""
 ) : Setting<Set<Int>>(name, description, defaultSelected.toMutableSet()) {
+    override var x = 0
+    override var y = 0
     override val width = 240
     override val height = 30
     private val optionHeight = 22
@@ -20,80 +22,92 @@ class CheckboxSetting(
     private val animSpeed = 0.25f
     private var expanded = false
 
-    override fun render(ctx: GuiGraphics) {
-        val baseColor = Color(50, 60, 90, 180)
-        val isHovered = isWithinBounds(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
-        val hoverColor = if (isHovered) baseColor.brighter() else baseColor
+    override fun render(mouseX: Int, mouseY: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
+        val isHovered = isWithinBounds(mouseX, mouseY)
+        val baseColor = if (isHovered) skija.argb(160, 40, 80, 140) else skija.argb(100, 20, 40, 70)
 
         val visibleOptionCount = options.size.coerceAtMost(maxVisibleOptions)
         val targetHeight = if (expanded) visibleOptionCount * optionHeight else 0
         animHeight += (targetHeight - animHeight) * animSpeed
-        Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
-        Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
-        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
-        Render2D.drawString(ctx, name, x + 10, textY, 1f, true)
+        
+        skija.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, baseColor)
+        
+        if (isHovered) {
+             skija.drawRoundedGlow(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, skija.argb(60, 0, 120, 255), 10f, 1f)
+        }
+        
+        val borderColor = if (expanded || isHovered) skija.argb(255, 0, 150, 255) else skija.argb(150, 0, 100, 200)
+        skija.drawRoundedRectBorderGradient(
+            x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, 1f,
+            borderColor, borderColor,
+            dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT
+        )
+
+        val font = dev.oblongboot.sxp.ui.SettingsScreen.elementFont
+        val textY = y + height / 3.8f// - 5f
+        skija.drawText(name, x + 10f, textY, skija.argb(255, 255, 255, 255), font)
 
         val selectedSummary = if (value.isNotEmpty()) "${value.size} selected" else "NONE"
-        Render2D.drawString(ctx, selectedSummary, x + width - 100, textY, 1f, true)
+        val tw = skija.getTextWidth(selectedSummary, font)
+        skija.drawText(selectedSummary, x + width - 35f - tw, textY, skija.argb(255, 180, 200, 230), font)
 
         val arrowSymbol = if (expanded) "▲" else "▼"
-        Render2D.drawString(ctx, arrowSymbol, x + width - 15, textY, 1f, true)
+        val aw = skija.getTextWidth(arrowSymbol, font)
+        skija.drawText(arrowSymbol, x + width - 15f - aw/2f, textY, skija.argb(255, 255, 255, 255), font)
 
         if (animHeight > 0.5f) {
             val actualVisibleOptions = if (expanded) visibleOptionCount else 0
 
             val maxScroll = (options.size - maxVisibleOptions).coerceAtLeast(0)
             scrollOffset = scrollOffset.coerceIn(0, maxScroll)
+            
+            val totalAnimHeight = animHeight
+            if (totalAnimHeight > 2f) {
+                skija.drawRoundedRect(x.toFloat(), (y + height).toFloat(), width.toFloat(), totalAnimHeight, 4f, skija.argb(220, 15, 25, 40))
+                skija.drawRoundedRectBorderGradient(x.toFloat(), (y + height).toFloat(), width.toFloat(), totalAnimHeight, 4f, 1f, skija.argb(100, 0, 100, 200), skija.argb(100, 0, 100, 200), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT)
+            }
 
             for (i in 0 until actualVisibleOptions) {
                 val optionIndex = i + scrollOffset
                 if (optionIndex >= options.size) break
 
                 val optionY = y + height + (i * optionHeight)
-                val optionHovered = isWithinBounds(
-                    Render2D.Mouse.x.toInt(),
-                    Render2D.Mouse.y.toInt(),
-                    x,
-                    optionY,
-                    width,
-                    optionHeight
-                )
+                val optionHovered = isWithinBounds(mouseX, mouseY, x, optionY, width, optionHeight)
                 val isSelected = value.contains(optionIndex)
 
-                val optionColor = when {
-                    isSelected -> Color(0, 120, 80, 220)
-                    optionHovered -> Color(70, 80, 100, 200)
-                    else -> Color(50, 60, 80, 180)
+                if (optionHovered) {
+                    skija.drawRoundedRect(x.toFloat(), optionY.toFloat(), width.toFloat(), optionHeight.toFloat(), 4f, skija.argb(80, 40, 80, 140))
                 }
 
-                Render2D.drawWhateverTheFuckThisIs(ctx, x, optionY, width, optionHeight, 3, optionColor)
-                Render2D.drawOutline(ctx, x, optionY, width, optionHeight, Color(0, 130, 200))
+                val boxX = x + 8f
+                val boxSize = 14f
+                val boxY = optionY + (optionHeight - boxSize) / 2f
+                
+                if (isSelected) {
+                    skija.drawRoundedRectGradient(boxX, boxY, boxSize, boxSize, 2f, skija.argb(200, 0, 150, 255), skija.argb(200, 0, 100, 200))
+                } else {
+                    skija.drawRoundedRect(boxX, boxY, boxSize, boxSize, 2f, skija.argb(100, 30, 40, 60))
+                    skija.drawRoundedRectBorderGradient(boxX, boxY, boxSize, boxSize, 2f, 1f, skija.argb(150, 80, 100, 120), skija.argb(150, 60, 80, 100), dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT)
+                }
 
-
-                val boxX = x + 8
-                val boxSize = 14
-                val boxColor = if (isSelected) Color(0, 180, 80, 220) else Color(60, 60, 70, 180)
-                Render2D.drawWhateverTheFuckThisIs(ctx, boxX, optionY + 4, boxSize, boxSize, 3, boxColor)
-                Render2D.drawOutline(ctx, boxX, optionY + 4, boxSize, boxSize, Color.WHITE)
-                if (isSelected) Render2D.drawString(ctx, "✔", boxX + 3, optionY + 4, 1f, true)
-
-
-                val textOffsetX = boxX + boxSize + 6
-                val textOffsetY = optionY + (optionHeight - Render2D.textRenderer.lineHeight) / 2
-                Render2D.drawString(ctx, options[optionIndex], textOffsetX, textOffsetY, 1f, true)
+                val textOffsetX = boxX + boxSize + 6f
+                val textOffsetY = optionY + optionHeight / 2f - 1f
+                val textColor = if (isSelected) skija.argb(255, 255, 255, 255) else skija.argb(220, 200, 200, 200)
+                skija.drawText(options[optionIndex], textOffsetX, textOffsetY, textColor, font)
             }
-
 
             if (options.size > maxVisibleOptions) {
                 val indicatorY = y + height + (actualVisibleOptions * optionHeight)
+                val smallFont = dev.oblongboot.sxp.ui.SettingsScreen.smallFont
                 if (scrollOffset > 0) {
-                    Render2D.drawString(ctx, "↑", x + width - 20, y + height + 5, 1f, true)
+                    skija.drawText("↑", x + width - 20f, y + height + 10f, skija.argb(200, 255, 255, 255), font)
                 }
                 if (scrollOffset < maxScroll) {
-                    Render2D.drawString(ctx, "↓", x + width - 20, indicatorY - 15, 1f, true)
+                    skija.drawText("↓", x + width - 20f, indicatorY - 5f, skija.argb(200, 255, 255, 255), font)
                 }
                 val positionText = "${scrollOffset + 1}-${(scrollOffset + actualVisibleOptions).coerceAtMost(options.size)} of ${options.size}"
-                Render2D.drawString(ctx, positionText, x + 5, indicatorY + 2, 0.8f, true)
+                skija.drawText(positionText, x + 5f, indicatorY + 2f, skija.argb(150, 200, 200, 200), smallFont)
             }
         }
     }

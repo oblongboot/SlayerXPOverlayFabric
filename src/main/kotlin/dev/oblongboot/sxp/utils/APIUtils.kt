@@ -5,6 +5,17 @@ import java.net.URL
 import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import net.minecraft.core.Holder
+import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.Registries
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.equipment.ArmorType
+import net.minecraft.world.item.equipment.trim.ArmorTrim
+import net.minecraft.world.item.equipment.trim.TrimMaterial
+import net.minecraft.world.item.equipment.trim.TrimMaterials
+import net.minecraft.world.item.equipment.trim.TrimPattern
+import net.minecraft.world.item.equipment.trim.TrimPatterns
 
 object APIUtils {
     var BlazeXP: Long = 0
@@ -105,6 +116,18 @@ object APIUtils {
     }
 
     private fun parseXP(xpString: String): Long = xpString.replace(",", "").toLongOrNull() ?: 0L
+
+//    fun applyContributorTrim(its: ItemStack, level: ServerLevel) {
+//        if (!(its.getItem() is ArmorType)) return
+//        val registryAccess = level.registryAccess()
+//        val materialRegistry = registryAccess.registry(Registries.TRIM_MATERIAL).orElseThrow()
+//        val patternRegistry = registryAccess.registry(Registries.TRIM_PATTERN).orElseThrow()
+//        val materialHolder = materialRegistry.getHolderOrThrow(TrimMaterials.DIAMOND)
+//        val patternHolder = patternRegistry.getHolderOrThrow(TrimPatterns.WARD)
+//        val trim = ArmorTrim(materialHolder, patternHolder)
+//
+//        its.set(DataComponents.TRIM, trim)
+//    
 }
 
 @Serializable

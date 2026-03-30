@@ -2,18 +2,15 @@ package dev.oblongboot.sxp.features
 
 import dev.oblongboot.sxp.events.WorldRenderEvent
 import meteordevelopment.orbit.EventHandler
+import dev.oblongboot.sxp.utils.ChatUtils
+import dev.oblongboot.sxp.events.impl.SkiaDrawEvent
+import dev.oblongboot.sxp.utils.skia.SkijaRenderer
+import net.minecraft.client.Minecraft
+import io.github.humbleui.skija.Font
+import io.github.humbleui.skija.Typeface
 
 class BossHighlightFeat {
     @EventHandler
-    fun onWorldRenderLast(event: WorldRenderEvent.Last) {
-        val ctx = event.context
-
-        // Render3D.renderFilledBox( // just to test rendering works
-        //     ctx,
-        //     x = 0.0, y = 70.0, z = 0.0,
-        //     width = 1.0, height = 2.0, depth = 1.0,
-        //     color = Color(255, 0, 0, 100),
-        //     phase = true
-        // ) R.I.P the ominious debug box that sat in the void or something idk
+    fun onWorldRenderLast(event: SkiaDrawEvent) {
     }
 }

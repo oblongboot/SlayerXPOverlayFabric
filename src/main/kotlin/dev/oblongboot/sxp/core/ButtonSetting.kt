@@ -9,19 +9,36 @@ class ButtonSetting(
     description: String = "",
     private val onClickAction: (() -> Unit)? = null 
 ) : Setting<Boolean>(name, description, false) { 
+    override var x = 0
+    override var y = 0
     override val width = 240
     override val height = 30
 
-    override fun render(ctx: GuiGraphics) {
-        val isHovered = isWithinBounds2(Render2D.Mouse.x.toInt(), Render2D.Mouse.y.toInt())
-        val baseColor = Color(50, 90, 150, 180)
-        val hoverColor = if (isHovered) baseColor.brighter() else baseColor
-        Render2D.drawWhateverTheFuckThisIs(ctx, x, y, width, height, 6, hoverColor)
-        Render2D.drawOutline(ctx, x, y, width, height, Color(0, 180, 255))
-        val textY = y + (height - Render2D.textRenderer.lineHeight) / 2
-        val textX = x + (width - Render2D.textRenderer.width(name)) / 2
+    override fun render(mouseX: Int, mouseY: Int) {
+        val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
+        val isHovered = isWithinBounds2(mouseX, mouseY)
+        val baseColor = if (isHovered) skija.argb(160, 40, 80, 140) else skija.argb(100, 20, 40, 70)
+        
+        skija.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, baseColor)
+        
+        if (isHovered) {
+             skija.drawRoundedGlow(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, skija.argb(60, 0, 120, 255), 10f, 1f)
+        }
+        
+        val borderColor = if (isHovered) skija.argb(200, 0, 150, 255) else skija.argb(100, 0, 100, 200)
+        skija.drawRoundedRectBorderGradient(
+            x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, 1f,
+            borderColor, borderColor,
+            dev.oblongboot.sxp.utils.skia.SkijaRenderer.GradientDirection.TOP_LEFT_TO_BOTTOM_RIGHT
+        )
 
-        Render2D.drawString(ctx, name, textX, textY, 1f, true)
+        val font = dev.oblongboot.sxp.ui.SettingsScreen.elementFont
+        val textWidth = skija.getTextWidth(name, font)
+        val textY = y + height / 3.8f// - 5f
+        val textX = x + (width - textWidth) / 2f
+
+        val textColor = if (isHovered) skija.argb(255, 255, 255, 255) else skija.argb(255, 220, 230, 255)
+        skija.drawText(name, textX, textY, textColor, font)
     }
 
     override fun onClick(mouseX: Int, mouseY: Int): Boolean {
@@ -44,7 +61,7 @@ class ButtonSetting(
         value = default
     }
 
-    override fun onValueChanged(oldValue: Boolean, newValue: Boolean) {} // why am i even overrideing this
+    override fun onValueChanged(oldValue: Boolean, newValue: Boolean) {}
 
     private fun isWithinBounds2(mouseX: Int, mouseY: Int): Boolean {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
