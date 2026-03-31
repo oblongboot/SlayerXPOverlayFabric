@@ -21,4 +21,5 @@ public class ConnectionMixin {
             EventManager.post(new OnPacket.Incoming(packet));
         } // bleh
     }
+
 }

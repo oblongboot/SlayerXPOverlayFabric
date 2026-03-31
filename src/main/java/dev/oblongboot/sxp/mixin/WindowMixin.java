@@ -20,8 +20,4 @@ public class WindowMixin {
     SkiaContext.INSTANCE.initSkia(finalWidth, finalHeight);
   }
 
-  @Inject(method = "updateDisplay", at = @At("HEAD"))
-  private void onUpdateDisplay(TracyFrameCapture capturer, CallbackInfo ci) {
-    SkiaContext.INSTANCE.draw();
-  }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 
 @Mixin(Font.class)
 public class MixinContributerColor {
+
     @ModifyVariable(method = "prepareText(Lnet/minecraft/util/FormattedCharSequence;FFIZZI)Lnet/minecraft/client/gui/Font$PreparedText;", at = @At("HEAD"), argsOnly = true)
     private FormattedCharSequence modifyContributerColor(FormattedCharSequence text) {
         List<APIUtils.Contributor> contributors = APIUtils.INSTANCE.getContributors();
@@ -107,4 +108,5 @@ public class MixinContributerColor {
 
         return (r << 16) | (g << 8) | b;
     }
+
 }
