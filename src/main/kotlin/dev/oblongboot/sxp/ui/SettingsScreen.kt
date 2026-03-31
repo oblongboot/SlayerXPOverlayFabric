@@ -269,6 +269,10 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     @EventHandler
     fun onSkijaRender(event: SkiaDrawEvent) {
+        if (minecraft.screen != this) {
+            return
+        }
+
         val window = Minecraft.getInstance().window
         val sw = window.guiScaledWidth.toFloat()
         val sh = window.guiScaledHeight.toFloat()
