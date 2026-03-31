@@ -12,17 +12,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class HotbarMixin {
-    @Inject(method = "renderItemHotbar", at = @At("HEAD"), cancellable = true)
+
+    @Inject(method = "extractItemHotbar", at = @At("HEAD"), cancellable = true)
     private void injectRenderHotbar(GuiGraphicsExtractor GuiGraphicsExtractor, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (Minecraft.getInstance().screen instanceof SettingsScreen) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractCrosshair", at = @At("HEAD"), cancellable = true)
     private void injectRenderCrosshair(GuiGraphicsExtractor g, DeltaTracker d, CallbackInfo ci) {
         if (Minecraft.getInstance().screen instanceof SettingsScreen) {
             ci.cancel();
         }
     }
+
 }
