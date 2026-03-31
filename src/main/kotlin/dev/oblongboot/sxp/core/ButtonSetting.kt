@@ -1,14 +1,14 @@
 package dev.oblongboot.sxp.core
 
 import dev.oblongboot.sxp.utils.Render2D
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.awt.Color
 
 class ButtonSetting(
     name: String,
     description: String = "",
-    private val onClickAction: (() -> Unit)? = null 
-) : Setting<Boolean>(name, description, false) { 
+    private val onClickAction: (() -> Unit)? = null
+) : Setting<Boolean>(name, description, false) {
     override var x = 0
     override var y = 0
     override val width = 240
@@ -18,13 +18,12 @@ class ButtonSetting(
         val skija = dev.oblongboot.sxp.utils.skia.SkijaRenderer
         val isHovered = isWithinBounds2(mouseX, mouseY)
         val baseColor = if (isHovered) skija.argb(160, 40, 80, 140) else skija.argb(100, 20, 40, 70)
-        
         skija.drawRoundedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, baseColor)
-        
+
         if (isHovered) {
              skija.drawRoundedGlow(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, skija.argb(60, 0, 120, 255), 10f, 1f)
         }
-        
+
         val borderColor = if (isHovered) skija.argb(200, 0, 150, 255) else skija.argb(100, 0, 100, 200)
         skija.drawRoundedRectBorderGradient(
             x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), 4f, 1f,

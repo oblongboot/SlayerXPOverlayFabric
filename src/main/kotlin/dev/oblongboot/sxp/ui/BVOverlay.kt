@@ -2,7 +2,7 @@ package dev.oblongboot.sxp.ui
 
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
-import net.minecraft.client.gui.GuiGraphics
+import dev.oblongboot.sxp.utils.skia.SkijaRenderer
 
 object BVOverlay: Overlay {
     override var shouldShow = true
@@ -22,14 +22,14 @@ object BVOverlay: Overlay {
     override fun show() {shouldShow = true }
     override fun hide() {shouldShow = false }
 
-    override fun draw(ctx: GuiGraphics) {
+    override fun draw() {
         if (!shouldShow) return
 
         if (dragging) {
             x = (Render2D.Mouse.x - dragOffsetX).toInt()
             y = (Render2D.Mouse.y - dragOffsetY).toInt()
         }
-        Render2D.drawString(ctx, label, x + 10, y + 15)
+        SkijaRenderer.drawText(label, (x + 10).toFloat(), (y + 15).toFloat(), SkijaRenderer.argb(255, 240, 245, 255), SettingsScreen.elementFont)
     }
 
     override fun savePosition() {

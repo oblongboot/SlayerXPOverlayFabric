@@ -4,7 +4,6 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
       "ConnectionMixin",
-		"Mixin3DRendering",
 		"MixinContributerColor",
       "MinecraftMixin",
       "WindowMixin",

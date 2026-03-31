@@ -1,9 +1,9 @@
 package dev.oblongboot.sxp.utils.skia
 
-import com.mojang.blaze3d.opengl.GlDevice
 import com.mojang.blaze3d.opengl.GlStateManager
-import com.mojang.blaze3d.opengl.GlTexture
-import com.mojang.blaze3d.systems.RenderSystem
+//import com.mojang.blaze3d.opengl.GlTexture
+//import com.mojang.blaze3d.opengl.GlDevice
+//import com.mojang.blaze3d.systems.RenderSystem
 import dev.oblongboot.sxp.utils.skia.gl.State
 import io.github.humbleui.skija.*
 import io.github.humbleui.skija.Font as SkijaFont
@@ -11,6 +11,8 @@ import io.github.humbleui.types.IRect
 import io.github.humbleui.types.Rect
 import io.github.humbleui.types.RRect
 import net.minecraft.client.Minecraft
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL30C
@@ -109,18 +111,14 @@ object SkijaRenderer {
         val directContext = context ?: return
 
         val renderTarget = mc.mainRenderTarget
-        val device = RenderSystem.getDevice() as? GlDevice ?: return
-        val colorTexture = renderTarget.colorTexture as? GlTexture ?: return
-        val glFramebuffer = colorTexture.getFbo(device.directStateAccess(), renderTarget.depthTexture)
-
         hostGlState = State(330).push()
 
         try {
             directContext.resetGLAll()
 
-            GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, glFramebuffer)
+            GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, 0)
             GlStateManager._viewport(0, 0, renderTarget.width, renderTarget.height)
-            GlStateManager._colorMask(true, true, true, true)
+            GlStateManager._colorMask(0xF)
             GlStateManager._disableCull()
             GlStateManager._disableScissorTest()
             GlStateManager._disableDepthTest()
@@ -139,7 +137,7 @@ object SkijaRenderer {
                 renderTarget.height,
                 0,
                 8,
-                glFramebuffer,
+                0,
                 FramebufferFormat.GR_GL_RGBA8
             )
 
@@ -451,11 +449,32 @@ object SkijaRenderer {
             }
         }
     }
-
     fun getTextWidth(text: String, font: SkijaFont): Float {
         TextLine.make(text, font).use { line ->
             return line.width
         }
+    }
+
+    fun drawMCText(text: Component, x: Float, y: Float, colorARGB: Int, font: SkijaFont) {
+        var currentX = x
+        text.visit({ style, string ->
+            val color = style.color?.value ?: (colorARGB and 0xFFFFFF)
+            val alpha = (colorARGB shr 24) and 0xFF
+            val segmentColor = (alpha shl 24) or (color and 0xFFFFFF)
+            
+            drawText(string, currentX, y, segmentColor, font)
+            currentX += getTextWidth(string, font)
+            java.util.Optional.empty<Any>()
+        }, Style.EMPTY)
+    }
+
+    fun getMCTextWidth(text: Component, font: SkijaFont): Float {
+        var totalWidth = 0f
+        text.visit({ _, string ->
+            totalWidth += getTextWidth(string, font)
+            java.util.Optional.empty<Any>()
+        }, Style.EMPTY)
+        return totalWidth
     }
 
     fun drawImage(skImage: Image, x: Float, y: Float, w: Float, h: Float, alpha: Float = 1f, radius: Float = 0f) {

@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Style
 import dev.oblongboot.sxp.utils.ChatUtils.getGradientStyleMessage
 import dev.oblongboot.sxp.settings.impl.onMessage
 import dev.oblongboot.sxp.utils.ChatUtils.modMessage
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import com.mojang.brigadier.arguments.StringArgumentType  
 import com.mojang.brigadier.context.CommandContext
@@ -26,11 +26,11 @@ object SXPDevCommand {
             val aliases = listOf("sxpdev", "slayerxpoverlaydev", "sxpoverlaydev")
             aliases.forEach { alias ->
                 dispatcher.register(
-                    ClientCommandManager.literal(alias)
+                    ClientCommands.literal(alias)
                         .then(
-                            ClientCommandManager.argument("devSetting", StringArgumentType.word())
+                            ClientCommands.argument("devSetting", StringArgumentType.word())
                                 .then(
-                                    ClientCommandManager.argument("debug", StringArgumentType.word())
+                                    ClientCommands.argument("debug", StringArgumentType.word())
                                         .executes { context -> executeClient(context) }
                                 )
                         )
@@ -83,7 +83,7 @@ object SXPDevCommand {
             modMessage(parts.joinToString(" | "))
         }
         if (devSetting == "testgradient") {
-            Minecraft.getInstance().player?.displayClientMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35), false)
+            Minecraft.getInstance().player?.sendSystemMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35))
         }
         modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1

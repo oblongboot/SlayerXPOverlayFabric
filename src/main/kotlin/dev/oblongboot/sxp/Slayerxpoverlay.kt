@@ -5,9 +5,8 @@ import dev.oblongboot.sxp.events.EventManager.EVENT_BUS
 import dev.oblongboot.sxp.settings.impl.onMessage.Companion as MessageCompanion
 import dev.oblongboot.sxp.utils.APIUtils
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.DeltaTracker
 import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
@@ -26,6 +25,10 @@ import kotlinx.coroutines.launch
 import dev.oblongboot.sxp.utils.APIUtils.getXP
 import dev.oblongboot.sxp.utils.ChatUtils.isGradient
 import dev.oblongboot.sxp.utils.ChatUtils.updatePrefix
+import dev.oblongboot.sxp.utils.skia.SkijaRenderer
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
+import net.minecraft.resources.Identifier
 
 object Slayerxpoverlay : ModInitializer {
     private val logger = LoggerFactory.getLogger("slayerxpoverlay")
@@ -48,6 +51,7 @@ object Slayerxpoverlay : ModInitializer {
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.BossHighlightFeat())
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.AutoCallMaddoxFeat())
         EVENT_BUS.subscribe(dev.oblongboot.sxp.features.MiniBossAlert())
+        EVENT_BUS.subscribe(dev.oblongboot.sxp.ui.SettingsScreen())
         
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
@@ -88,23 +92,24 @@ object Slayerxpoverlay : ModInitializer {
                 }
             }
         }
-        HudRenderCallback.EVENT.register { drawContext: GuiGraphics, _: DeltaTracker ->
-            if (OverlayModule.enabled) {
-                XPOverlay.draw(drawContext)
-            } else {
-                //empty
+        HudElementRegistry.attachElementBefore(
+            VanillaHudElements.CHAT,
+            Identifier.fromNamespaceAndPath("sxp", "huds")
+        ) { _, _ ->
+            val mc = Minecraft.getInstance()
+            val sw = mc.window.guiScaledWidth.toFloat()
+            val sh = mc.window.guiScaledHeight.toFloat()
+
+            SkijaRenderer.beginFrame(sw, sh)
+            if (SkijaRenderer.isDrawing) {
+                try {
+                    if (OverlayModule.enabled)    XPOverlay.draw()
+                    if (KPHModule.enabled)        KPHOverlay.draw()
+                    if (BVOverlayModule.enabled)  BVOverlay.draw()
+                } finally {
+                    SkijaRenderer.endFrame()
+                }
             }
-            if (KPHModule.enabled) {
-                KPHOverlay.draw(drawContext)
-            } else {
-                //empty
-            }
-//            if (BVOverlayModule.enabled) {
-//                BVOverlay.draw(drawContext)
-//            } else {
-//                //empty
-//            }
-            BVOverlay.draw(drawContext)
         }
 
         // Random Prefix Color Shit

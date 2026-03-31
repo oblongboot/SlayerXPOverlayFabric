@@ -4,7 +4,9 @@ import dev.oblongboot.sxp.ui.Overlay as OverlayShitAHHHHH
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.utils.ChatUtils.getColoredMessage
-import net.minecraft.client.gui.GuiGraphics
+import dev.oblongboot.sxp.utils.ChatUtils.mc
+import dev.oblongboot.sxp.utils.skia.SkijaRenderer
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.text.DecimalFormat
 
 object XPOverlay: OverlayShitAHHHHH {
@@ -18,15 +20,12 @@ object XPOverlay: OverlayShitAHHHHH {
     private var dragOffsetX = 0
     private var dragOffsetY = 0
     
-    private val DEFAULT_COLOR_1 = java.awt.Color(33, 15, 235)  // #210FEB
-    private val DEFAULT_COLOR_2 = java.awt.Color(255, 87, 51)  // #FF5733
-    
     init {
         loadPosition()
         label = getColoredMessage(
             "Loading!",
-            Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
-            Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
+            Config.getColor("MessageColorSelector1", java.awt.Color(33, 15, 235)).rgb,
+            Config.getColor("MessageColorSelector2", java.awt.Color(255, 87, 51)).rgb
         )
     }
     
@@ -38,18 +37,18 @@ object XPOverlay: OverlayShitAHHHHH {
         val temp = DecimalFormat("#,###").format(xp)
         label = getColoredMessage(
             "$slayer XP: $temp",
-            Config.getColor("MessageColorSelector1", DEFAULT_COLOR_1).rgb,
-            Config.getColor("MessageColorSelector2", DEFAULT_COLOR_2).rgb
+            Config.getColor("MessageColorSelector1", java.awt.Color(33, 15, 235)).rgb,
+            Config.getColor("MessageColorSelector2", java.awt.Color(255, 87, 51)).rgb
         )
     }
     
-    override fun draw(ctx: GuiGraphics) {
+    override fun draw() { //?????
         if (!shouldShow) return
         if (dragging) {
             x = (Render2D.Mouse.x - dragOffsetX).toInt()
             y = (Render2D.Mouse.y - dragOffsetY).toInt()
         }
-        Render2D.drawStringTextFormat(ctx, label, x + 10, y + 15)
+        SkijaRenderer.drawMCText(label, (x + 10).toFloat(), (y + 15).toFloat(), SkijaRenderer.argb(255, 240, 245, 255), SettingsScreen.elementFont)
     }
     
     override fun savePosition() {

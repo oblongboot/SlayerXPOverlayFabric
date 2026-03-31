@@ -1,7 +1,7 @@
 package dev.oblongboot.sxp.utils
 
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.ChatFormatting
 import org.lwjgl.glfw.GLFW
@@ -28,14 +28,14 @@ object Render2D {
     val scaledHeight get() = window.guiScaledHeight
 
     @JvmOverloads
-    fun drawString(ctx: GuiGraphics, str: String, x: Int, y: Int, scale: Float = 1f, shadow: Boolean = true) {
+    fun drawString(ctx: GuiGraphicsExtractor, str: String, x: Int, y: Int, scale: Float = 1f, shadow: Boolean = true) {
         val matrices = ctx.pose()
         if (scale != 1f) {
             matrices.pushMatrix()
             matrices.scale(scale, scale)
         }
 
-        ctx.drawString(
+        ctx.text(
             textRenderer,
             str.replace(formattingRegex, "${ChatFormatting.PREFIX_CODE}"),
             x,
@@ -49,7 +49,7 @@ object Render2D {
 
     @JvmOverloads
     fun drawStringTextFormat(
-        ctx: GuiGraphics,
+        ctx: GuiGraphicsExtractor,
         text: net.minecraft.network.chat.Component,
         x: Int,
         y: Int,
@@ -62,12 +62,12 @@ object Render2D {
             matrices.scale(scale, scale)
         }
 
-        ctx.drawString(textRenderer, text, x, y, -1, shadow)
+        ctx.text(textRenderer, text, x, y, -1, shadow)
 
         if (scale != 1f) matrices.popMatrix()
     }
     @JvmOverloads
-    fun drawStringNW(ctx: GuiGraphics, str: String, x: Int, y: Int, scale: Float = 1f, shadow: Boolean = true) {
+    fun drawStringNW(ctx: GuiGraphicsExtractor, str: String, x: Int, y: Int, scale: Float = 1f, shadow: Boolean = true) {
         var yy = y
         str.split("\n").forEach {
             drawString(ctx, it, x, yy, scale, shadow)
@@ -76,7 +76,7 @@ object Render2D {
     }
 
     @JvmOverloads
-    fun drawRect(ctx: GuiGraphics, x: Int, y: Int, width: Int, height: Int, color: Color = Color.WHITE) {
+    fun drawRect(ctx: GuiGraphicsExtractor, x: Int, y: Int, width: Int, height: Int, color: Color = Color.WHITE) {
         ctx.fill(x, y, x + width, y + height, color.rgb)
     }
 
@@ -100,14 +100,14 @@ object Render2D {
     }
 
     @JvmOverloads
-    fun drawOutline(ctx: GuiGraphics, x: Int, y: Int, width: Int, height: Int, color: Color = Color.WHITE) {
+    fun drawOutline(ctx: GuiGraphicsExtractor, x: Int, y: Int, width: Int, height: Int, color: Color = Color.WHITE) {
         ctx.fill(x, y, x + width, y + 1, color.rgb) // Top!
         ctx.fill(x, y + height - 1, x + width, y + height, color.rgb) // Bottom maybe
         ctx.fill(x, y + 1, x + 1, y + height - 1, color.rgb) // Left?
         ctx.fill(x + width - 1, y + 1, x + width, y + height - 1, color.rgb) // Right?
     }
 
-    fun drawWhateverTheFuckThisIs(ctx: GuiGraphics, x: Int, y: Int, width: Int, height: Int, radius: Int, color: Color) {
+    fun drawWhateverTheFuckThisIs(ctx: GuiGraphicsExtractor, x: Int, y: Int, width: Int, height: Int, radius: Int, color: Color) {
         val argb = color.rgb or (color.alpha shl 24)
         ctx.fill(x + radius, y, x + width - radius, y + height, argb)
         ctx.fill(x, y + radius, x + width, y + height - radius, argb)

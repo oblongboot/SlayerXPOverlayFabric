@@ -21,7 +21,7 @@ object ChatUtils {
                                     .rgb
                     )
             mc.execute {
-                mc.player!!.displayClientMessage(finalMessage, false)
+                mc.player!!.sendSystemMessage(finalMessage)
             }
         }
     }

@@ -1,22 +1,26 @@
 package dev.oblongboot.sxp.ui
 
-import dev.oblongboot.sxp.ui.Overlay
-import dev.oblongboot.sxp.ui.KPHOverlay
-import dev.oblongboot.sxp.ui.XPOverlay
-import dev.oblongboot.sxp.utils.ChatUtils.modMessage
+import dev.oblongboot.sxp.events.impl.SkiaDrawEvent
+import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.utils.Scheduler
+import dev.oblongboot.sxp.utils.skia.SkijaRenderer
+import meteordevelopment.orbit.EventHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.input.MouseButtonEvent
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
-import java.awt.Color
 
 class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
 
     companion object {
+        private val COLOR_BG = SkijaRenderer.argb(150, 0, 0, 0)
+        private val COLOR_BORDER_IDLE = SkijaRenderer.argb(100, 255, 0, 0)
+        private val COLOR_BORDER_HOVER = SkijaRenderer.argb(150, 0, 255, 0)
+        private val COLOR_BORDER_DRAG = SkijaRenderer.argb(150, 255, 255, 0)
+        private val COLOR_CORNER = SkijaRenderer.argb(200, 255, 255, 0)
+
         fun open() {
             Scheduler.scheduleTask(1) {
                 val manager = OverlayManager()
@@ -27,6 +31,7 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
             }
         }
     }
+
     private val overlays = mutableListOf<Overlay>()
 
     private var dragging = false
@@ -35,74 +40,59 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
     private var dirty = false
     private var draggedOverlay: Overlay? = null
 
-    fun addOverlay(overlay: Overlay) {
-        overlays.add(overlay)
-    }
+    fun addOverlay(overlay: Overlay) = overlays.add(overlay)
 
     override fun onClose() {
         super.onClose()
-        if (dirty) {
-            overlays.forEach { it.savePosition() }
-        }
+        if (dirty) overlays.forEach { it.savePosition() }
     }
 
-    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
-        context.fill(0, 0, width, height, Color(0, 0, 0, 150).rgb)
-        overlays.forEach { it.draw(context) }
-        overlays.forEach { drawHitboxMarker(context, mouseX, mouseY, it) }
+    @EventHandler
+    fun onSkija(event: SkiaDrawEvent) {
+        SkijaRenderer.drawRoundedRect(0f, 0f, width.toFloat(), height.toFloat(), 0f, COLOR_BG)
 
-        super.render(context, mouseX, mouseY, delta)
+        val mx = Render2D.Mouse.x.toInt()
+        val my = Render2D.Mouse.y.toInt()
+
+        overlays.forEach { it.draw() }
+        overlays.forEach { drawHitboxMarker(mx, my, it) }
     }
 
-    private fun drawHitboxMarker(context: GuiGraphics, mouseX: Int, mouseY: Int, overlay: Overlay) {
-        val x = overlay.x
-        val y = overlay.y
+    private fun drawHitboxMarker(mouseX: Int, mouseY: Int, overlay: Overlay) {
+        val x = overlay.x.toFloat()
+        val y = overlay.y.toFloat()
         val w = overlay.width.toFloat()
         val h = overlay.height.toFloat()
 
-        val isHovered = mouseX in x..(x + w.toInt()) && mouseY in y..(y + h.toInt())
+        val isHovered = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h
         val isDragged = draggedOverlay == overlay
 
-        val hitboxColor = when {
-            isDragged -> Color(255, 255, 0, 150).rgb
-            isHovered -> Color(0, 255, 0, 150).rgb
-            else -> Color(255, 0, 0, 100).rgb
+        val borderColor = when {
+            isDragged -> COLOR_BORDER_DRAG
+            isHovered -> COLOR_BORDER_HOVER
+            else      -> COLOR_BORDER_IDLE
         }
 
-        drawHollowRect(context, x, y, (x + w).toInt(), (y + h).toInt(), hitboxColor)
+        SkijaRenderer.drawRoundedRectBorder(x, y, w, h, 4f, 1.5f, borderColor)
 
-        val cornerSize = 5
-        context.fill(x, y, x + cornerSize, y + cornerSize, Color(255, 255, 0, 200).rgb)
-        context.fill((x + w - cornerSize).toInt(), y, (x + w).toInt(), y + cornerSize, Color(255, 255, 0, 200).rgb)
-        context.fill(x, (y + h - cornerSize).toInt(), x + cornerSize, (y + h).toInt(), Color(255, 255, 0, 200).rgb)
-        context.fill((x + w - cornerSize).toInt(), (y + h - cornerSize).toInt(), (x + w).toInt(), (y + h).toInt(), Color(255, 255, 0, 200).rgb)
-    }
-
-    private fun drawInfoPanel(context: GuiGraphics, mouseX: Int, mouseY: Int) {
-        val posText = "Overlays: ${overlays.size} | Mouse: $mouseX, $mouseY | Dragging: $dragging"
-        context.fill(10, 10, 10 + font.width(posText) + 10, 25, Color(0, 0, 0, 180).rgb)
-        context.drawString(font, posText, 15, 15, Color.WHITE.rgb)
-    }
-
-    private fun drawHollowRect(context: GuiGraphics, x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {
-        context.fill(x1, y1, x2, y1 + 1, color)
-        context.fill(x1, y2 - 1, x2, y2, color)
-        context.fill(x1, y1, x1 + 1, y2, color)
-        context.fill(x2 - 1, y1, x2, y2, color)
+        val cs = 5f
+        SkijaRenderer.drawRoundedRect(x,         y,         cs, cs, 0f, COLOR_CORNER)
+        SkijaRenderer.drawRoundedRect(x + w - cs, y,         cs, cs, 0f, COLOR_CORNER)
+        SkijaRenderer.drawRoundedRect(x,         y + h - cs, cs, cs, 0f, COLOR_CORNER)
+        SkijaRenderer.drawRoundedRect(x + w - cs, y + h - cs, cs, cs, 0f, COLOR_CORNER)
     }
 
     override fun mouseClicked(click: MouseButtonEvent, doubled: Boolean): Boolean {
         if (click.button() == 0) {
-            val clickedOverlay = overlays.reversed().find { overlay ->
-                click.x >= overlay.x && click.x <= overlay.x + overlay.width &&
-                        click.y >= overlay.y && click.y <= overlay.y + overlay.height
+            val clicked = overlays.reversed().find { o ->
+                click.x >= o.x && click.x <= o.x + o.width &&
+                        click.y >= o.y && click.y <= o.y + o.height
             }
-
-            if (clickedOverlay != null) {
+            if (clicked != null) {
                 dragging = true
-                draggedOverlay = clickedOverlay
-                dragOffsetX = (click.x - clickedOverlay.x).toFloat()
-                dragOffsetY = (click.y - clickedOverlay.y).toFloat()
+                draggedOverlay = clicked
+                dragOffsetX = (click.x - clicked.x).toFloat()
+                dragOffsetY = (click.y - clicked.y).toFloat()
                 return true
             }
         }
@@ -111,18 +101,11 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
 
     override fun mouseDragged(click: MouseButtonEvent, deltaY: Double, offsetY: Double): Boolean {
         if (dragging && draggedOverlay != null) {
-            val overlay = draggedOverlay!!
-            val w = overlay.width
-            val h = overlay.height
-
-            var newX = (click.x - dragOffsetX).toFloat()
-            var newY = (click.y - dragOffsetY).toFloat()
-            newX = newX.coerceIn(0f, (width - w).toFloat())
-            newY = newY.coerceIn(0f, (height - h).toFloat())
-
-            overlay.x = newX.toInt()
-            overlay.y = newY.toInt()
-
+            val o = draggedOverlay!!
+            var newX = (click.x - dragOffsetX).coerceIn(0.0, (width  - o.width ).toDouble())
+            var newY = (click.y - dragOffsetY).coerceIn(0.0, (height - o.height).toDouble())
+            o.x = newX.toInt()
+            o.y = newY.toInt()
             dirty = true
             return true
         }
@@ -138,16 +121,13 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
     }
 
     override fun keyPressed(input: KeyEvent): Boolean {
-        when (input.input()) {
-            GLFW.GLFW_KEY_ESCAPE -> {
-                onClose()
-                return true
-            }
+        if (input.input() == GLFW.GLFW_KEY_ESCAPE) {
+            onClose()
+            return true
         }
         return super.keyPressed(input)
     }
 
     override fun isPauseScreen() = false
     override fun shouldCloseOnEsc() = true
-    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {}
 }

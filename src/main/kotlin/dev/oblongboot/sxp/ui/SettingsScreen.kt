@@ -9,16 +9,18 @@ import dev.oblongboot.sxp.core.CheckboxSetting
 import dev.oblongboot.sxp.settings.FeatureManager
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.core.ColorboxSetting
+import dev.oblongboot.sxp.events.impl.SkiaDrawEvent
 import dev.oblongboot.sxp.utils.Scheduler
 import dev.oblongboot.sxp.utils.ChatUtils.updatePrefix
 import dev.oblongboot.sxp.utils.ChatUtils.isGradient
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.utils.skia.SkijaRenderer
+import meteordevelopment.orbit.EventHandler
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.input.KeyEvent
 import java.awt.Color
@@ -265,7 +267,8 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
         selectedCategory?.selected = true
     }
 
-    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+    @EventHandler
+    fun onSkijaRender(event: SkiaDrawEvent) {
         val window = Minecraft.getInstance().window
         val sw = window.guiScaledWidth.toFloat()
         val sh = window.guiScaledHeight.toFloat()
@@ -274,8 +277,8 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
         val finalUIScale = kotlin.math.min(scaleX, scaleY)
         val offsetX = (sw - DESIGN_WIDTH * finalUIScale) / 2f
         val offsetY = (sh - DESIGN_HEIGHT * finalUIScale) / 2f
-        val designMouseX = ((mouseX - offsetX) / finalUIScale).toInt()
-        val designMouseY = ((mouseY - offsetY) / finalUIScale).toInt()
+        val designMouseX = ((Render2D.Mouse.x - offsetX) / finalUIScale).toInt()
+        val designMouseY = ((Render2D.Mouse.y - offsetY) / finalUIScale).toInt()
 
         SkijaRenderer.beginFrame(sw, sh)
         if (!SkijaRenderer.isDrawing) return
@@ -415,7 +418,7 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     override fun isPauseScreen() = false
     override fun shouldCloseOnEsc() = true
-    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {}
+   // override fun renderBackground(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {}
 
     private data class Particle(
         val speed: Double,
