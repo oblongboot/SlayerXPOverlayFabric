@@ -32,5 +32,10 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"fabric-language-kotlin": "*"
+	},
+	"custom": {
+		"fabric-loader:parent_class_priority": [
+			"jdk.unsupported"
+		]
 	}
 }

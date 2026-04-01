@@ -1,3 +1,5 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
@@ -15,6 +17,10 @@ base {
 	archivesName = project.archives_base_name
 }
 
+configurations {
+	shadowImpl
+	implementation.extendsFrom(shadowImpl)
+}
 
 repositories {
 	maven{url = "https://repo.essential.gg/repository/maven-public"}
@@ -46,18 +52,12 @@ dependencies {
     implementation "meteordevelopment:orbit:0.2.3"
     include "meteordevelopment:orbit:0.2.3"
 
-    implementation "io.github.humbleui:skija-shared:0.143.11"
-    include "io.github.humbleui:skija-shared:0.143.11"
-    implementation "io.github.humbleui:skija-windows-x64:0.143.11"
-    include "io.github.humbleui:skija-windows-x64:0.143.11"
-    implementation "io.github.humbleui:skija-linux-x64:0.143.11"
-    include "io.github.humbleui:skija-linux-x64:0.143.11"
-    implementation "io.github.humbleui:skija-linux-arm64:0.143.11"
-    include "io.github.humbleui:skija-linux-arm64:0.143.11"
-    implementation "io.github.humbleui:skija-macos-x64:0.143.11"
-    include "io.github.humbleui:skija-macos-x64:0.143.11"
-    implementation "io.github.humbleui:skija-macos-arm64:0.143.11"
-    include "io.github.humbleui:skija-macos-arm64:0.143.11"
+    shadowImpl "io.github.humbleui:skija-shared:0.143.11"
+	shadowImpl "io.github.humbleui:skija-windows-x64:0.143.11"
+	shadowImpl "io.github.humbleui:skija-linux-x64:0.143.11"
+	shadowImpl "io.github.humbleui:skija-linux-arm64:0.143.11"
+	shadowImpl "io.github.humbleui:skija-macos-x64:0.143.11"
+	shadowImpl "io.github.humbleui:skija-macos-arm64:0.143.11"
 }
 
 processResources {
@@ -72,6 +72,16 @@ processResources {
             line.replace('@@VERSION@@', version.toString())
         }
     }
+}
+
+shadowJar {
+	archiveClassifier.set("dev-shadow")
+	configurations = [project.configurations.shadowImpl]
+}
+
+tasks.withType(RemapJarTask).configureEach {
+	dependsOn(tasks.named("shadowJar"))
+	inputFile = tasks.named("shadowJar").get().archiveFile
 }
 
 tasks.withType(JavaCompile).configureEach {
