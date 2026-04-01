@@ -12,6 +12,7 @@ object Scoreboard {
     private val SLAYER_MAP = mapOf(
         "Coal Mine" to "Zombie",
         "Graveyard" to "Zombie",
+        "Crypts" to "Zombie",
         "Arachne's Burrow" to "Spider",
         "Arachne's Sanctuary" to "Spider",
         "Spider's Den" to "Spider",
