@@ -50,7 +50,7 @@ internal object SkiaContext {
     GL11.glDisable(GL11.GL_CULL_FACE)
     GL11.glClearColor(0f, 0f, 0f, 0f)
 
-    context?.reset(*states)
+    context?.resetGLAll()
 
     canvas?.let { canvas ->
       context?.let { context ->
