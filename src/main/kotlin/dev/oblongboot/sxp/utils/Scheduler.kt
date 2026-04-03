@@ -1,8 +1,10 @@
 package dev.oblongboot.sxp.utils
 
 /*
- * Code from Devonian (https://github.com/Synnerz/devonian/blob/main/src/main/kotlin/com/github/synnerz/devonian/utils/Scheduler.kt) 
+ * Third-Party Code from Devonian (https://github.com/Synnerz/devonian/blob/main/src/main/kotlin/com/github/synnerz/devonian/utils/Scheduler.kt) 
  * Under GPL 3.0 License
+ *
+ * No modifications
  */
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.minecraft.client.Minecraft

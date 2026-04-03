@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
 import dev.oblongboot.sxp.settings.impl.onMessage
 import dev.oblongboot.sxp.commands.CommandsManager
+import dev.oblongboot.sxp.events.EventManager
 import dev.oblongboot.sxp.ui.XPOverlay
 import dev.oblongboot.sxp.ui.KPHOverlay
 import dev.oblongboot.sxp.ui.BVOverlay
@@ -44,10 +45,7 @@ object Slayerxpoverlay : ModInitializer {
         FeatureManager.registerFeature(dev.oblongboot.sxp.settings.impl.Test2)
         FeatureManager.registerFeature(dev.oblongboot.sxp.settings.impl.AutoCallMaddox)
 
-        EVENT_BUS.subscribe(onMessage())
-        EVENT_BUS.subscribe(dev.oblongboot.sxp.features.BossHighlightFeat())
-        EVENT_BUS.subscribe(dev.oblongboot.sxp.features.AutoCallMaddoxFeat())
-        EVENT_BUS.subscribe(dev.oblongboot.sxp.features.MiniBossAlert())
+        EventManager.discover("dev.oblongboot.sxp")
         
         APIUtils.getXP()
         APIUtils.startAutoXPUpdates()
