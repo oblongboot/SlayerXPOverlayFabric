@@ -48,6 +48,7 @@ object Slayerxpoverlay : ModInitializer {
         EventManager.discover("dev.oblongboot.sxp")
         
         APIUtils.getXP()
+        APIUtils.isFirst = false
         APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
         MessageCompanion.initialize()

@@ -24,7 +24,7 @@ object APIUtils {
     var ZombieXP: Long = 0
     var WolfXP: Long = 0
     var VampireXP: Long = 0
-
+    var isFirst = true
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     val json = Json { ignoreUnknownKeys = true }
     private var cachedContributors: List<Contributor> = emptyList()
@@ -95,6 +95,7 @@ object APIUtils {
     }
 
     fun getXP() {
+        if (Scoreboard.getSlayerType() == "Not in slayer area!" || isFirst) return
         scope.launch { xp() }
     }
 
