@@ -95,7 +95,7 @@ object APIUtils {
     }
 
     fun getXP() {
-        if (Scoreboard.getSlayerType() == "Not in slayer area!" || isFirst) return
+        if (Scoreboard.getSlayerType() == "Not in slayer area!" && !isFirst) return
         scope.launch { xp() }
     }
 
