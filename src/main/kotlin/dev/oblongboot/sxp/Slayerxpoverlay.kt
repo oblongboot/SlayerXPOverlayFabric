@@ -56,10 +56,10 @@ object Slayerxpoverlay : ModInitializer {
                 try {
                     if (Config.isToggled("firstTimeInstall")) {
                         logger.debug("First time install flag already set, skipping welcome message.")
-                        modMessage(Minecraft.getInstance().gameProfile.id().toString().replace("-", ""))
+                        //modMessage(Minecraft.getInstance().gameProfile.id().toString().replace("-", ""))
                     } else {
                         sendWelcomeMessages()
-                        modMessage(Minecraft.getInstance().gameProfile.id().toString().replace("-", ""))
+                        //modMessage(Minecraft.getInstance().gameProfile.id().toString().replace("-", ""))
                         Config.setToggle("firstTimeInstall", true)
                         logger.info("Welcome message sent and firstTimeInstall toggled to true.")
                     }
