@@ -71,7 +71,7 @@ object APIUtils {
         val ign = ChatUtils.mc.player?.gameProfile?.name ?: return
         // ChatUtils.modMessage(ign)
 
-        val url = "https://slayerxpoverlay.hypickelapi.workers.dev/slayer?username=$ign"
+        val url = "https://slayerxpoverlay.hypickelapi.workers.dev/slayer?uuid=${ChatUtils.mc.gameProfile.id.toString().replace("-", "")}"
         val response = requestJson<SlayerXPResponse>(url)
 
         if (response != null) {
@@ -96,6 +96,7 @@ object APIUtils {
 
     fun getXP() {
         if (Scoreboard.getSlayerType() == "Not in slayer area!" && !isFirst) return
+        isFirst = false
         scope.launch { xp() }
     }
 

@@ -48,7 +48,6 @@ object Slayerxpoverlay : ModInitializer {
         EventManager.discover("dev.oblongboot.sxp")
         
         APIUtils.getXP()
-        APIUtils.isFirst = false
         APIUtils.startAutoXPUpdates()
         CommandsManager.registerCommands()
         MessageCompanion.initialize()
@@ -57,9 +56,10 @@ object Slayerxpoverlay : ModInitializer {
                 try {
                     if (Config.isToggled("firstTimeInstall")) {
                         logger.debug("First time install flag already set, skipping welcome message.")
-                        APIUtils.getXP()
+                        modMessage(Minecraft.getInstance().gameProfile.id().toString().replace("-", ""))
                     } else {
                         sendWelcomeMessages()
+                        modMessage(Minecraft.getInstance().gameProfile.id().toString().replace("-", ""))
                         Config.setToggle("firstTimeInstall", true)
                         logger.info("Welcome message sent and firstTimeInstall toggled to true.")
                     }
@@ -67,13 +67,13 @@ object Slayerxpoverlay : ModInitializer {
                         try {
                             if (!shouldCheck) return@launch
                             shouldCheck = false
-                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.2")
+                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.3")
                             if (updateAvailable) {
                                 Minecraft.getInstance().execute {
                                     modMessage(
                                         "A new version of SlayerXPOverlayFabric is available! " +
-                                        "You are running version v1.2.2. " +
-                                        "Please check the GitHub page for the latest version."
+                                        "You are running version v1.2.3. " +
+                                        "Please check the Modrinth page for the latest version."
                                     )
                                 }
                             }
