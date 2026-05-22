@@ -25,4 +25,18 @@ public class HotbarMixin {
             ci.cancel();
         }
     }
+
+    @Inject(method = "renderTitle", at = @At("HEAD"), cancellable = true)
+    private void noMoreTitles(GuiGraphics g, DeltaTracker d, CallbackInfo ci) {
+        if(Minecraft.getInstance().screen instanceof SettingsScreen) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "renderSubtitleOverlay", at = @At("HEAD"), cancellable = true)
+    private void noMoreSubtitles(GuiGraphics g, boolean bl, CallbackInfo ci) {
+        if(Minecraft.getInstance().screen instanceof SettingsScreen) {
+            ci.cancel();
+        }
+    }
 }
