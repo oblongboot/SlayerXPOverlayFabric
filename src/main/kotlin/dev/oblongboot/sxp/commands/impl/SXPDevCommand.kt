@@ -42,6 +42,7 @@ object SXPDevCommand {
     private fun executeClient(context: CommandContext<FabricClientCommandSource>): Int {
         val devSetting = StringArgumentType.getString(context, "devSetting")
         val debug = StringArgumentType.getString(context, "debug")
+
         if (devSetting == "simslayer") {
             onMessage.handleSlayerQuestStart(true)
             modMessage("starting sim, ends in 50 ticks")
@@ -52,40 +53,6 @@ object SXPDevCommand {
             APIUtils.getXP()
             modMessage("getting xp")
         }
-        if (devSetting == "test1") {
-            FeatureManager.loadAllFeatureStates()
-        }
-        if (devSetting == "test2") { Config.toggle(debug) }
-        if (devSetting == "scoreboarddebug") { val e = Scoreboard.getSlayerType(); modMessage("Scoreboard area: $e") }
-        if (devSetting == "gui") {bleh()}
-        if (devSetting == "armorstand") {
-            val armorStands = getArmorStands()
-            for (stand in armorStands) {
-                println(stand.name.toString());
-                println(stand.uuid.toString());
-            }
-        }
-        if (devSetting == "bossinfo") {
-            val parts = mutableListOf<String>()
-            val options = Config.getMultiSelect("BossInfoCheckbox")
-            if (options.contains(0)) {
-                parts.add("Slayer XP: 69,420,676")
-            }
-            if (options.contains(1)) {
-                parts.add("Kills: 40")
-            }
-            if (options.contains(2)) {
-                parts.add("Time: 31s, Boss: 15s, Spawn: 16s")
-            }
-            if (options.contains(3)) {
-                parts.add("KPH: 20")
-            }
-            modMessage(parts.joinToString(" | "))
-        }
-        if (devSetting == "testgradient") {
-            Minecraft.getInstance().player?.displayClientMessage(getGradientStyleMessage(debug, 0x00D9FF, 0xFF6B35), false)
-        }
-        modMessage("/sxpdev devsetting:$devSetting debug:$debug")
         return 1
     }
 }
