@@ -24,7 +24,6 @@ class MiniBossAlert {
         val mini = match.groupValues[1]
 
         val client = Minecraft.getInstance()
-        val player = client.player ?: return
 
         client.execute {
             client.gui.setTitle(

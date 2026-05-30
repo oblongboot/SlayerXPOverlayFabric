@@ -45,8 +45,6 @@ object EventManager {
                     ctor.newInstance()
                 }
 
-                println("ay")
-
                 EVENT_BUS.subscribe(instance)
 
             } catch (e: Throwable) {

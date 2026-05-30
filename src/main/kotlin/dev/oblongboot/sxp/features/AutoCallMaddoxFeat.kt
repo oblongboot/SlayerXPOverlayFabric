@@ -15,6 +15,10 @@ class AutoCallMaddoxFeat {
         if (!Config.isToggled("AutoCallMaddox")) return
         val msg = packet.content().string.trim()
         if (msg != "SLAYER QUEST FAILED!") return
-        Scheduler.scheduleTask(5) { Minecraft.getInstance().connection?.sendChat("/call Maddox") }
+        Scheduler.scheduleTask(5) {
+            Minecraft.getInstance().execute {
+                Minecraft.getInstance().connection?.sendChat("/call Maddox")
+            }
+        }
     }
 }
