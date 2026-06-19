@@ -1,4 +1,4 @@
-?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <migrationMap>
 	<entry oldName="net.fabricmc.fabric.api.biome.v1.BiomeModificationContext$SpawnSettingsContext" newName="net.fabricmc.fabric.api.biome.v1.BiomeModificationContext$MobSpawnSettingsContext" type="class"/>
 	<entry oldName="net.fabricmc.fabric.api.client.command.v2.ClientCommandManager" newName="net.fabricmc.fabric.api.client.command.v2.ClientCommands" type="class"/>

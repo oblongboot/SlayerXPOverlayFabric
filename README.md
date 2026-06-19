@@ -28,7 +28,7 @@ A **Fabric mod** for Minecraft that overlays Slayer XP, kills per hour, and ques
 
 ## Installation
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) for **1.21.10** as of right now, we **ONLY** support **1.21.10**.  
+1. Install [Fabric Loader](https://fabricmc.net/use/) for **26.1.2**.
 2. Install [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api).  
 3. Download the latest release of **SlayerXPOverlayFabric** from [Releases](#).  
 4. Place the `.jar` file into your `mods` folder.  
