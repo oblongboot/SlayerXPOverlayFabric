@@ -1,9 +1,6 @@
 package dev.oblongboot.sxp.utils.skia
 
-import com.mojang.blaze3d.opengl.GlDevice
 import com.mojang.blaze3d.opengl.GlStateManager
-import com.mojang.blaze3d.opengl.GlTexture
-import com.mojang.blaze3d.systems.RenderSystem
 import dev.oblongboot.sxp.utils.skia.gl.State
 import io.github.humbleui.skija.*
 import io.github.humbleui.skija.Font as SkijaFont
@@ -11,6 +8,7 @@ import io.github.humbleui.types.IRect
 import io.github.humbleui.types.Rect
 import io.github.humbleui.types.RRect
 import net.minecraft.client.Minecraft
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11C
 import org.lwjgl.opengl.GL12C
 import org.lwjgl.opengl.GL30C
@@ -55,6 +53,7 @@ object SkijaRenderer {
 
     var isDrawing = false
         internal set
+    private var ownedFrame = false
 
     private var hostGlState: State? = null
     private var scissorStackDepth = 0
@@ -74,6 +73,7 @@ object SkijaRenderer {
         this.surface = null
         this.canvas = null
         this.isDrawing = false
+        this.ownedFrame = false
     }
 
     fun registerRender(runnable: Runnable) = renderCallbacks.add(runnable)
@@ -124,19 +124,20 @@ object SkijaRenderer {
         }
         val directContext = context ?: return
 
-        val renderTarget = mc.mainRenderTarget
-        val device = RenderSystem.getDevice() as? GlDevice ?: return
-        val colorTexture = renderTarget.colorTexture as? GlTexture ?: return
-        val glFramebuffer = colorTexture.getFbo(device.directStateAccess(), renderTarget.depthTexture)
+        val window = mc.window
+        val framebufferWidth = IntArray(1)
+        val framebufferHeight = IntArray(1)
+        GLFW.glfwGetFramebufferSize(window.handle(), framebufferWidth, framebufferHeight)
+        val fbWidth = framebufferWidth[0].coerceAtLeast(1)
+        val fbHeight = framebufferHeight[0].coerceAtLeast(1)
+        val glFramebuffer = GL11C.glGetInteger(GL30C.GL_FRAMEBUFFER_BINDING)
 
         hostGlState = State(330).push()
 
         try {
-            directContext.resetGLAll()
-
             GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, glFramebuffer)
-            GlStateManager._viewport(0, 0, renderTarget.width, renderTarget.height)
-            GlStateManager._colorMask(true, true, true, true)
+            GlStateManager._viewport(0, 0, fbWidth, fbHeight)
+            GlStateManager._colorMask(15)
             GlStateManager._disableCull()
             GlStateManager._disableScissorTest()
             GlStateManager._disableDepthTest()
@@ -150,9 +151,11 @@ object SkijaRenderer {
             GL11C.glPixelStorei(GL12C.GL_UNPACK_SKIP_PIXELS, 0)
             GL11C.glPixelStorei(GL12C.GL_UNPACK_SKIP_ROWS, 0)
 
+            directContext.resetGLAll()
+
             val backendRT = BackendRenderTarget.makeGL(
-                renderTarget.width,
-                renderTarget.height,
+                fbWidth,
+                fbHeight,
                 0,
                 8,
                 glFramebuffer,
@@ -170,10 +173,11 @@ object SkijaRenderer {
             surface = wrappedSurface
             canvas = wrappedSurface.canvas
             isDrawing = true
+            ownedFrame = true
             scissorStackDepth = 0
 
-            val rtW = renderTarget.width
-            val rtH = renderTarget.height
+            val rtW = fbWidth
+            val rtH = fbHeight
             if (rtW != lastRTWidth || rtH != lastRTHeight) {
                 lastRTWidth = rtW
                 lastRTHeight = rtH
@@ -189,6 +193,7 @@ object SkijaRenderer {
             surface = null
             canvas = null
             isDrawing = false
+            ownedFrame = false
             scissorStackDepth = 0
             restoreHostGLState()
         }
@@ -196,6 +201,14 @@ object SkijaRenderer {
 
     fun endFrame() {
         if (!isDrawing) return
+
+        if (!ownedFrame) {
+            while (scissorStackDepth > 0) {
+                canvas?.restore()
+                scissorStackDepth--
+            }
+            return
+        }
 
         try {
             while (scissorStackDepth > 0) {
@@ -209,6 +222,7 @@ object SkijaRenderer {
             restoreHostGLState()
 
             isDrawing = false
+            ownedFrame = false
             canvas = null
             surface = null
             scissorStackDepth = 0

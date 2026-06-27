@@ -29,6 +29,7 @@ object EventManager {
 
         for (clazz in classes) {
             try {
+                if (clazz.name == "dev.oblongboot.sxp.utils.skia.WhatTheFuck") continue
                 if (clazz.isInterface || Modifier.isAbstract(clazz.modifiers)) continue
 
                 val hasHandler = clazz.declaredMethods.any {

@@ -2,7 +2,7 @@ package dev.oblongboot.sxp.ui
 
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 object BVOverlay: Overlay {
     override var shouldShow = true
@@ -22,7 +22,7 @@ object BVOverlay: Overlay {
     override fun show() {shouldShow = true }
     override fun hide() {shouldShow = false }
 
-    override fun draw(ctx: GuiGraphics) {
+    override fun draw(ctx: GuiGraphicsExtractor) {
         if (!shouldShow) return
 
         if (dragging) {

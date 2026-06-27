@@ -4,7 +4,11 @@ import io.github.humbleui.skija.*
 import dev.oblongboot.sxp.events.EventManager
 import dev.oblongboot.sxp.events.impl.SkiaDrawEvent
 import dev.oblongboot.sxp.utils.skia.gl.States
+import net.minecraft.client.Minecraft
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL30
+
 /*
  * This file is part of https://github.com/Lyzev/Skija.
  *
@@ -23,7 +27,6 @@ import org.lwjgl.opengl.GL11
  * You should have received a copy of the GNU General Public License along with Skija. If not, see <https://www.gnu.org/licenses/>.
  */
 internal object SkiaContext {
-
   private val states = arrayOf(
     BackendState.GL_BLEND,
     BackendState.GL_VERTEX,
@@ -35,11 +38,17 @@ internal object SkiaContext {
   private var context: DirectContext? = null
   private var renderTarget: WrappedBackendRenderTarget? = null
   private var surface: Surface? = null
+  private var lastWidth = -1
+  private var lastHeight = -1
+  private var lastFbId = -1
 
   var canvas: Canvas? = null
     private set
 
-  fun initSkia(width: Int, height: Int) {
+  fun initSkia(width: Int, height: Int, fbId: Int) {
+    val finalWidth = width.coerceAtLeast(1)
+    val finalHeight = height.coerceAtLeast(1)
+
     if (context == null) {
       context = DirectContext.makeGL()
     }
@@ -47,7 +56,7 @@ internal object SkiaContext {
     surface?.close()
     renderTarget?.close()
 
-    renderTarget = WrappedBackendRenderTarget.makeGL(width, height, 0, 8, 0, FramebufferFormat.GR_GL_RGBA8)
+    renderTarget = WrappedBackendRenderTarget.makeGL(finalWidth, finalHeight, 0, 8, fbId, FramebufferFormat.GR_GL_RGBA8)
     surface = Surface.wrapBackendRenderTarget(
       requireNotNull(context),
       requireNotNull(renderTarget),
@@ -57,28 +66,44 @@ internal object SkiaContext {
     )
 
     canvas = surface?.canvas
+    lastWidth = finalWidth
+    lastHeight = finalHeight
+    lastFbId = fbId
+  }
+
+  fun ensureSkia(fbId: Int) {
+    val window = Minecraft.getInstance().window
+    val width = IntArray(1)
+    val height = IntArray(1)
+    GLFW.glfwGetFramebufferSize(window.handle(), width, height)
+    if (context == null || surface == null || width[0] != lastWidth || height[0] != lastHeight || fbId != lastFbId) {
+      initSkia(width[0], height[0], fbId)
+    }
   }
 
   fun draw() {
+    val fbId = GL30.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING)
+    ensureSkia(fbId)
     if (context == null || surface == null) return
 
     States.push()
     GL11.glDisable(GL11.GL_CULL_FACE)
-    GL11.glClearColor(0f, 0f, 0f, 0f)
 
     context?.reset(*states)
 
-    canvas?.let { canvas ->
-      context?.let { context ->
-        renderTarget?.let { renderTarget ->
-          surface?.let { surface ->
-             EventManager.post(SkiaDrawEvent(context, renderTarget, surface, canvas))
-          }
-        }
-      }
-    }
+    val activeCanvas = canvas
+    val activeContext = context
+    val activeRenderTarget = renderTarget
+    val activeSurface = surface
 
-    context?.flushAndSubmit(surface)
+    if (activeCanvas != null && activeContext != null && activeRenderTarget != null && activeSurface != null) {
+      val guiScale = Minecraft.getInstance().window.guiScale.toFloat().coerceAtLeast(1f)
+      activeCanvas.save()
+      activeCanvas.scale(guiScale, guiScale)
+      EventManager.post(SkiaDrawEvent(activeContext, activeRenderTarget, activeSurface, activeCanvas))
+      activeCanvas.restore()
+      activeContext.flushAndSubmit(activeSurface)
+    }
 
     States.pop()
   }

@@ -1,7 +1,6 @@
 package dev.oblongboot.sxp.mixin;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.main.GameConfig;
 import dev.oblongboot.sxp.utils.skia.SkiaContext;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL30;
@@ -11,20 +10,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
-public class MinecraftMixin {
+public class ResizeMixin {
 
-  @Inject(method = "<init>", at = @At("TAIL"))
-  private void registerSkia(GameConfig gameConfig, CallbackInfo ci) {
+  @Inject(method = "resizeGui", at = @At("RETURN"))
+  private void onResizeGui(CallbackInfo ci) {
+    long windowHandle = ((Minecraft)(Object)this).getWindow().handle();
     int[] width = new int[1];
     int[] height = new int[1];
-
-    long windowHandle = Minecraft.getInstance().getWindow().handle();
     GLFW.glfwGetFramebufferSize(windowHandle, width, height);
-
+    int fbId = GL30.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
     int finalWidth = Math.max(width[0], 1);
     int finalHeight = Math.max(height[0], 1);
-    int fbId = GL30.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
-
     SkiaContext.INSTANCE.initSkia(finalWidth, finalHeight, fbId);
   }
 }

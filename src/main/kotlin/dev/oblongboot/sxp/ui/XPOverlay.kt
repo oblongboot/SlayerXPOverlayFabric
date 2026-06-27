@@ -4,7 +4,7 @@ import dev.oblongboot.sxp.ui.Overlay as OverlayShitAHHHHH
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.utils.ChatUtils.getColoredMessage
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.text.DecimalFormat
 
 object XPOverlay: OverlayShitAHHHHH {
@@ -43,7 +43,7 @@ object XPOverlay: OverlayShitAHHHHH {
         )
     }
     
-    override fun draw(ctx: GuiGraphics) {
+    override fun draw(ctx: GuiGraphicsExtractor) {
         if (!shouldShow) return
         if (dragging) {
             x = (Render2D.Mouse.x - dragOffsetX).toInt()

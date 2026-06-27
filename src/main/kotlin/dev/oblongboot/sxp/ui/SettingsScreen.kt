@@ -13,7 +13,7 @@ import dev.oblongboot.sxp.utils.Scheduler
 import dev.oblongboot.sxp.utils.ChatUtils.updatePrefix
 import dev.oblongboot.sxp.utils.ChatUtils.isGradient
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
@@ -70,6 +70,11 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     private val DESIGN_WIDTH = 960f
     private val DESIGN_HEIGHT = 540f
+    private val renderCallback = Runnable { drawFrame() }
+    private var renderMouseX = 0
+    private var renderMouseY = 0
+    private var renderDelta = 0f
+    private var renderRegistered = false
 
     override fun init() {
         animation.start()
@@ -83,6 +88,22 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
         setupCategories()
         val targetCatName = selectedCategory?.name ?: categories.firstOrNull()?.name
         targetCatName?.let { updateElementsForCategory(it) }
+    }
+
+    override fun added() {
+        super.added()
+        if (!renderRegistered) {
+            SkijaRenderer.registerTopRender(renderCallback)
+            renderRegistered = true
+        }
+    }
+
+    override fun removed() {
+        if (renderRegistered) {
+            SkijaRenderer.unregisterTopRender(renderCallback)
+            renderRegistered = false
+        }
+        super.removed()
     }
 
 
@@ -265,7 +286,13 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
         selectedCategory?.selected = true
     }
 
-    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun extractRenderState(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
+        renderMouseX = mouseX
+        renderMouseY = mouseY
+        renderDelta = delta
+    }
+
+    private fun drawFrame() {
         val window = Minecraft.getInstance().window
         val sw = window.guiScaledWidth.toFloat()
         val sh = window.guiScaledHeight.toFloat()
@@ -274,8 +301,8 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
         val finalUIScale = kotlin.math.min(scaleX, scaleY)
         val offsetX = (sw - DESIGN_WIDTH * finalUIScale) / 2f
         val offsetY = (sh - DESIGN_HEIGHT * finalUIScale) / 2f
-        val designMouseX = ((mouseX - offsetX) / finalUIScale).toInt()
-        val designMouseY = ((mouseY - offsetY) / finalUIScale).toInt()
+        val designMouseX = ((renderMouseX - offsetX) / finalUIScale).toInt()
+        val designMouseY = ((renderMouseY - offsetY) / finalUIScale).toInt()
 
         SkijaRenderer.beginFrame(sw, sh)
         if (!SkijaRenderer.isDrawing) return
@@ -331,16 +358,6 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
             }
 
             elements.forEach { it.render(designMouseX, designMouseY) }
-
-//            var iy = dialogY + dialogH - 45f
-//            listOf(
-//                "Click toggles to enable/disable features",
-//                "Press 'O' to open overlay manager",
-//                "Press ESC to close"
-//            ).forEach {
-//                SkijaRenderer.drawText(it, dialogX + 15f, iy, SkijaRenderer.argb(150, 200, 200, 200), smallFont)
-//                iy += 15f
-//            }
 
             SkijaRenderer.restore()
 
@@ -415,7 +432,7 @@ class SettingsScreen : Screen(Component.nullToEmpty("SlayerXPOverlay Config")) {
 
     override fun isPauseScreen() = false
     override fun shouldCloseOnEsc() = true
-    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {}
+    override fun extractBackground(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {}
 
     private data class Particle(
         val speed: Double,

@@ -3,7 +3,7 @@ package dev.oblongboot.sxp.core
 import dev.oblongboot.sxp.utils.Render2D
 import dev.oblongboot.sxp.settings.Config
 import dev.oblongboot.sxp.settings.FeatureManager
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.awt.Color
 
 class SwitchConfig(

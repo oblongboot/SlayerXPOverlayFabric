@@ -1,6 +1,6 @@
 package dev.oblongboot.sxp.commands.impl
 
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.ClientCommands
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import com.mojang.brigadier.context.CommandContext
 import dev.oblongboot.sxp.settings.impl.onMessage
@@ -12,7 +12,7 @@ object SXPResetKPHCommand {
             val aliases = listOf("sxpresetkph", "slayerxpoverlayresetkph")
             aliases.forEach { alias ->
                 dispatcher.register(
-                    ClientCommandManager.literal(alias)
+                    ClientCommands.literal(alias)
                         .executes { context -> executeClient(context) }
                 )
             }
