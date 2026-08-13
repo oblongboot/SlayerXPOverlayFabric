@@ -74,7 +74,7 @@ object APIUtils {
 
         val url = "https://slayerxpoverlay.hypickelapi.workers.dev/slayer?uuid=${ChatUtils.mc.gameProfile.id.toString().replace("-", "")}"
         val response = requestJson<SlayerXPResponse>(url)
-        println(response)//[20:39:07] [DefaultDispatcher-worker-3/INFO]: [STDOUT]: SlayerXPResponse(blazeXP=0, endermanXP=0, spiderXP=0, zombieXP=60, wolfXP=0, vampireXP=0)
+        //println(response)//[20:39:07] [DefaultDispatcher-worker-3/INFO]: [STDOUT]: SlayerXPResponse(blazeXP=0, endermanXP=0, spiderXP=0, zombieXP=60, wolfXP=0, vampireXP=0)
         if (response != null) {
             BlazeXP = parseXP(response.blazeXP)
             EmanXP = parseXP(response.endermanXP)

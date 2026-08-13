@@ -232,8 +232,8 @@ class onMessage {
                 "Vampire" -> apiData.vampire
                 else -> 0L
             }
-            modMessage("xp : $xp, ${xp.toInt()}")
-            modMessage("apidata: $apiData , ${apiData.zombie}")
+//            modMessage("xp : $xp, ${xp.toInt()}")
+//            modMessage("apidata: $apiData , ${apiData.zombie}")
             XPOverlay.updateXP(if (slayerType == "Not in slayer area!") "Zombie" else slayerType, xp.toInt())
             XPOverlay.show()
         }
