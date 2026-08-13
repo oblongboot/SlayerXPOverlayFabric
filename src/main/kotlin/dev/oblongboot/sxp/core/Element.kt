@@ -1,6 +1,6 @@
 package dev.oblongboot.sxp.core
 
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 interface Element {
     val name: String

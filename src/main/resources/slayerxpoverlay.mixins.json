@@ -6,8 +6,8 @@
       "ConnectionMixin",
 		"MixinContributerColor",
       "MinecraftMixin",
-      "WindowMixin",
-		"HotbarMixin"
+      "ResizeMixin",
+      "RenderSystemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

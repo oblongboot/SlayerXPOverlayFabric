@@ -1,7 +1,7 @@
 package dev.oblongboot.sxp.core
 
 import dev.oblongboot.sxp.utils.Render2D
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import java.awt.Color
 
 class ButtonSetting(

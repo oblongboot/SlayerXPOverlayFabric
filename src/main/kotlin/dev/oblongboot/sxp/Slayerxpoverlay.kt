@@ -4,10 +4,12 @@ import net.fabricmc.api.ModInitializer
 import dev.oblongboot.sxp.events.EventManager.EVENT_BUS
 import dev.oblongboot.sxp.settings.impl.onMessage.Companion as MessageCompanion
 import dev.oblongboot.sxp.utils.APIUtils
+import dev.oblongboot.sxp.utils.skia.WhatTheFuck
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.DeltaTracker
 import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
@@ -37,6 +39,7 @@ object Slayerxpoverlay : ModInitializer {
         EVENT_BUS.registerLambdaFactory("dev.oblongboot.sxp") { lookupInMethod, klass ->
             lookupInMethod.invoke(null, klass, MethodHandles.lookup()) as MethodHandles.Lookup
         }
+        EVENT_BUS.subscribe(WhatTheFuck)
 
         FeatureManager.registerFeature(dev.oblongboot.sxp.settings.impl.BossHighlight)
         FeatureManager.registerFeature(dev.oblongboot.sxp.settings.impl.Overlay)
@@ -67,12 +70,12 @@ object Slayerxpoverlay : ModInitializer {
                         try {
                             if (!shouldCheck) return@launch
                             shouldCheck = false
-                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.3")
+                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.5")
                             if (updateAvailable) {
                                 Minecraft.getInstance().execute {
                                     modMessage(
                                         "A new version of SlayerXPOverlayFabric is available! " +
-                                        "You are running version v1.2.3. " +
+                                        "You are running version v1.2.5. " +
                                         "Please check the Modrinth page for the latest version."
                                     )
                                 }
@@ -87,7 +90,12 @@ object Slayerxpoverlay : ModInitializer {
                 }
             }
         }
-        HudRenderCallback.EVENT.register { drawContext: GuiGraphics, _: DeltaTracker ->
+
+        ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
+            APIUtils.getXP(true)
+        }
+
+        HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("sxp", "overlay"), HudElement { drawContext, _ ->
             if (OverlayModule.enabled) {
                 XPOverlay.draw(drawContext)
             } else {
@@ -104,7 +112,7 @@ object Slayerxpoverlay : ModInitializer {
 //                //empty
 //            }
             BVOverlay.draw(drawContext)
-        }
+        })
 
         // Random Prefix Color Shit
         // Keep this at the bottom because it isn't very important

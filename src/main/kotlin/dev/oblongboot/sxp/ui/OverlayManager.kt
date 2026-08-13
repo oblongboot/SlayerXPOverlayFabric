@@ -7,7 +7,7 @@ import dev.oblongboot.sxp.utils.ChatUtils.modMessage
 import dev.oblongboot.sxp.utils.Scheduler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.input.MouseButtonEvent
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.network.chat.Component
@@ -46,15 +46,15 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
         }
     }
 
-    override fun render(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+    override fun extractRenderState(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
         context.fill(0, 0, width, height, Color(0, 0, 0, 150).rgb)
         overlays.forEach { it.draw(context) }
         overlays.forEach { drawHitboxMarker(context, mouseX, mouseY, it) }
 
-        super.render(context, mouseX, mouseY, delta)
+        super.extractRenderState(context, mouseX, mouseY, delta)
     }
 
-    private fun drawHitboxMarker(context: GuiGraphics, mouseX: Int, mouseY: Int, overlay: Overlay) {
+    private fun drawHitboxMarker(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, overlay: Overlay) {
         val x = overlay.x
         val y = overlay.y
         val w = overlay.width.toFloat()
@@ -78,13 +78,13 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
         context.fill((x + w - cornerSize).toInt(), (y + h - cornerSize).toInt(), (x + w).toInt(), (y + h).toInt(), Color(255, 255, 0, 200).rgb)
     }
 
-    private fun drawInfoPanel(context: GuiGraphics, mouseX: Int, mouseY: Int) {
+    private fun drawInfoPanel(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
         val posText = "Overlays: ${overlays.size} | Mouse: $mouseX, $mouseY | Dragging: $dragging"
         context.fill(10, 10, 10 + font.width(posText) + 10, 25, Color(0, 0, 0, 180).rgb)
-        context.drawString(font, posText, 15, 15, Color.WHITE.rgb)
+        context.text(font, posText, 15, 15, Color.WHITE.rgb)
     }
 
-    private fun drawHollowRect(context: GuiGraphics, x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {
+    private fun drawHollowRect(context: GuiGraphicsExtractor, x1: Int, y1: Int, x2: Int, y2: Int, color: Int) {
         context.fill(x1, y1, x2, y1 + 1, color)
         context.fill(x1, y2 - 1, x2, y2, color)
         context.fill(x1, y1, x1 + 1, y2, color)
@@ -149,5 +149,5 @@ class OverlayManager : Screen(Component.nullToEmpty("Overlay Manager")) {
 
     override fun isPauseScreen() = false
     override fun shouldCloseOnEsc() = true
-    override fun renderBackground(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {}
+    override fun extractBackground(context: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {}
 }

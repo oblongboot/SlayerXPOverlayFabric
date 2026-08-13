@@ -16,6 +16,7 @@ import net.minecraft.world.item.equipment.trim.TrimMaterial
 import net.minecraft.world.item.equipment.trim.TrimMaterials
 import net.minecraft.world.item.equipment.trim.TrimPattern
 import net.minecraft.world.item.equipment.trim.TrimPatterns
+import kotlin.time.Duration.Companion.milliseconds
 
 object APIUtils {
     var BlazeXP: Long = 0
@@ -73,7 +74,7 @@ object APIUtils {
 
         val url = "https://slayerxpoverlay.hypickelapi.workers.dev/slayer?uuid=${ChatUtils.mc.gameProfile.id.toString().replace("-", "")}"
         val response = requestJson<SlayerXPResponse>(url)
-
+        //println(response)//[20:39:07] [DefaultDispatcher-worker-3/INFO]: [STDOUT]: SlayerXPResponse(blazeXP=0, endermanXP=0, spiderXP=0, zombieXP=60, wolfXP=0, vampireXP=0)
         if (response != null) {
             BlazeXP = parseXP(response.blazeXP)
             EmanXP = parseXP(response.endermanXP)
@@ -94,8 +95,8 @@ object APIUtils {
         }
     }
 
-    fun getXP() {
-        if (Scoreboard.getSlayerType() == "Not in slayer area!" && !isFirst) return
+    fun getXP(bypass: Boolean=false) {
+        if (!bypass && Scoreboard.getSlayerType() == "Not in slayer area!" && !isFirst) return
         isFirst = false
         scope.launch { xp() }
     }
@@ -104,7 +105,7 @@ object APIUtils {
         scope.launch {
             while (isActive) {
                 getXP()
-                delay(5 * 60 * 1000L)
+                delay((5 * 60 * 1000L).milliseconds)
             }
         }
     }
@@ -114,7 +115,7 @@ object APIUtils {
     }
 
     fun getCachedXP(): SlayerXP {
-        return SlayerXP(BlazeXP, EmanXP, SpiderXP, ZombieXP, WolfXP, VampireXP)
+        return SlayerXP(blaze = BlazeXP, enderman = EmanXP, spider = SpiderXP, zombie = ZombieXP, wolf = WolfXP, vampire = VampireXP)
     }
 
     private fun parseXP(xpString: String): Long = xpString.replace(",", "").toLongOrNull() ?: 0L
