@@ -70,12 +70,12 @@ object Slayerxpoverlay : ModInitializer {
                         try {
                             if (!shouldCheck) return@launch
                             shouldCheck = false
-                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.3")
+                            val updateAvailable = dev.oblongboot.sxp.utils.UpdateChecker.isUpdateAvailable("1.2.5")
                             if (updateAvailable) {
                                 Minecraft.getInstance().execute {
                                     modMessage(
                                         "A new version of SlayerXPOverlayFabric is available! " +
-                                        "You are running version v1.2.3. " +
+                                        "You are running version v1.2.5. " +
                                         "Please check the Modrinth page for the latest version."
                                     )
                                 }
@@ -90,6 +90,11 @@ object Slayerxpoverlay : ModInitializer {
                 }
             }
         }
+
+        ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
+            APIUtils.getXP(true)
+        }
+
         HudElementRegistry.addLast(net.minecraft.resources.Identifier.fromNamespaceAndPath("sxp", "overlay"), HudElement { drawContext, _ ->
             if (OverlayModule.enabled) {
                 XPOverlay.draw(drawContext)

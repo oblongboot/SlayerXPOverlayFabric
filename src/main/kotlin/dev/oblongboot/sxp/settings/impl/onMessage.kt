@@ -97,6 +97,8 @@ class onMessage {
             sw2.stop()
 
             var currentSlayerType = Scoreboard.getSlayerType()
+            println(currentSlayerType)
+            println(messageBool)
             if (currentSlayerType == "Not in slayer area!" && !skipCheck) return
             val tierValue = tier ?: "I"
             if (skipCheck) currentSlayerType = "Zombie"
@@ -230,7 +232,8 @@ class onMessage {
                 "Vampire" -> apiData.vampire
                 else -> 0L
             }
-
+            modMessage("xp : $xp, ${xp.toInt()}")
+            modMessage("apidata: $apiData , ${apiData.zombie}")
             XPOverlay.updateXP(if (slayerType == "Not in slayer area!") "Zombie" else slayerType, xp.toInt())
             XPOverlay.show()
         }

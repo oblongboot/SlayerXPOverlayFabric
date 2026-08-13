@@ -40,20 +40,24 @@ object Scoreboard {
 
     fun getSlayerType(): String {
         val zone = getArea() ?: return "Not in slayer area!"
+
         val cleanArea = zone
             .replace("§[0-9A-FK-OR]".toRegex(RegexOption.IGNORE_CASE), "")
             .replace("§.".toRegex(), "")
-            .split("⏣")
-            .getOrNull(1)
-            ?.trim()
+            .replace("\uE067", "") // 
+            .replace("⏣", "")
+            .trim()
+
         val areaMap = slayerAreaMap ?: SLAYER_MAP
         return areaMap[cleanArea] ?: "Not in slayer area!"
     }
     
     private fun getArea(): String? {
         val scoreboardText = getScoreboardText()
+        println(scoreboardText)
+
         return scoreboardText.find { line ->
-            line.contains("⏣") || line.contains("ф")
+            line.contains("⏣") || line.contains("ф") || line.contains("\uE067")
         }
     }
     
