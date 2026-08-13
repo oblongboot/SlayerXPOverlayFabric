@@ -7,4 +7,4 @@ Ensure Fabric API and Fabric Langauge Kotlin are in your mod folder
 Launch :D
 
 ## What version is it?
-1.21.11 right now
+26.1.2
